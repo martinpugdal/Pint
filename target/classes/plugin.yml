@@ -1,0 +1,12 @@
+name: Pint
+version: '1.0-SNAPSHOT'
+main: dk.martinersej.pint.Pint
+load: STARTUP
+author: MartinErSej
+database: true
+depend:
+  - Citizens
+  - HolographicDisplays
+  - Vault
+  - WorldEdit
+  - WorldGuard

@@ -1,0 +1,12 @@
+name: Pint
+version: '${project.version}'
+main: dk.martinersej.pint.Pint
+load: STARTUP
+author: MartinErSej
+database: true
+depend:
+  - Citizens
+  - HolographicDisplays
+  - Vault
+  - WorldEdit
+  - WorldGuard
