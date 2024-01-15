@@ -2,12 +2,14 @@ package dk.martinersej.pint.game;
 
 import dk.martinersej.pint.exception.pool.PoolContainsGameException;
 import dk.martinersej.pint.exception.pool.PoolDoesNotContainGameException;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GamePool {
 
+    @Getter
     private final List<Game> games = new ArrayList<>();
 
     public void addGame(Game game) {
@@ -25,13 +27,9 @@ public class GamePool {
         games.remove(game);
     }
 
-    public List<Game> getGames() {
-        return games;
-    }
-
     public Game getGame(String name) {
         for (Game game : games) {
-            if (game.getClass().getSimpleName().equalsIgnoreCase(name)) {
+            if (game.getGameInformation().getName().equalsIgnoreCase(name)) {
                 return game;
             }
         }
