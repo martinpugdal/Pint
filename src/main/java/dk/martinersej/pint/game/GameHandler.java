@@ -1,5 +1,6 @@
 package dk.martinersej.pint.game;
 
+import dk.martinersej.pint.game.objects.GamePool;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GameHandler {
@@ -7,12 +8,10 @@ public class GameHandler {
     private static GameHandler gameHandler;
     private final JavaPlugin plugin;
     private final GamePool gamePool;
-    private final GameQueue gameQueue;
 
     public GameHandler(JavaPlugin plugin) {
         this.plugin = plugin;
         this.gamePool = new GamePool();
-        this.gameQueue = new GameQueue();
     }
 
     public static GameHandler create(JavaPlugin javaPlugin) {

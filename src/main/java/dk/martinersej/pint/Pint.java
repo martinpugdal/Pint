@@ -3,6 +3,7 @@ package dk.martinersej.pint;
 import dk.martinersej.pint.command.MapCommand;
 import dk.martinersej.pint.game.GameHandler;
 import dk.martinersej.pint.listener.ListenerHandler;
+import dk.martinersej.pint.map.MapHandler;
 import dk.martinersej.pint.vote.VoteHandler;
 import lombok.Getter;
 import net.citizensnpcs.api.CitizensAPI;
@@ -16,6 +17,7 @@ public final class Pint extends JavaPlugin {
     @Getter
     private static Pint instance;
     private GameHandler gameHandler;
+    private MapHandler mapHandler;
 
     @Override
     public void onEnable() {
@@ -41,11 +43,12 @@ public final class Pint extends JavaPlugin {
         //setup handlers
         gameHandler = GameHandler.create(this);
         VoteHandler voteHandler = new VoteHandler();
+        mapHandler = new MapHandler();
     }
 
     private void setupCommands() {
         //setup commands
-        this.getServer().getPluginCommand("map").setExecutor(new MapCommand(this));
+        this.getServer().getPluginCommand("mapcreator").setExecutor(new MapCommand(this));
     }
 
     private void setupListeners() {

@@ -1,7 +1,7 @@
 package dk.martinersej.pint.game.games;
 
 import dk.martinersej.pint.game.Game;
-import dk.martinersej.pint.game.GameInformation;
+import dk.martinersej.pint.game.objects.GameInformation;
 import lombok.Getter;
 import org.bukkit.Material;
 

@@ -1,7 +1,8 @@
-package dk.martinersej.pint.game;
+package dk.martinersej.pint.game.objects;
 
 import dk.martinersej.pint.exception.pool.PoolContainsGameException;
 import dk.martinersej.pint.exception.pool.PoolDoesNotContainGameException;
+import dk.martinersej.pint.game.Game;
 import lombok.Getter;
 
 import java.util.ArrayList;

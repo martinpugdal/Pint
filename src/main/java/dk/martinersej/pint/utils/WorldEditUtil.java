@@ -1,15 +1,17 @@
 package dk.martinersej.pint.utils;
 
-import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EditSessionFactory;
+import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.regions.Region;
-import lombok.NonNull;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.io.File;
@@ -44,12 +46,18 @@ public class WorldEditUtil {
         return null;
     }
 
-    public static boolean isAllAir(@NonNull Region region) {
-        for (BlockVector block : region) {
-            if (!region.getWorld().getBlock(block).isAir()) {
-                return false;
-            }
+    public static void createSchematic(String filePath, Location corner1, Location corner2) {
+        try {
+            Vector minCorner = new Vector(corner1.getX(), corner1.getY(), corner1.getZ());
+            Vector maxCorner = new Vector(corner2.getX(), corner2.getY(), corner2.getZ());
+            CuboidRegion region = new CuboidRegion(WorldEditUtil.getWEWorld(corner1.getWorld()), minCorner, maxCorner);
+            BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+
+            ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(Files.newOutputStream(new File(filePath).toPath()));
+            writer.write(clipboard, region.getWorld().getWorldData());
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
-        return true;
     }
 }
