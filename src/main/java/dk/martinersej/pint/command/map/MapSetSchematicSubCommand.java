@@ -27,11 +27,10 @@ public class MapSetSchematicSubCommand extends SubCommand {
 
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
-
         if (args.length != 1) {
-            return Result.getCommandResult(this, Result.WRONG_USAGE);
+            return Result.getCommandResult(Result.WRONG_USAGE, this);
         } else if (!(sender instanceof Player)) {
-            return Result.getCommandResult(this, Result.NO_PERMISSION);
+            return Result.getCommandResult(Result.NO_PERMISSION, this);
         }
 
         String id = args[0].toLowerCase();
@@ -40,7 +39,6 @@ public class MapSetSchematicSubCommand extends SubCommand {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
         }
 
-        // get player selection
         Player player = (Player) sender;
         try {
             Region region = WorldEdit.getInstance().getSession(sender.getName()).getSelection(WorldEditUtil.getWEWorld(player.getWorld()));
@@ -53,6 +51,6 @@ public class MapSetSchematicSubCommand extends SubCommand {
 
         sender.sendMessage("§aSchematic for map med id " + id + " er nu gemt");
 
-        return Result.getCommandResult(this, Result.SUCCESS);
+        return Result.getCommandResult(Result.SUCCESS, this);
     }
 }

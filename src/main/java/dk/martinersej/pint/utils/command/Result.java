@@ -6,7 +6,7 @@ public enum Result {
     SUCCESS,
     WRONG_USAGE;
 
-    public static CommandResult getCommandResult(SubCommand subCommand, Result result) {
+    public static CommandResult getCommandResult(Result result, SubCommand subCommand) {
         return new CommandResult(subCommand, result);
     }
 }

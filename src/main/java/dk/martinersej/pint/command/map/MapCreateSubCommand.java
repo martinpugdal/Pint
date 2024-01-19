@@ -23,7 +23,7 @@ public class MapCreateSubCommand extends SubCommand {
     public CommandResult execute(CommandSender sender, String[] args) {
 
         if (args.length != 1) {
-            return Result.getCommandResult(this, Result.WRONG_USAGE);
+            return Result.getCommandResult(Result.WRONG_USAGE, this);
         }
 
         String id = args[0].toLowerCase();
@@ -35,6 +35,6 @@ public class MapCreateSubCommand extends SubCommand {
         Pint.getInstance().getMapHandler().createMap(id);
         sender.sendMessage("§aMap med id " + id + " er blevet oprettet");
 
-        return Result.getCommandResult(this, Result.SUCCESS);
+        return Result.getCommandResult(Result.SUCCESS, this);
     }
 }
