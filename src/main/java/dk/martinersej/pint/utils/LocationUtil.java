@@ -46,4 +46,11 @@ public class LocationUtil {
         double z = point.getZ() - origin.getZ();
         return new Vector(x, y, z);
     }
+
+    public static Location getCenterLocation(Location corner1, Location corner2) {
+        double x = (corner1.getX() + corner2.getX()) / 2;
+        double y = (corner1.getY() + corner2.getY()) / 2;
+        double z = (corner1.getZ() + corner2.getZ()) / 2;
+        return new Location(corner1.getWorld(), x, y, z);
+    }
 }

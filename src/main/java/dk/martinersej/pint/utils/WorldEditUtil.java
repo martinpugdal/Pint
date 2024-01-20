@@ -1,16 +1,17 @@
 package dk.martinersej.pint.utils;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.EditSessionFactory;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.*;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.session.ClipboardHolder;
+import dk.martinersej.pint.Pint;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -44,6 +45,32 @@ public class WorldEditUtil {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    public static void pasteSchematic(Clipboard clipboard, Location location) {
+        ClipboardHolder holder = new ClipboardHolder(clipboard, clipboard.getRegion().getWorld().getWorldData());
+        runSession(location.getWorld(), session -> {
+            try {
+                Operations.completeLegacy(
+                        holder.createPaste(session, holder.getWorldData())
+                                .to(new Vector(location.getX(), location.getY(), location.getZ()))
+                                .ignoreAirBlocks(false)
+                                .build()
+                );
+            } catch (MaxChangedBlocksException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static void setAllTo(Clipboard clipboard, BaseBlock block) {
+        runSession(Pint.getInstance().getGameHandler().getServerWorld().getWorld(), session -> {
+            try {
+                session.setBlocks(clipboard.getRegion(), block);
+            } catch (MaxChangedBlocksException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static void createSchematic(String filePath, Location corner1, Location corner2) {

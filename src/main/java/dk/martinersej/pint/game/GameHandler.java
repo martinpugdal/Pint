@@ -1,25 +1,24 @@
 package dk.martinersej.pint.game;
 
+import dk.martinersej.pint.game.objects.GameMap;
 import dk.martinersej.pint.game.objects.GamePool;
+import dk.martinersej.pint.map.ServerWorld;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GameHandler {
 
-    private static GameHandler gameHandler;
     private final JavaPlugin plugin;
+    @Getter
+    private final ServerWorld serverWorld;
     private final GamePool gamePool;
+    @Getter
+    private final Game currentGame = null;
 
-    public GameHandler(JavaPlugin plugin) {
+    public GameHandler(JavaPlugin plugin, ServerWorld serverWorld) {
         this.plugin = plugin;
         this.gamePool = new GamePool();
-    }
-
-    public static GameHandler create(JavaPlugin javaPlugin) {
-        //singleton pattern
-        if (gameHandler == null) {
-            gameHandler = new GameHandler(javaPlugin);
-        }
-        return gameHandler;
+        this.serverWorld = serverWorld;
     }
 
     public void addGameToPool(Game game) {

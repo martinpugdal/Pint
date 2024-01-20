@@ -5,6 +5,7 @@ import dk.martinersej.pint.game.objects.GameMap;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.WorldEditUtil;
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -14,16 +15,26 @@ import java.util.Map;
 public class MapHandler extends YamlManagerTypeImpl {
 
     private final Map<String, GameMap> maps = new HashMap<>();
+    @Getter
+    private final MapUtil mapUtil;
 
     public MapHandler() {
         super(Pint.getInstance(), "maps.yml");
         load();
+        loadMaps();
+        mapUtil = new MapUtil();
     }
 
     public void loadMaps() {
-        for (String mapName : getConfig().getKeys(false)) {
+        ConfigurationSection section = getConfig().getConfigurationSection("maps");
 
+        for (String mapID : section.getKeys(false)) {
+            maps.put(mapID, new GameMap(mapID));
         }
+    }
+
+    public GameMap getMap(String id) {
+        return maps.getOrDefault(id, null);
     }
 
     public boolean mapExists(String id) {
