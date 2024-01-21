@@ -33,10 +33,16 @@ public class MapSetSchematicSubCommand extends SubCommand {
             return Result.getCommandResult(Result.NO_PERMISSION, this);
         }
 
-        String id = args[0].toLowerCase();
+        int id = Integer.parseInt(args[0]);
 
         if (!Pint.getInstance().getMapHandler().mapExists(id)) {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
+            return Result.getCommandResult(Result.SUCCESS, this);
+        }
+
+        if (Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getId() == id) {
+            sender.sendMessage("§cDu kan ikke redigere det map som er i brug");
+            return Result.getCommandResult(Result.SUCCESS, this);
         }
 
         Player player = (Player) sender;
@@ -49,7 +55,7 @@ public class MapSetSchematicSubCommand extends SubCommand {
             sender.sendMessage("§cDu har ikke valgt et område");
         }
 
-        sender.sendMessage("§aSchematic for map med id " + id + " er nu gemt");
+        sender.sendMessage("§aSchematic for map med id " + id + " er nu redigeret");
 
         return Result.getCommandResult(Result.SUCCESS, this);
     }

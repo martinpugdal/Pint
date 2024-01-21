@@ -15,6 +15,9 @@ public class GamePool {
 
     public void addGame(Game game) {
         if (!games.contains(game)) {
+            if (game.getGameMaps().isEmpty()) {
+                throw new IllegalArgumentException("Game has no maps");
+            }
             games.add(game);
         } else {
             throw new PoolContainsGameException("Game already in pool");

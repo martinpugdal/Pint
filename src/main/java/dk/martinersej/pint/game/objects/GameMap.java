@@ -17,29 +17,46 @@ import java.util.List;
 @Getter
 public class GameMap {
 
-    private final String id;
+    private final int id;
+
+    private String gameName;
 
     private Vector corner1;
     private Vector corner2;
     private List<Vector> spawnPoints;
 
-    public GameMap(String id) {
+    private int minPlayers;
+    private int maxPlayers;
+
+    public GameMap(int id) {
         this.id = id;
         load();
     }
 
-    public GameMap(String id, Vector corner1, Vector corner2, List<Vector> spawnPoints) {
+    public GameMap(String id) {
+        this(Integer.parseInt(id));
+    }
+
+    public GameMap(int id, Vector corner1, Vector corner2, List<Vector> spawnPoints) {
         this.id = id;
         this.corner1 = corner1;
         this.corner2 = corner2;
         this.spawnPoints = spawnPoints;
     }
 
-    private void load() {
+    public void load() {
         ConfigurationSection section = Pint.getInstance().getMapHandler().getConfig();
 
+        // Load game name
+        this.gameName = section.getString("gameName");
+
+        // Load corners
         this.corner1 = LocationUtil.stringToVector(section.getString("corner1"));
         this.corner2 = LocationUtil.stringToVector(section.getString("corner2"));
+
+        // Load min and max players
+        this.minPlayers = section.getInt("minPlayers", 0);
+        this.maxPlayers = section.getInt("maxPlayers", 16);
 
         //Load spawnpoints
         this.spawnPoints = new ArrayList<>();
@@ -63,7 +80,7 @@ public class GameMap {
         WorldEditUtil.setAllTo(clipBoard, new BaseBlock(0));
     }
 
-    public int getGameLevel() {
+    public int getGameYLevel() {
         return this.getSpawnPoints().get(0).getBlockY();
     }
 

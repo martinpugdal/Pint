@@ -1,8 +1,5 @@
 package dk.martinersej.pint.command;
 
-import dk.martinersej.pint.command.map.MapCreateSubCommand;
-import dk.martinersej.pint.command.map.MapListSubCommand;
-import dk.martinersej.pint.command.map.MapSetSchematicSubCommand;
 import dk.martinersej.pint.utils.command.Command;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
@@ -13,13 +10,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
-public class MapCommand extends Command implements CommandExecutor, TabCompleter {
+public class GameCommand extends Command implements CommandExecutor, TabCompleter {
 
-    public MapCommand(JavaPlugin plugin) {
+    public GameCommand(JavaPlugin plugin) {
         super(plugin);
-        addSubCommand(new MapCreateSubCommand(plugin));
-        addSubCommand(new MapSetSchematicSubCommand(plugin));
-        addSubCommand(new MapListSubCommand(plugin));
     }
 
     @Override
@@ -48,3 +42,4 @@ public class MapCommand extends Command implements CommandExecutor, TabCompleter
         return getAllowedSubCommands(commandSender, command, s, strings);
     }
 }
+

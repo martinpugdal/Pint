@@ -4,31 +4,33 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameInformation;
 import dk.martinersej.pint.game.objects.GameMap;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
 public abstract class Game implements Listener {
 
-    @Setter
-    private boolean isRunning = false;
     private final List<Player> players = new ArrayList<>();
-    @Setter
-    private GameMap gameMap;
-
-    public Game(boolean addToGamePool) {
-        if (addToGamePool) {
-            Pint.getInstance().getGameHandler().addGameToPool(this);
-        }
-    }
+    private final List<GameMap> gameMaps = new ArrayList<>();
+    private final GameMap currentGameMap = null;
 
     public Game() {
-        this(true);
+        Pint.getInstance().getGameHandler().addGameToPool(this);
+        loadGameMaps();
+    }
+
+    private void loadGameMaps() {
+        Collection<GameMap> gameMaps = Pint.getInstance().getMapHandler().getMaps().values();
+        for (GameMap map : gameMaps) {
+            if (map.getGameName().equalsIgnoreCase(getGameInformation().getName())) {
+                this.gameMaps.add(map);
+            }
+        }
     }
 
     public void start() {

@@ -14,39 +14,50 @@ import java.util.Map;
 
 public class MapHandler extends YamlManagerTypeImpl {
 
-    private final Map<String, GameMap> maps = new HashMap<>();
     @Getter
-    private final MapUtil mapUtil;
+    private final Map<Integer, GameMap> maps = new HashMap<>();
+    private int idCounter = 0;
 
     public MapHandler() {
         super(Pint.getInstance(), "maps.yml");
         load();
         loadMaps();
-        mapUtil = new MapUtil();
     }
 
     public void loadMaps() {
         ConfigurationSection section = getConfig().getConfigurationSection("maps");
 
         for (String mapID : section.getKeys(false)) {
-            maps.put(mapID, new GameMap(mapID));
+            maps.put(Integer.valueOf(mapID), new GameMap(mapID));
         }
     }
 
-    public GameMap getMap(String id) {
+    private int getNewMapID() {
+        if (idCounter == 0) {
+            for (String mapID : getConfig().getConfigurationSection("maps").getKeys(false)) {
+                int id = Integer.parseInt(mapID);
+                if (id > idCounter) {
+                    idCounter = id;
+                }
+            }
+        }
+        return ++idCounter;
+    }
+
+    public GameMap getMap(int id) {
         return maps.getOrDefault(id, null);
     }
 
-    public boolean mapExists(String id) {
+    public boolean mapExists(int id) {
         return maps.get(id) != null;
     }
 
-    private ConfigurationSection getMapSection(String mapID) {
+    private ConfigurationSection getMapSection(int mapID) {
         return getConfig().getConfigurationSection("maps." + mapID);
     }
 
-    public void createMap(String mapID) {
-
+    public int createMap() {
+        int mapID = getNewMapID();
         getConfig().createSection("maps." + mapID);
         ConfigurationSection section = getConfig().getConfigurationSection("maps." + mapID);
 
@@ -54,9 +65,11 @@ public class MapHandler extends YamlManagerTypeImpl {
 
         save();
         maps.put(mapID, new GameMap(mapID));
+
+        return mapID;
     }
 
-    public void saveMapSchematic(String id, Location corner1, Location corner2) {
+    public void saveMapSchematic(int id, Location corner1, Location corner2) {
         ConfigurationSection section = getMapSection(id);
 
         String realZeroLocation = LocationUtil.locationToString(corner1);
@@ -69,9 +82,13 @@ public class MapHandler extends YamlManagerTypeImpl {
 
         String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + id + ".schematic";
         WorldEditUtil.createSchematic(schematicPath, corner1, corner2);
+
+        if (maps.containsKey(id)) {
+            maps.get(id).load();
+        }
     }
 
-    public void addSpawnPoint(String mapID, String pointID, Location location) {
+    public void addSpawnPoint(int mapID, String pointID, Location location) {
         ConfigurationSection section = getMapSection(mapID);
 
         Location realZeroLocation = LocationUtil.stringToLocation(section.getString("realZeroLocation"));
@@ -79,12 +96,20 @@ public class MapHandler extends YamlManagerTypeImpl {
         section.set("spawnpoints." + pointID, LocationUtil.vectorToString(offset));
 
         save();
+        
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
     }
 
-    public void deleteSpawnPoint(String mapID, String pointID) {
+    public void deleteSpawnPoint(int mapID, String pointID) {
         ConfigurationSection section = getMapSection(mapID);
         section.set("spawnpoints." + pointID, null);
 
         save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
     }
 }

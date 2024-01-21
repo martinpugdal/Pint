@@ -1,24 +1,35 @@
 package dk.martinersej.pint.game;
 
-import dk.martinersej.pint.game.objects.GameMap;
+import dk.martinersej.pint.game.games.tnttag.TntTagGame;
 import dk.martinersej.pint.game.objects.GamePool;
 import dk.martinersej.pint.map.ServerWorld;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameHandler {
 
     private final JavaPlugin plugin;
     @Getter
     private final ServerWorld serverWorld;
+    @Getter
     private final GamePool gamePool;
     @Getter
     private final Game currentGame = null;
+    @Getter
+    private final List<Game> games = new ArrayList<>();
 
     public GameHandler(JavaPlugin plugin, ServerWorld serverWorld) {
         this.plugin = plugin;
         this.gamePool = new GamePool();
         this.serverWorld = serverWorld;
+        initGames();
+    }
+
+    private void initGames() {
+        games.add(new TntTagGame());
     }
 
     public void addGameToPool(Game game) {
@@ -45,5 +56,14 @@ public class GameHandler {
             return true;
         }
         return false;
+    }
+
+    public Game getGame(String name) {
+        for (Game game : games) {
+            if (game.getGameInformation().getName().equalsIgnoreCase(name)) {
+                return game;
+            }
+        }
+        return null;
     }
 }
