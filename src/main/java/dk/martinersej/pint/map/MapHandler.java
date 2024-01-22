@@ -4,7 +4,7 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameMap;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
 import dk.martinersej.pint.utils.LocationUtil;
-import dk.martinersej.pint.utils.WorldEditUtil;
+import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -81,7 +81,7 @@ public class MapHandler extends YamlManagerTypeImpl {
         save();
 
         String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + id + ".schematic";
-        WorldEditUtil.createSchematic(schematicPath, corner1, corner2);
+        FastAsyncWorldEditUtil.createSchematic(schematicPath, corner1, corner2);
 
         if (maps.containsKey(id)) {
             maps.get(id).load();
@@ -96,7 +96,7 @@ public class MapHandler extends YamlManagerTypeImpl {
         section.set("spawnpoints." + pointID, LocationUtil.vectorToString(offset));
 
         save();
-        
+
         if (maps.containsKey(mapID)) {
             maps.get(mapID).load();
         }

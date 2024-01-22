@@ -4,7 +4,7 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.regions.Region;
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.utils.WorldEditUtil;
+import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.Result;
 import dk.martinersej.pint.utils.command.SubCommand;
@@ -47,7 +47,7 @@ public class MapSetSchematicSubCommand extends SubCommand {
 
         Player player = (Player) sender;
         try {
-            Region region = WorldEdit.getInstance().getSession(sender.getName()).getSelection(WorldEditUtil.getWEWorld(player.getWorld()));
+            Region region = WorldEdit.getInstance().getSession(sender.getName()).getSelection(FastAsyncWorldEditUtil.getWEWorld(player.getWorld()));
             Location corner1 = new Location(player.getWorld(), region.getMinimumPoint().getX(), region.getMinimumPoint().getY(), region.getMinimumPoint().getZ());
             Location corner2 = new Location(player.getWorld(), region.getMaximumPoint().getX(), region.getMaximumPoint().getY(), region.getMaximumPoint().getZ());
             Pint.getInstance().getMapHandler().saveMapSchematic(id, corner1, corner2);

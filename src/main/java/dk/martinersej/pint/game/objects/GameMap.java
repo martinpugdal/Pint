@@ -1,11 +1,13 @@
 package dk.martinersej.pint.game.objects;
 
+import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.blocks.BaseBlock;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import dk.martinersej.pint.utils.LocationUtil;
-import dk.martinersej.pint.utils.WorldEditUtil;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
@@ -71,13 +73,19 @@ public class GameMap {
 
     public void pasteSchematic() {
         File schematicFile = new File(getSchematicPath());
-        WorldEditUtil.loadSchematic(schematicFile, WorldEditUtil.getWEWorld(Pint.getInstance().getGameHandler().getServerWorld().getWorld()));
+        Schematic schematic = FastAsyncWorldEditUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getGameHandler().getServerWorld().getWorld()));
+        if (schematic == null) {
+            Bukkit.getLogger().warning("Schematic is null for map " + id);
+            return;
+        }
+        FastAsyncWorldEditUtil.pasteSchematic(schematic, getCenterLocation(), false);
     }
 
     public void clearSchematic() {
-        File schematicFile = new File(getSchematicPath());
-        Clipboard clipBoard = WorldEditUtil.loadSchematic(schematicFile, WorldEditUtil.getWEWorld(Pint.getInstance().getGameHandler().getServerWorld().getWorld()));
-        WorldEditUtil.setAllTo(clipBoard, new BaseBlock(0));
+        com.sk89q.worldedit.Vector corner1 = new com.sk89q.worldedit.Vector(this.corner1.getBlockX(), this.corner1.getBlockY(), this.corner1.getBlockZ());
+        com.sk89q.worldedit.Vector corner2 = new com.sk89q.worldedit.Vector(this.corner2.getBlockX(), this.corner2.getBlockY(), this.corner2.getBlockZ());
+        Schematic schematic = new Schematic(new CuboidRegion(corner1, corner2));
+        FastAsyncWorldEditUtil.setAllTo(schematic, new BaseBlock(0), getCenterLocation());
     }
 
     public int getGameYLevel() {
