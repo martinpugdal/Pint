@@ -1,6 +1,7 @@
 package dk.martinersej.pint.game.games.tnttag;
 
 import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.game.GameHandler;
 import dk.martinersej.pint.game.objects.GameInformation;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -23,6 +24,4 @@ public class TntTagGame extends Game {
     public void onGameEnd() {
         super.stop();
     }
-
-
 }

@@ -1,14 +1,16 @@
 name: Pint
 version: '${project.version}'
 main: dk.martinersej.pint.Pint
-load: STARTUP
-author: MartinErSej
 database: true
 depend:
   - Citizens
   - HolographicDisplays
   - Vault
   - WorldEdit
+  - FastAsyncWorldEdit
   - WorldGuard
 commands:
-  mapcreator:
+  map:
+    aliases: [ ]
+  game:
+    aliases: [ ]

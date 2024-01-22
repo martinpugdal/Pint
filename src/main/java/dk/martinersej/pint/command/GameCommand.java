@@ -1,5 +1,7 @@
 package dk.martinersej.pint.command;
 
+import dk.martinersej.pint.command.game.GameListCommand;
+import dk.martinersej.pint.command.game.GameToggleCommand;
 import dk.martinersej.pint.utils.command.Command;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
@@ -14,6 +16,8 @@ public class GameCommand extends Command implements CommandExecutor, TabComplete
 
     public GameCommand(JavaPlugin plugin) {
         super(plugin);
+        addSubCommand(new GameListCommand(plugin));
+        addSubCommand(new GameToggleCommand(plugin));
     }
 
     @Override

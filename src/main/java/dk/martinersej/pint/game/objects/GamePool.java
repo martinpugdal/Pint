@@ -4,6 +4,8 @@ import dk.martinersej.pint.exception.pool.PoolContainsGameException;
 import dk.martinersej.pint.exception.pool.PoolDoesNotContainGameException;
 import dk.martinersej.pint.game.Game;
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.fusesource.jansi.Ansi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +18,10 @@ public class GamePool {
     public void addGame(Game game) {
         if (!games.contains(game)) {
             if (game.getGameMaps().isEmpty()) {
-                throw new IllegalArgumentException("Game has no maps");
+                Bukkit.getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Game " + game.getGameInformation().getName() + " has no maps and will not be added to the pool");
+            } else {
+                games.add(game);
             }
-            games.add(game);
         } else {
             throw new PoolContainsGameException("Game already in pool");
         }

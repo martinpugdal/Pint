@@ -4,7 +4,7 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameMap;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
 import dk.martinersej.pint.utils.LocationUtil;
-import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
+import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,7 +20,11 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     public MapHandler() {
         super(Pint.getInstance(), "maps.yml");
-        load();
+//        load();
+        if (getConfig().getConfigurationSection("maps") == null) {
+            getConfig().createSection("maps");
+            save();
+        }
         loadMaps();
     }
 
@@ -81,12 +85,33 @@ public class MapHandler extends YamlManagerTypeImpl {
         save();
 
         String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + id + ".schematic";
-        FastAsyncWorldEditUtil.createSchematic(schematicPath, corner1, corner2);
+        SchematicUtil.createSchematic(schematicPath, corner1, corner2);
 
         if (maps.containsKey(id)) {
             maps.get(id).load();
         }
     }
+
+    public void setMinPlayers(int mapID, int minPlayers) {
+        ConfigurationSection section = getMapSection(mapID);
+        section.set("minPlayers", minPlayers);
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
+    }
+
+    public void setMaxPlayers(int mapID, int maxPlayers) {
+        ConfigurationSection section = getMapSection(mapID);
+        section.set("maxPlayers", maxPlayers);
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
+    }
+
 
     public void addSpawnPoint(int mapID, String pointID, Location location) {
         ConfigurationSection section = getMapSection(mapID);

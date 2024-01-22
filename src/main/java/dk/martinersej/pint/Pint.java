@@ -1,5 +1,6 @@
 package dk.martinersej.pint;
 
+import dk.martinersej.pint.command.GameCommand;
 import dk.martinersej.pint.command.MapCommand;
 import dk.martinersej.pint.game.GameHandler;
 import dk.martinersej.pint.listener.ListenerHandler;
@@ -47,7 +48,8 @@ public final class Pint extends JavaPlugin {
 
     private void setupCommands() {
         //setup commands
-        this.getServer().getPluginCommand("mapcreator").setExecutor(new MapCommand(this));
+        this.getServer().getPluginCommand("map").setExecutor(new MapCommand(this));
+        this.getServer().getPluginCommand("game").setExecutor(new GameCommand(this));
     }
 
     private void setupListeners() {

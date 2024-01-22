@@ -6,6 +6,7 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import dk.martinersej.pint.utils.LocationUtil;
+import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -73,19 +74,19 @@ public class GameMap {
 
     public void pasteSchematic() {
         File schematicFile = new File(getSchematicPath());
-        Schematic schematic = FastAsyncWorldEditUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getGameHandler().getServerWorld().getWorld()));
+        Schematic schematic = SchematicUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getGameHandler().getServerWorld().getWorld()));
         if (schematic == null) {
             Bukkit.getLogger().warning("Schematic is null for map " + id);
             return;
         }
-        FastAsyncWorldEditUtil.pasteSchematic(schematic, getCenterLocation(), false);
+        SchematicUtil.pasteSchematic(schematic, getCenterLocation(), false);
     }
 
     public void clearSchematic() {
         com.sk89q.worldedit.Vector corner1 = new com.sk89q.worldedit.Vector(this.corner1.getBlockX(), this.corner1.getBlockY(), this.corner1.getBlockZ());
         com.sk89q.worldedit.Vector corner2 = new com.sk89q.worldedit.Vector(this.corner2.getBlockX(), this.corner2.getBlockY(), this.corner2.getBlockZ());
         Schematic schematic = new Schematic(new CuboidRegion(corner1, corner2));
-        FastAsyncWorldEditUtil.setAllTo(schematic, new BaseBlock(0), getCenterLocation());
+        SchematicUtil.setAllTo(schematic, new BaseBlock(0), getCenterLocation());
     }
 
     public int getGameYLevel() {

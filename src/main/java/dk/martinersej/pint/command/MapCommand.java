@@ -2,6 +2,7 @@ package dk.martinersej.pint.command;
 
 import dk.martinersej.pint.command.map.MapCreateSubCommand;
 import dk.martinersej.pint.command.map.MapListSubCommand;
+import dk.martinersej.pint.command.map.MapSetPlayersSubCommand;
 import dk.martinersej.pint.command.map.MapSetSchematicSubCommand;
 import dk.martinersej.pint.utils.command.Command;
 import dk.martinersej.pint.utils.command.CommandResult;
@@ -20,6 +21,7 @@ public class MapCommand extends Command implements CommandExecutor, TabCompleter
         addSubCommand(new MapCreateSubCommand(plugin));
         addSubCommand(new MapSetSchematicSubCommand(plugin));
         addSubCommand(new MapListSubCommand(plugin));
+        addSubCommand(new MapSetPlayersSubCommand(plugin));
     }
 
     @Override

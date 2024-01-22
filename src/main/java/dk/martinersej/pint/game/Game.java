@@ -20,7 +20,6 @@ public abstract class Game implements Listener {
     private final GameMap currentGameMap = null;
 
     public Game() {
-        Pint.getInstance().getGameHandler().addGameToPool(this);
         loadGameMaps();
     }
 
@@ -57,6 +56,13 @@ public abstract class Game implements Listener {
 
     private void unregisterEvents() {
         HandlerList.unregisterAll(this);
+    }
+
+    public void prepareGame() {
+        //TODO: Implement this
+
+
+        onGameStart();
     }
 
     public abstract void onGameStart();

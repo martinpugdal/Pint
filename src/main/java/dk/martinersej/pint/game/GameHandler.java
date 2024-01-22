@@ -29,7 +29,13 @@ public class GameHandler {
     }
 
     private void initGames() {
-        games.add(new TntTagGame());
+        Game tntTagGame = new TntTagGame();
+        addGame(tntTagGame);
+        addGameToPool(tntTagGame);
+    }
+
+    private void addGame(Game game) {
+        games.add(game);
     }
 
     public void addGameToPool(Game game) {
