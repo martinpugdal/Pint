@@ -327,6 +327,15 @@ public class ItemBuilder {
         return this;
     }
 
+    public static String getNbt(ItemStack item, String key) {
+        if (item == null) return null;
+        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tag = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
+        if (!tag.hasKey(key)) return null;
+        if (tag.getString(key).isEmpty()) return null;
+        return tag.getString(key);
+    }
+
     /**
      * Retrieves the itemstack from the ItemBuilder.
      *

@@ -11,8 +11,11 @@ public class VoteHandler {
 
     @Getter
     private final Map<Player, Game> votes = new WeakHashMap<>();
+    private final VoteUtil voteUtil;
+
 
     public VoteHandler() {
+        voteUtil = new VoteUtil();
     }
 
     public void addVote(Player player, Game game) {

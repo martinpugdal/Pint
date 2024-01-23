@@ -7,6 +7,7 @@ import dk.martinersej.pint.listener.ListenerHandler;
 import dk.martinersej.pint.map.ServerWorld;
 import dk.martinersej.pint.map.MapHandler;
 import dk.martinersej.pint.vote.VoteHandler;
+import dk.martinersej.pint.vote.interaction.VoteListener;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -54,7 +55,8 @@ public final class Pint extends JavaPlugin {
 
     private void setupListeners() {
         //setup listeners
-        new ListenerHandler(this);
+        new ListenerHandler();
+        new VoteListener();
     }
 
     private void setupTasks() {
