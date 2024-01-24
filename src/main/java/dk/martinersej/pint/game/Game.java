@@ -58,6 +58,21 @@ public abstract class Game implements Listener {
         HandlerList.unregisterAll(this);
     }
 
+    private List<GameMap> getAppropriateMaps(int playersCount) {
+        List<GameMap> maps = new ArrayList<>();
+        for (GameMap gameMap : gameMaps) {
+            if (gameMap.getMinPlayers() <= playersCount && gameMap.getMaxPlayers() >= playersCount) {
+                maps.add(gameMap);
+            }
+        }
+        return maps;
+    }
+
+    public GameMap getRandomMap(int playersCount) {
+        List<GameMap> maps = getAppropriateMaps(playersCount);
+        return maps.get((int) (Math.random() * maps.size()));
+    }
+
     public void prepareGame() {
         //TODO: Implement this
 

@@ -16,7 +16,9 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     @Getter
     private final Map<Integer, GameMap> maps = new HashMap<>();
-    private int idCounter = 0;
+    @Getter
+    private final MapUtil mapUtil;
+    private int idMapCounter = 0;
 
     public MapHandler() {
         super(Pint.getInstance(), "maps.yml");
@@ -25,24 +27,38 @@ public class MapHandler extends YamlManagerTypeImpl {
             getConfig().createSection("maps");
             save();
         }
+        this.mapUtil = new MapUtil();
         loadMaps();
+
     }
 
     public void loadMaps() {
         ConfigurationSection section = getConfig().getConfigurationSection("maps");
 
         for (String mapID : section.getKeys(false)) {
-            maps.put(Integer.valueOf(mapID), new GameMap(mapID));
+            int id = Integer.parseInt(mapID);
+            maps.put(id, new GameMap(id));
         }
     }
 
     private int getNewMapID() {
-        if (idCounter == 0) {
+        if (idMapCounter == 0) {
             for (String mapID : getConfig().getConfigurationSection("maps").getKeys(false)) {
                 int id = Integer.parseInt(mapID);
-                if (id > idCounter) {
-                    idCounter = id;
+                if (id > idMapCounter) {
+                    idMapCounter = id;
                 }
+            }
+        }
+        return ++idMapCounter;
+    }
+
+    private int getNewSpawnPointID(int mapID) {
+        int idCounter = getMap(mapID).getSpawnPoints().size();
+        for (String spawnPointID : getConfig().getConfigurationSection("spawnpoints").getKeys(false)) {
+            int id = Integer.parseInt(spawnPointID);
+            if (id > idCounter) {
+                idCounter = id;
             }
         }
         return ++idCounter;
@@ -88,7 +104,18 @@ public class MapHandler extends YamlManagerTypeImpl {
         SchematicUtil.createSchematic(schematicPath, corner1, corner2);
 
         if (maps.containsKey(id)) {
+            mapUtil.updateHighestYLevel();
             maps.get(id).load();
+        }
+    }
+
+    public void setActive(int mapID, boolean active) {
+        ConfigurationSection section = getMapSection(mapID);
+        section.set("active", active);
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
         }
     }
 
@@ -113,12 +140,25 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
 
-    public void addSpawnPoint(int mapID, String pointID, Location location) {
+    public int addSpawnPoint(int mapID, Location location) {
         ConfigurationSection section = getMapSection(mapID);
+        int spawnPointID = getNewSpawnPointID(mapID);
 
-        Location realZeroLocation = LocationUtil.stringToLocation(section.getString("realZeroLocation"));
+        Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
         org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, location);
-        section.set("spawnpoints." + pointID, LocationUtil.vectorToString(offset));
+        section.set("spawnpoints." + spawnPointID, LocationUtil.vectorToString(offset));
+
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
+        return spawnPointID;
+    }
+
+    public void deleteSpawnPoint(int mapID, int pointID) {
+        ConfigurationSection section = getMapSection(mapID);
+        section.set("spawnpoints." + pointID, null);
 
         save();
 
@@ -127,9 +167,9 @@ public class MapHandler extends YamlManagerTypeImpl {
         }
     }
 
-    public void deleteSpawnPoint(int mapID, String pointID) {
+    public void clearSpawnPoints(int mapID) {
         ConfigurationSection section = getMapSection(mapID);
-        section.set("spawnpoints." + pointID, null);
+        section.set("spawnpoints", null);
 
         save();
 

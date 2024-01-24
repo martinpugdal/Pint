@@ -34,7 +34,7 @@ public class MapListSubCommand extends SubCommand {
             sender.sendMessage("§cDer findes ikke et spil med det navn");
         } else {
             for (GameMap gameMap : game.getGameMaps()) {
-                sender.sendMessage("§a" + gameMap.getGameName() + " - (" + gameMap.getId() + ")" + (gameMap.equals(game.getCurrentGameMap()) ? " - (Aktivt)" : ""));
+                sender.sendMessage("§a" + gameMap.getGameName() + " - (" + gameMap.getId() + ")" + (gameMap.isActive() ? " - (Aktivt)" : ""));
             }
         }
 

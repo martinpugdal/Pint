@@ -43,7 +43,7 @@ public final class Pint extends JavaPlugin {
         //setup handlers
         ServerWorld serverWorld = new ServerWorld();
         mapHandler = new MapHandler();
-        gameHandler = new GameHandler(this, serverWorld);
+        gameHandler = new GameHandler(serverWorld);
         VoteHandler voteHandler = new VoteHandler();
     }
 

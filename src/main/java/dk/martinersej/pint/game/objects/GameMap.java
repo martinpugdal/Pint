@@ -23,10 +23,12 @@ public class GameMap {
     private final int id;
 
     private String gameName;
+    private boolean active;
 
     private Vector corner1;
     private Vector corner2;
     private List<Vector> spawnPoints;
+    private Location zeroLocation;
 
     private int minPlayers;
     private int maxPlayers;
@@ -36,22 +38,14 @@ public class GameMap {
         load();
     }
 
-    public GameMap(String id) {
-        this(Integer.parseInt(id));
-    }
-
-    public GameMap(int id, Vector corner1, Vector corner2, List<Vector> spawnPoints) {
-        this.id = id;
-        this.corner1 = corner1;
-        this.corner2 = corner2;
-        this.spawnPoints = spawnPoints;
-    }
-
     public void load() {
         ConfigurationSection section = Pint.getInstance().getMapHandler().getConfig();
 
         // Load game name
         this.gameName = section.getString("gameName");
+
+        // Load active
+        this.active = section.getBoolean("active", false);
 
         // Load corners
         this.corner1 = LocationUtil.stringToVector(section.getString("corner1"));
@@ -61,7 +55,10 @@ public class GameMap {
         this.minPlayers = section.getInt("minPlayers", 0);
         this.maxPlayers = section.getInt("maxPlayers", 16);
 
-        //Load spawnpoints
+        // Load zero location
+        this.zeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
+
+        // Load spawnpoints
         this.spawnPoints = new ArrayList<>();
         for (String key : section.getConfigurationSection("spawnpoints").getKeys(false)) {
             spawnPoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key)));
@@ -89,20 +86,16 @@ public class GameMap {
         SchematicUtil.setAllTo(schematic, new BaseBlock(0), getCenterLocation());
     }
 
-    public int getGameYLevel() {
-        return this.getSpawnPoints().get(0).getBlockY();
+    public int getHighestYLevel() {
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner1);
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner2);
+        return Math.max(corner2Location.getBlockX(), corner1Location.getBlockX());
     }
 
     public Location getCenterLocation() {
-        Location corner1Location = getLocationFromOffset(corner1);
-        Location corner2Location = getLocationFromOffset(corner2);
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner1);
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner2);
         Location center = LocationUtil.getCenterLocation(corner1Location, corner2Location);
         return center.add(0.5, 0, 0.5);
-    }
-
-    private Location getLocationFromOffset(Vector offset) {
-        Location location = Pint.getInstance().getGameHandler().getServerWorld().getZeroLocation();
-        location.add(offset);
-        return location;
     }
 }

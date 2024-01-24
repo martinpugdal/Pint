@@ -1,7 +1,5 @@
 package dk.martinersej.pint.game.objects;
 
-import dk.martinersej.pint.exception.pool.PoolContainsGameException;
-import dk.martinersej.pint.exception.pool.PoolDoesNotContainGameException;
 import dk.martinersej.pint.game.Game;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -23,13 +21,13 @@ public class GamePool {
                 games.add(game);
             }
         } else {
-            throw new PoolContainsGameException("Game already in pool");
+            throw new IllegalStateException("Game already in pool");
         }
     }
 
     public void removeGame(Game game) {
         if (!games.contains(game)) {
-            throw new PoolDoesNotContainGameException("Game not in pool");
+            throw new IllegalStateException("Game not in pool");
         }
         games.remove(game);
     }

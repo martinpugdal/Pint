@@ -4,14 +4,12 @@ import dk.martinersej.pint.game.games.tnttag.TntTagGame;
 import dk.martinersej.pint.game.objects.GamePool;
 import dk.martinersej.pint.map.ServerWorld;
 import lombok.Getter;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameHandler {
 
-    private final JavaPlugin plugin;
     @Getter
     private final ServerWorld serverWorld;
     @Getter
@@ -21,8 +19,7 @@ public class GameHandler {
     @Getter
     private final List<Game> games = new ArrayList<>();
 
-    public GameHandler(JavaPlugin plugin, ServerWorld serverWorld) {
-        this.plugin = plugin;
+    public GameHandler(ServerWorld serverWorld) {
         this.gamePool = new GamePool();
         this.serverWorld = serverWorld;
         initGames();
@@ -36,6 +33,10 @@ public class GameHandler {
 
     private void addGame(Game game) {
         games.add(game);
+    }
+
+    private void removeGame(Game game) {
+        games.remove(game);
     }
 
     public void addGameToPool(Game game) {
