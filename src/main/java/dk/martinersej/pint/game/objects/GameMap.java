@@ -27,7 +27,7 @@ public class GameMap {
 
     private Vector corner1;
     private Vector corner2;
-    private List<Vector> spawnPoints;
+    private List<Vector> spawnpoints;
     private Location zeroLocation;
 
     private int minPlayers;
@@ -59,9 +59,9 @@ public class GameMap {
         this.zeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
 
         // Load spawnpoints
-        this.spawnPoints = new ArrayList<>();
+        this.spawnpoints = new ArrayList<>();
         for (String key : section.getConfigurationSection("spawnpoints").getKeys(false)) {
-            spawnPoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key)));
+            spawnpoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key)));
         }
     }
 

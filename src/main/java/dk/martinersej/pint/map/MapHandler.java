@@ -32,7 +32,7 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     }
 
-    public void loadMaps() {
+    private void loadMaps() {
         ConfigurationSection section = getConfig().getConfigurationSection("maps");
 
         for (String mapID : section.getKeys(false)) {
@@ -68,7 +68,7 @@ public class MapHandler extends YamlManagerTypeImpl {
         return maps.getOrDefault(id, null);
     }
 
-    public boolean mapExists(int id) {
+    public boolean mapIsPresent(int id) {
         return maps.get(id) != null;
     }
 
@@ -138,7 +138,6 @@ public class MapHandler extends YamlManagerTypeImpl {
             maps.get(mapID).load();
         }
     }
-
 
     public int addSpawnPoint(int mapID, Location location) {
         ConfigurationSection section = getMapSection(mapID);

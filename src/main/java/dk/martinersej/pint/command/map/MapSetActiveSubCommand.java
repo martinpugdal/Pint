@@ -44,7 +44,7 @@ public class MapSetActiveSubCommand extends SubCommand {
             return Result.getCommandResult(Result.SUCCESS, this);
         }
 
-        if (!Pint.getInstance().getMapHandler().mapExists(id)) {
+        if (!Pint.getInstance().getMapHandler().mapIsPresent(id)) {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
             return Result.getCommandResult(Result.SUCCESS, this);
         }

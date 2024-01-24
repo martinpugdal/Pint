@@ -8,9 +8,9 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
+@Getter
 public class MapUtil {
 
-    @Getter
     private int highestYLevel;
 
     public MapUtil() {

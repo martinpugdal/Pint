@@ -11,11 +11,16 @@ public class GameInformation {
     private final String description;
     private final ItemStack icon;
 
-    public GameInformation(String name, String description, Material icon) {
+    public GameInformation(String name, String description, ItemStack icon) {
         this.name = name;
         this.description = description;
-        this.icon = new ItemStack(icon);
+        this.icon = icon.clone();
     }
+
+    public GameInformation(String name, String description, Material icon) {
+        this(name, description, new ItemStack(icon));
+    }
+
 
     public GameInformation(String name, String description) {
         this(name, description, Material.BOOK);

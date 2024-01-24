@@ -35,7 +35,7 @@ public class MapSetSchematicSubCommand extends SubCommand {
 
         int id = Integer.parseInt(args[0]);
 
-        if (!Pint.getInstance().getMapHandler().mapExists(id)) {
+        if (!Pint.getInstance().getMapHandler().mapIsPresent(id)) {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
             return Result.getCommandResult(Result.SUCCESS, this);
         }
