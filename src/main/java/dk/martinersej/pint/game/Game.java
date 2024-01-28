@@ -2,7 +2,7 @@ package dk.martinersej.pint.game;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameInformation;
-import dk.martinersej.pint.game.objects.GameMap;
+import dk.martinersej.pint.map.maps.GameMap;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

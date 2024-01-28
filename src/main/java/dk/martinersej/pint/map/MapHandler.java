@@ -1,7 +1,7 @@
 package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.objects.GameMap;
+import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;

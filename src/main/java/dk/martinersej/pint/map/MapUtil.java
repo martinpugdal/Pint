@@ -1,16 +1,13 @@
 package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.objects.GameMap;
+import dk.martinersej.pint.map.maps.GameMap;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
-import java.nio.Buffer;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 public class MapUtil {

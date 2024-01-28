@@ -1,4 +1,4 @@
-package dk.martinersej.pint.game.objects;
+package dk.martinersej.pint.map.maps;
 
 import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.regions.CuboidRegion;
@@ -10,6 +10,7 @@ import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
@@ -95,11 +96,27 @@ public class GameMap extends Map {
     public void clearSchematic() {
         Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner1());
         Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner2());
+
         com.sk89q.worldedit.Vector pos1 = new com.sk89q.worldedit.Vector(corner1.getX(), corner1.getY(), corner1.getZ());
         com.sk89q.worldedit.Vector pos2 = new com.sk89q.worldedit.Vector(corner2.getX(), corner2.getY(), corner2.getZ());
-        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(this.getZeroLocation().getWorld()), pos1, pos2);
-        SchematicUtil.setToAir(region, this.getZeroLocation().getWorld());
+
+        World world = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld();
+        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(world), pos1, pos2);
+        Schematic schematic = new Schematic(region);
+
+        Location location = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone();
+
+        SchematicUtil.pasteSchematic(schematic, location, true);
     }
+
+//    public void clearSchematic() {
+//        Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner1());
+//        Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner2());
+//        com.sk89q.worldedit.Vector pos1 = new com.sk89q.worldedit.Vector(corner1.getX(), corner1.getY(), corner1.getZ());
+//        com.sk89q.worldedit.Vector pos2 = new com.sk89q.worldedit.Vector(corner2.getX(), corner2.getY(), corner2.getZ());
+//        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(this.getZeroLocation().getWorld()), pos1, pos2);
+//        SchematicUtil.setToAir(region, this.getZeroLocation().getWorld());
+//    }
 
     public int getHighestYLevel() {
         Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
@@ -107,10 +124,10 @@ public class GameMap extends Map {
         return Math.max(corner2Location.getBlockX(), corner1Location.getBlockX());
     }
 
-    public Location getCenterLocation() {
-        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
-        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
-        Location center = LocationUtil.getCenterLocation(corner1Location, corner2Location);
-        return center.add(0.5, 0, 0.5);
-    }
+//    public Location getCenterLocation() {
+//        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
+//        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
+//        Location center = LocationUtil.getCenterLocation(corner1Location, corner2Location);
+//        return center.add(0.5, 0, 0.5);
+//    }
 }

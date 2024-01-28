@@ -1,4 +1,4 @@
-package dk.martinersej.pint.vote.objects;
+package dk.martinersej.pint.map.maps;
 
 import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.Vector;
@@ -78,11 +78,5 @@ public class VoteMap extends Map {
         Location location = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0, yLevel, 0);
 
         SchematicUtil.pasteSchematic(schematic, location, true);
-    }
-
-    public Location getCenterLocation() {
-        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
-        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
-        return LocationUtil.getCenterLocation(corner1Location, corner2Location);
     }
 }

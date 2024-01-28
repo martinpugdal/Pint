@@ -1,9 +1,8 @@
 package dk.martinersej.pint.command.map;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.objects.GameMap;
+import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.utils.command.CommandResult;
-import dk.martinersej.pint.utils.command.Result;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;

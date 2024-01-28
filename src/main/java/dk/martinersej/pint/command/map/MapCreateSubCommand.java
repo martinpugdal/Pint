@@ -10,7 +10,7 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.RegionSelector;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.Game;
-import dk.martinersej.pint.game.objects.GameMap;
+import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.Location;
