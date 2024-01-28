@@ -58,7 +58,8 @@ public class VoteMap {
             Bukkit.getLogger().warning("Schematic is null for map votemap");
             return;
         }
-        SchematicUtil.pasteSchematic(schematic, Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation(), false);
+        int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
+        SchematicUtil.pasteSchematic(schematic, Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0, yLevel, 0), false);
     }
 
     public void clearSchematic() {
