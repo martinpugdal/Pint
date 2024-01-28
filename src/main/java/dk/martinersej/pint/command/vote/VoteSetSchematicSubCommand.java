@@ -52,6 +52,7 @@ public class VoteSetSchematicSubCommand extends SubCommand {
             } catch (Exception e) {
                 Bukkit.getLogger().warning("Could not clear schematic for vote map");
             }
+            Pint.getInstance().getVoteHandler().loadVoteMap();
             Pint.getInstance().getVoteHandler().getVoteMap().pasteSchematic();
 
             for (Player p : Bukkit.getOnlinePlayers()) {

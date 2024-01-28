@@ -71,7 +71,6 @@ public class VoteUtil {
         section.set("corner1", pos1Location);
         section.set("corner2", pos2Location);
         mapHandler.save();
-        Pint.getInstance().getVoteHandler().loadVoteMap();
 
         String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + "votemap" + ".schematic";
         SchematicUtil.createSchematic(schematicPath, corner1, corner2);

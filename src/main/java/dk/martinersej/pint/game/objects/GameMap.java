@@ -1,9 +1,9 @@
 package dk.martinersej.pint.game.objects;
 
 import com.boydti.fawe.object.schematic.Schematic;
-import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.map.Map;
 import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
@@ -18,25 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class GameMap {
+public class GameMap extends Map {
 
     private final int id;
 
     private String gameName;
     private boolean active;
 
-    private Vector corner1;
-    private Vector corner2;
+    //    private Vector corner1;
+//    private Vector corner2;
     private List<Vector> spawnPoints;
-    private Location zeroLocation;
+//    private Location zeroLocation;
 
     private int minPlayers;
     private int maxPlayers;
 
     public GameMap(int id) {
+        super();
         this.id = id;
     }
 
+    @Override
     public void load() {
         ConfigurationSection section = Pint.getInstance().getMapHandler().getMapUtil().getMapSection(id);
 
@@ -46,16 +48,28 @@ public class GameMap {
         // Load active
         this.active = section.getBoolean("active", false);
 
+        // check if corners are set
+        if (section.getString("corner1") == null || section.getString("corner2") == null) {
+            Bukkit.getLogger().warning("Corner1 or corner2 is null for map votemap");
+            return;
+        }
         // Load corners
-        this.corner1 = LocationUtil.stringToVector(section.getString("corner1"));
-        this.corner2 = LocationUtil.stringToVector(section.getString("corner2"));
+        setCorner1(LocationUtil.stringToVector(section.getString("corner1")));
+        setCorner2(LocationUtil.stringToVector(section.getString("corner2")));
 
-        // Load min and max players
-        this.minPlayers = section.getInt("minPlayers", 0);
-        this.maxPlayers = section.getInt("maxPlayers", 16);
-
+        // check if zero location is set
+        if (section.getString("zeroLocation") == null) {
+            Bukkit.getLogger().warning("ZeroLocation is null for map votemap");
+            return;
+        }
         // Load zero location
-        this.zeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
+        setZeroLocation(LocationUtil.stringToLocation(section.getString("zeroLocation")));
+
+        // Load min players
+        this.minPlayers = section.getInt("minPlayers", 0);
+
+        // Load max players
+        this.maxPlayers = section.getInt("maxPlayers", 16);
 
         // Load spawnpoints
         this.spawnPoints = new ArrayList<>();
@@ -79,23 +93,23 @@ public class GameMap {
     }
 
     public void clearSchematic() {
-        Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.corner1);
-        Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.corner2);
+        Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner1());
+        Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner2());
         com.sk89q.worldedit.Vector pos1 = new com.sk89q.worldedit.Vector(corner1.getX(), corner1.getY(), corner1.getZ());
         com.sk89q.worldedit.Vector pos2 = new com.sk89q.worldedit.Vector(corner2.getX(), corner2.getY(), corner2.getZ());
-        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(this.zeroLocation.getWorld()), pos1, pos2);
-        SchematicUtil.setToAir(region, this.zeroLocation.getWorld());
+        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(this.getZeroLocation().getWorld()), pos1, pos2);
+        SchematicUtil.setToAir(region, this.getZeroLocation().getWorld());
     }
 
     public int getHighestYLevel() {
-        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner1);
-        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner2);
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
         return Math.max(corner2Location.getBlockX(), corner1Location.getBlockX());
     }
 
     public Location getCenterLocation() {
-        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner1);
-        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner2);
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
         Location center = LocationUtil.getCenterLocation(corner1Location, corner2Location);
         return center.add(0.5, 0, 0.5);
     }

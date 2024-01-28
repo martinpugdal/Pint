@@ -4,28 +4,28 @@ import com.boydti.fawe.object.schematic.Schematic;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.map.Map;
 import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 
-public class VoteMap {
+public class VoteMap extends Map {
 
-    private org.bukkit.util.Vector corner1;
-    private org.bukkit.util.Vector corner2;
-    private Location zeroLocation;
+//    private org.bukkit.util.Vector corner1;
+//    private org.bukkit.util.Vector corner2;
+//    private Location zeroLocation;
 
     public VoteMap() {
+        super();
     }
 
-    public boolean isPresent() {
-        return corner1 != null && corner2 != null && zeroLocation != null;
-    }
-
+    @Override
     public void load() {
         ConfigurationSection section = Pint.getInstance().getVoteHandler().getVoteUtil().getVoteMapSection();
 
@@ -35,8 +35,8 @@ public class VoteMap {
             return;
         }
         // Load corners
-        this.corner1 = LocationUtil.stringToVector(section.getString("corner1"));
-        this.corner2 = LocationUtil.stringToVector(section.getString("corner2"));
+        setCorner1(LocationUtil.stringToVector(section.getString("corner1")));
+        setCorner2(LocationUtil.stringToVector(section.getString("corner2")));
 
         // check if zero location is set
         if (section.getString("zeroLocation") == null) {
@@ -44,7 +44,7 @@ public class VoteMap {
             return;
         }
         // Load zero location
-        this.zeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
+        setZeroLocation(LocationUtil.stringToLocation(section.getString("zeroLocation")));
     }
 
     private String getSchematicPath() {
@@ -59,21 +59,30 @@ public class VoteMap {
             return;
         }
         int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
-        SchematicUtil.pasteSchematic(schematic, Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0, yLevel, 0), false);
+        Location location = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0, yLevel, 0);
+        SchematicUtil.pasteSchematic(schematic, location, false);
     }
 
     public void clearSchematic() {
-        Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.corner1);
-        Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.corner2);
+        Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner1());
+        Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.getCorner2());
+
         Vector pos1 = new Vector(corner1.getX(), corner1.getY(), corner1.getZ());
         Vector pos2 = new Vector(corner2.getX(), corner2.getY(), corner2.getZ());
-        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(this.zeroLocation.getWorld()), pos1, pos2);
-        SchematicUtil.setToAir(region, this.zeroLocation.getWorld());
+
+        World world = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld();
+        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(world), pos1, pos2);
+        Schematic schematic = new Schematic(region);
+
+        int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
+        Location location = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0, yLevel, 0);
+
+        SchematicUtil.pasteSchematic(schematic, location, true);
     }
 
     public Location getCenterLocation() {
-        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner1);
-        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(corner2);
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
         return LocationUtil.getCenterLocation(corner1Location, corner2Location);
     }
 }
