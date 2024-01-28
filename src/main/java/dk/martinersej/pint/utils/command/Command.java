@@ -54,14 +54,14 @@ public class Command {
 
     protected CommandResult execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            return new CommandResult(null, Result.NO_SUB_COMMAND_FOUND);
+            return CommandResult.noSubCommandFound(null);
         }
         SubCommand subCommand = getSubCommandFromAlias(args[0]);
         if (subCommand == null) {
-            return new CommandResult(subCommand, Result.NO_SUB_COMMAND_FOUND);
+            return CommandResult.noSubCommandFound(null);
         }
         if (!this.hasPermission(sender, subCommand.getPermissions())) {
-            return new CommandResult(subCommand, Result.NO_PERMISSION);
+            return CommandResult.noPermission(subCommand);
         }
         String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
         return subCommand.execute(sender, newArgs);

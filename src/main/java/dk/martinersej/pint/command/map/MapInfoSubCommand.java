@@ -24,15 +24,14 @@ public class MapInfoSubCommand extends SubCommand {
     public CommandResult execute(CommandSender sender, String[] args) {
 
         if (args.length != 1) {
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+            return CommandResult.wrongUsage(this);
         }
 
         int mapId;
         try {
             mapId = Integer.parseInt(args[0]);
         } catch (NumberFormatException ex) {
-            sender.sendMessage("§cMap ID skal være et tal");
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+            return CommandResult.wrongUsage(this, "§cMap ID skal være et tal");
         }
 
         GameMap gameMap = Pint.getInstance().getMapHandler().getMap(mapId);
@@ -47,10 +46,10 @@ public class MapInfoSubCommand extends SubCommand {
                     "§aZero location: " + gameMap.getZeroLocation() + "\n" +
                     "§aMin spillere: " + gameMap.getMinPlayers() + "\n" +
                     "§aMax spillere: " + gameMap.getMaxPlayers() + "\n" +
-                    "§aSpawnpoints: " + gameMap.getSpawnpoints().size();
+                    "§aSpawnpoints: " + gameMap.getSpawnPoints().size();
             sender.sendMessage(mapInfo);
         }
 
-        return Result.getCommandResult(Result.SUCCESS, this);
+        return CommandResult.success(this);
     }
 }

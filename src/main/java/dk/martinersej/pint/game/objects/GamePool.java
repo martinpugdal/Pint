@@ -13,16 +13,18 @@ public class GamePool {
     @Getter
     private final List<Game> games = new ArrayList<>();
 
-    public void addGame(Game game) {
+    public boolean addGame(Game game) {
         if (!games.contains(game)) {
             if (game.getGameMaps().isEmpty()) {
                 Bukkit.getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Game " + game.getGameInformation().getName() + " has no maps and will not be added to the pool");
+                return false;
             } else {
                 games.add(game);
             }
         } else {
             throw new IllegalStateException("Game already in pool");
         }
+        return true;
     }
 
     public void removeGame(Game game) {

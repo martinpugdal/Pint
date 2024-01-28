@@ -4,6 +4,7 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameInformation;
 import dk.martinersej.pint.game.objects.GameMap;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -18,8 +19,10 @@ public abstract class Game implements Listener {
     private final List<Player> players = new ArrayList<>();
     private final List<GameMap> gameMaps = new ArrayList<>();
     private final GameMap currentGameMap = null;
+    private final GameInformation gameInformation;
 
-    public Game() {
+    public Game(GameInformation gameInformation) {
+        this.gameInformation = gameInformation;
         loadGameMaps();
     }
 
@@ -30,6 +33,7 @@ public abstract class Game implements Listener {
                 this.gameMaps.add(map);
             }
         }
+        Bukkit.getLogger().info("Loaded " + this.gameMaps.size() + " maps for game: " + getGameInformation().getName());
     }
 
     public void start() {
@@ -61,7 +65,7 @@ public abstract class Game implements Listener {
     private List<GameMap> getAppropriateMaps(int playersCount) {
         List<GameMap> maps = new ArrayList<>();
         for (GameMap gameMap : gameMaps) {
-            if (gameMap.getMinPlayers() <= playersCount && gameMap.getMaxPlayers() >= playersCount) {
+            if (gameMap.getMinPlayers() <= playersCount && gameMap.getMaxPlayers() >= playersCount && gameMap.isActive()) {
                 maps.add(gameMap);
             }
         }
@@ -83,6 +87,4 @@ public abstract class Game implements Listener {
     public abstract void onGameStart();
 
     public abstract void onGameEnd();
-
-    public abstract GameInformation getGameInformation();
 }

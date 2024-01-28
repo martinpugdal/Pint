@@ -22,16 +22,17 @@ public class MapSetPlayersSubCommand extends SubCommand {
 
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
+
         if (args.length != 3) {
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+            return CommandResult.wrongUsage(this);
         } else if (!(sender instanceof Player)) {
-            return Result.getCommandResult(Result.NO_PERMISSION, this);
+            return CommandResult.noConsole(this);
         }
         boolean max = true;
         if (args[1].equalsIgnoreCase("min")) {
             max = false;
         } else if (!args[1].equalsIgnoreCase("max")) {
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+            return CommandResult.wrongUsage(this, "§cDu skal skrive min eller max");
         }
 
 
@@ -41,19 +42,12 @@ public class MapSetPlayersSubCommand extends SubCommand {
             id = Integer.parseInt(args[0]);
             players = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("§cDu skal skrive et tal");
-            return Result.getCommandResult(Result.SUCCESS, this);
+            return CommandResult.wrongUsage(this, "§cDu skal skrive et tal");
         }
 
         if (!Pint.getInstance().getMapHandler().mapIsPresent(id)) {
-            sender.sendMessage("§cEt map med id " + id + " findes ikke");
-            return Result.getCommandResult(Result.SUCCESS, this);
+            return CommandResult.wrongUsage(this, "§cEt map med id " + id + " findes ikke");
         }
-
-//        if (Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getId() == id) {
-//            sender.sendMessage("§cDu kan ikke redigere det map som er i brug");
-//            return Result.getCommandResult(Result.SUCCESS, this);
-//        }
 
         if (max) {
             if (players < Pint.getInstance().getMapHandler().getMap(id).getMinPlayers()) {
@@ -71,6 +65,6 @@ public class MapSetPlayersSubCommand extends SubCommand {
             }
         }
 
-        return Result.getCommandResult(Result.SUCCESS, this);
+        return CommandResult.success(this);
     }
 }

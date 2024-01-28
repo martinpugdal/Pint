@@ -2,10 +2,13 @@ package dk.martinersej.pint;
 
 import dk.martinersej.pint.command.GameCommand;
 import dk.martinersej.pint.command.MapCommand;
+import dk.martinersej.pint.command.TestCommand;
+import dk.martinersej.pint.command.VoteCommand;
 import dk.martinersej.pint.game.GameHandler;
 import dk.martinersej.pint.listener.ListenerHandler;
-import dk.martinersej.pint.map.ServerWorld;
 import dk.martinersej.pint.map.MapHandler;
+import dk.martinersej.pint.map.ServerWorld;
+import dk.martinersej.pint.utils.gui.GuiListeners;
 import dk.martinersej.pint.vote.VoteHandler;
 import dk.martinersej.pint.vote.interaction.VoteListener;
 import lombok.Getter;
@@ -18,6 +21,7 @@ public final class Pint extends JavaPlugin {
     private static Pint instance;
     private GameHandler gameHandler;
     private MapHandler mapHandler;
+    private VoteHandler voteHandler;
 
     @Override
     public void onEnable() {
@@ -41,22 +45,24 @@ public final class Pint extends JavaPlugin {
 
     private void setupHandlers() {
         //setup handlers
-        ServerWorld serverWorld = new ServerWorld();
-        mapHandler = new MapHandler();
-        gameHandler = new GameHandler(serverWorld);
-        VoteHandler voteHandler = new VoteHandler();
+        mapHandler = new MapHandler(); // needs to be loaded before all other handlers
+        voteHandler = new VoteHandler();
+        gameHandler = new GameHandler();
     }
 
     private void setupCommands() {
         //setup commands
         this.getServer().getPluginCommand("map").setExecutor(new MapCommand(this));
         this.getServer().getPluginCommand("game").setExecutor(new GameCommand(this));
+        this.getServer().getPluginCommand("vote").setExecutor(new VoteCommand(this));
+        this.getServer().getPluginCommand("test").setExecutor(new TestCommand());
     }
 
     private void setupListeners() {
         //setup listeners
         new ListenerHandler();
         new VoteListener();
+        new GuiListeners();
     }
 
     private void setupTasks() {

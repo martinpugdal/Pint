@@ -9,10 +9,8 @@ import org.bukkit.inventory.ItemStack;
 @Getter
 public class ShuffleColorGame extends Game {
 
-    private final GameInformation gameInformation = new GameInformation("Color shuffle", "Stand on the right color to win!", new ItemStack(Material.WOOL, 1, (short) 14));
-
     public ShuffleColorGame() {
-        super();
+        super(new GameInformation("Color shuffle", "Stand on the right color to win!", new ItemStack(Material.WOOL, 1, (short) 14)));
     }
 
     @Override

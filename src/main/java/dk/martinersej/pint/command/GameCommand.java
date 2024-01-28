@@ -25,18 +25,26 @@ public class GameCommand extends Command implements CommandExecutor, TabComplete
         CommandResult result = super.execute(commandSender, strings);
         switch (result.getResult()) {
             case WRONG_USAGE:
-                commandSender.sendMessage(String.format("Korrekt brug: %s", result.getSubCommand().getUsage(s)));
-                return true;
+                if (result.wrongUsageMessageIsPresent()) {
+                    commandSender.sendMessage(result.getWrongUsageMessage());
+                } else {
+                    String subCommand = strings.length > 0 ? strings[0] : "";
+                    commandSender.sendMessage("Korrekt brug: /" + command.getLabel() + " " + result.getSubCommand().getUsage(subCommand));
+                }
+                break;
             case NO_PERMISSION:
                 commandSender.sendMessage("§cDu har ikke adgang til dette");
-                return true;
+                break;
             case NO_SUB_COMMAND_FOUND:
                 commandSender.sendMessage("Det er ikke en gyldig subkommando");
                 commandSender.sendMessage("Gyldige subkommandoer:");
                 for (SubCommand cmd : super.getSubCommands()) {
                     commandSender.sendMessage("- " + cmd.getUsage(cmd.getAliases()[0]) + " - " + cmd.getDescription());
                 }
-                return true;
+                break;
+            case NO_CONSOLE:
+                commandSender.sendMessage("§cDu kan ikke bruge denne kommando fra konsollen");
+                break;
         }
         return true;
     }

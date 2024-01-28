@@ -1,4 +1,4 @@
-package dk.martinersej.pint.command.map;
+package dk.martinersej.pint.command.vote;
 
 import com.boydti.fawe.Fawe;
 import com.sk89q.worldedit.IncompleteRegionException;
@@ -9,42 +9,35 @@ import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.RegionSelector;
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.Game;
-import dk.martinersej.pint.game.objects.GameMap;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class MapCreateSubCommand extends SubCommand {
+public class VoteSetSchematicSubCommand extends SubCommand {
 
-    public MapCreateSubCommand(JavaPlugin plugin) {
+    public VoteSetSchematicSubCommand(JavaPlugin plugin) {
         super(
                 plugin,
-                "Opretter et map med id",
-                "<game>",
-                "pint.map.create",
-                "create", "opret"
+                "Gem schematic for vote map",
+                "",
+                "pint.vote.setschematic",
+                "setschematic"
         );
     }
 
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
 
-        if (args.length < 1) {
-            return CommandResult.wrongUsage(this);
-        }
-
-        String gameName = String.join(" ", args);
-        Game game = Pint.getInstance().getGameHandler().getGame(gameName);
-        if (game == null) {
-            sender.sendMessage("§cEt spil med navnet " + gameName + " findes ikke");
-            return CommandResult.success(this);
+        if (!(sender instanceof Player)) {
+            return CommandResult.noConsole(this);
         }
 
         Player player = (Player) sender;
+
         try {
             LocalSession localSession = Fawe.get().getWorldEdit().getSession(player.getName());
             RegionSelector selector = localSession.getRegionSelector(BukkitUtil.getLocalWorld(player.getWorld()));
@@ -53,13 +46,27 @@ public class MapCreateSubCommand extends SubCommand {
             Location corner1 = selection.getMinimumPoint();
             Location corner2 = selection.getMaximumPoint();
 
-            int mapID = Pint.getInstance().getMapHandler().createMap(game.getGameInformation().getName(), corner1, corner2);
-            GameMap map = Pint.getInstance().getMapHandler().getMap(mapID);
-            game.getGameMaps().add(map);
-            sender.sendMessage("§aDu har oprettet et map med id " + mapID + " til spillet " + gameName);
+            Pint.getInstance().getVoteHandler().getVoteUtil().saveMapSchematic(corner1, corner2);
+            try {
+                Pint.getInstance().getVoteHandler().getVoteMap().clearSchematic();
+            } catch (Exception e) {
+                Bukkit.getLogger().warning("Could not clear schematic for vote map");
+            }
+            Pint.getInstance().getVoteHandler().getVoteMap().pasteSchematic();
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
+                    if (Pint.getInstance().getGameHandler().getCurrentGame().getPlayers().contains(p)) {
+                        continue;
+                    }
+                }
+                p.teleport(Pint.getInstance().getVoteHandler().getVoteUtil().spawnLocation());
+            }
         } catch (IncompleteRegionException e) {
-            return CommandResult.wrongUsage(this, "§cDu har ikke valgt et område");
+            CommandResult.wrongUsage(this, "Du skal have en WorldEdit selection");
         }
+
+        sender.sendMessage("§aSchematic for vote map er blevet sat og pastet ind");
 
         return CommandResult.success(this);
     }

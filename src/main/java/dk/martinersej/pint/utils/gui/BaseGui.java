@@ -1,6 +1,5 @@
 package dk.martinersej.pint.utils.gui;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -19,7 +18,7 @@ public abstract class BaseGui implements InventoryHolder {
     private final int rows;
     private final WeakHashMap<Integer, ItemStack> items = new WeakHashMap<>();
     private final WeakHashMap<Player, Long> cooldowns = new WeakHashMap<>();
-    private final JavaPlugin plugin = (JavaPlugin) Bukkit.getPluginManager().getPlugin(getClass().getPackage().getName().split("^\\w+")[0]);
+    private final JavaPlugin plugin = JavaPlugin.getProvidingPlugin(getClass());
     private String title;
     private Inventory inventory;
     private double cooldown = 0;

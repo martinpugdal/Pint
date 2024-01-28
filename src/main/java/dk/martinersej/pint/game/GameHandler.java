@@ -1,31 +1,36 @@
 package dk.martinersej.pint.game;
 
+import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.games.tnttag.TntTagGame;
 import dk.martinersej.pint.game.objects.GamePool;
-import dk.martinersej.pint.map.ServerWorld;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class GameHandler {
 
-    @Getter
-    private final ServerWorld serverWorld;
-    @Getter
     private final GamePool gamePool;
-    @Getter
     private final Game currentGame = null;
-    @Getter
     private final List<Game> games = new ArrayList<>();
 
-    public GameHandler(ServerWorld serverWorld) {
+    public GameHandler() {
         this.gamePool = new GamePool();
-        this.serverWorld = serverWorld;
+
+        Pint.getInstance().getMapHandler().loadMaps();
+        Pint.getInstance().getVoteHandler().loadVoteMap();
+        if (Pint.getInstance().getVoteHandler().getVoteMap().isPresent()) {
+            Pint.getInstance().getVoteHandler().getVoteMap().pasteSchematic();
+        } else {
+            Bukkit.getLogger().warning("Vote map is not present and will not be pasted");
+        }
+
         initGames();
     }
 
-    private void initGames() {
+    public void initGames() {
         Game tntTagGame = new TntTagGame();
         addGame(tntTagGame);
         addGameToPool(tntTagGame);

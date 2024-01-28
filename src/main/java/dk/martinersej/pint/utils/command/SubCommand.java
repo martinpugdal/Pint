@@ -15,7 +15,7 @@ public abstract class SubCommand extends Command {
 
         this.description = description;
         this.usage = usage;
-        this.permissions = new String[] { permission };
+        this.permissions = new String[]{permission};
         this.aliases = aliases;
     }
 

@@ -27,18 +27,17 @@ public class MapSpawnpointsSubCommand extends SubCommand {
     public CommandResult execute(CommandSender sender, String[] args) {
 
         if (args.length <= 2) {
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+            return CommandResult.wrongUsage(this);
         }
         if (!(sender instanceof Player)) {
-            return Result.getCommandResult(Result.NO_PERMISSION, this);
+            return CommandResult.noConsole(this);
         }
 
         int mapID;
         try {
             mapID = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("§cDu skal skrive et tal");
-            return Result.getCommandResult(Result.SUCCESS, this);
+            return CommandResult.wrongUsage(this, "§cDu skal skrive et tal");
         }
         String action = args[1].toLowerCase();
 
@@ -53,7 +52,7 @@ public class MapSpawnpointsSubCommand extends SubCommand {
                     spawnpointID = Integer.parseInt(args[2]);
                 } catch (NumberFormatException e) {
                     sender.sendMessage("§cDu skal skrive et tal");
-                    return Result.getCommandResult(Result.SUCCESS, this);
+                    return CommandResult.wrongUsage(this, "§cDu skal skrive et tal");
                 }
                 Pint.getInstance().getMapHandler().deleteSpawnPoint(mapID, spawnpointID);
                 sender.sendMessage("§aSpawnpoint med id " + spawnpointID + " er nu slettet fra map med id " + mapID);
@@ -72,9 +71,9 @@ public class MapSpawnpointsSubCommand extends SubCommand {
                 }
                 break;
             default:
-                return Result.getCommandResult(Result.WRONG_USAGE, this);
+                return CommandResult.wrongUsage(this);
         }
 
-        return Result.getCommandResult(Result.SUCCESS, this);
+        return CommandResult.success(this);
     }
 }

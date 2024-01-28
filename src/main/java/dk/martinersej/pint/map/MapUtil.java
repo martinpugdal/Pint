@@ -3,18 +3,29 @@ package dk.martinersej.pint.map;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameMap;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
+import java.nio.Buffer;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
 public class MapUtil {
 
-    private int highestYLevel;
+    private final MapHandler mapHandler;
+    private final ServerWorld serverWorld;
+    private int highestYLevel = 0;
 
-    public MapUtil() {
-        updateHighestYLevel();
+    public MapUtil(MapHandler mapHandler) {
+        this.serverWorld = new ServerWorld();
+        this.mapHandler = mapHandler;
+    }
+
+    public ConfigurationSection getMapSection(int mapID) {
+        return mapHandler.getConfig().getConfigurationSection("maps." + mapID);
     }
 
     public GameMap getCurrentMap() {
@@ -30,17 +41,16 @@ public class MapUtil {
     }
 
     public Location getLocationFromOffset(Vector offset) {
-        Location location = Pint.getInstance().getGameHandler().getServerWorld().getZeroLocation();
-        location.add(offset);
-        return location;
+        Location location = serverWorld.getZeroLocation();
+        return location.add(offset);
     }
 
     public void updateHighestYLevel() {
-        List<GameMap> gameMaps = (List<GameMap>) Pint.getInstance().getMapHandler().getMaps().values();
-        highestYLevel = Integer.MIN_VALUE;
+        Collection<GameMap> gameMaps = mapHandler.getMaps().values();
         for (GameMap gameMap : gameMaps) {
-            if (gameMap.getHighestYLevel() > highestYLevel) {
-                highestYLevel = gameMap.getHighestYLevel();
+            int yLevel = gameMap.getHighestYLevel();
+            if (yLevel > highestYLevel) {
+                highestYLevel = yLevel;
             }
         }
     }

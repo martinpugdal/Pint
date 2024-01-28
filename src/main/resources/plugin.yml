@@ -14,3 +14,7 @@ commands:
     aliases: [ ]
   game:
     aliases: [ ]
+  vote:
+    aliases: [ ]
+  test:
+    aliases: [ ]

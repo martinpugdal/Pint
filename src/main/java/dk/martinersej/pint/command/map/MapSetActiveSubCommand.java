@@ -23,35 +23,32 @@ public class MapSetActiveSubCommand extends SubCommand {
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+            return CommandResult.wrongUsage(this);
         } else if (!(sender instanceof Player)) {
-            return Result.getCommandResult(Result.NO_PERMISSION, this);
+            return CommandResult.noConsole(this);
         }
 
         int id;
         try {
             id = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("§cDu skal skrive et tal");
-            return Result.getCommandResult(Result.SUCCESS, this);
+            return CommandResult.wrongUsage(this, "§cMap ID skal være et tal");
         }
 
         boolean active;
         try {
             active = Boolean.parseBoolean(args[1]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("§cDu skal skrive true eller false");
-            return Result.getCommandResult(Result.SUCCESS, this);
+            return CommandResult.wrongUsage(this, "§cDu skal skrive true eller false");
         }
 
         if (!Pint.getInstance().getMapHandler().mapIsPresent(id)) {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
-            return Result.getCommandResult(Result.SUCCESS, this);
+        } else {
+            Pint.getInstance().getMapHandler().setActive(id, active);
+            sender.sendMessage("§aMap med id " + id + " er nu sat til at være " + (active ? "aktivt" : "inaktivt"));
         }
 
-        Pint.getInstance().getMapHandler().setActive(id, active);
-        sender.sendMessage("§aMap med id " + id + " er nu sat til at være " + (active ? "aktivt" : "inaktivt"));
-
-        return Result.getCommandResult(Result.SUCCESS, this);
+        return CommandResult.success(this);
     }
 }

@@ -27,7 +27,7 @@ public class GameMap {
 
     private Vector corner1;
     private Vector corner2;
-    private List<Vector> spawnpoints;
+    private List<Vector> spawnPoints;
     private Location zeroLocation;
 
     private int minPlayers;
@@ -35,11 +35,10 @@ public class GameMap {
 
     public GameMap(int id) {
         this.id = id;
-        load();
     }
 
     public void load() {
-        ConfigurationSection section = Pint.getInstance().getMapHandler().getConfig();
+        ConfigurationSection section = Pint.getInstance().getMapHandler().getMapUtil().getMapSection(id);
 
         // Load game name
         this.gameName = section.getString("gameName");
@@ -59,9 +58,9 @@ public class GameMap {
         this.zeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
 
         // Load spawnpoints
-        this.spawnpoints = new ArrayList<>();
+        this.spawnPoints = new ArrayList<>();
         for (String key : section.getConfigurationSection("spawnpoints").getKeys(false)) {
-            spawnpoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key)));
+            spawnPoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key)));
         }
     }
 
@@ -71,7 +70,7 @@ public class GameMap {
 
     public void pasteSchematic() {
         File schematicFile = new File(getSchematicPath());
-        Schematic schematic = SchematicUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getGameHandler().getServerWorld().getWorld()));
+        Schematic schematic = SchematicUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld()));
         if (schematic == null) {
             Bukkit.getLogger().warning("Schematic is null for map " + id);
             return;
@@ -80,10 +79,12 @@ public class GameMap {
     }
 
     public void clearSchematic() {
-        com.sk89q.worldedit.Vector corner1 = new com.sk89q.worldedit.Vector(this.corner1.getBlockX(), this.corner1.getBlockY(), this.corner1.getBlockZ());
-        com.sk89q.worldedit.Vector corner2 = new com.sk89q.worldedit.Vector(this.corner2.getBlockX(), this.corner2.getBlockY(), this.corner2.getBlockZ());
-        Schematic schematic = new Schematic(new CuboidRegion(corner1, corner2));
-        SchematicUtil.setAllTo(schematic, new BaseBlock(0), getCenterLocation());
+        Location corner1 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.corner1);
+        Location corner2 = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(this.corner2);
+        com.sk89q.worldedit.Vector pos1 = new com.sk89q.worldedit.Vector(corner1.getX(), corner1.getY(), corner1.getZ());
+        com.sk89q.worldedit.Vector pos2 = new com.sk89q.worldedit.Vector(corner2.getX(), corner2.getY(), corner2.getZ());
+        CuboidRegion region = new CuboidRegion(FastAsyncWorldEditUtil.getWEWorld(this.zeroLocation.getWorld()), pos1, pos2);
+        SchematicUtil.setToAir(region, this.zeroLocation.getWorld());
     }
 
     public int getHighestYLevel() {

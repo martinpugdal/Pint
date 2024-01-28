@@ -1,6 +1,6 @@
 package dk.martinersej.pint.command;
 
-import dk.martinersej.pint.command.map.*;
+import dk.martinersej.pint.command.vote.VoteSetSchematicSubCommand;
 import dk.martinersej.pint.utils.command.Command;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
@@ -9,20 +9,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class MapCommand extends Command implements CommandExecutor, TabCompleter {
+public class VoteCommand extends Command implements CommandExecutor, TabCompleter {
 
-    public MapCommand(JavaPlugin plugin) {
+    public VoteCommand(JavaPlugin plugin) {
         super(plugin);
-        addSubCommand(new MapCreateSubCommand(plugin));
-        addSubCommand(new MapSetSchematicSubCommand(plugin));
-        addSubCommand(new MapListSubCommand(plugin));
-        addSubCommand(new MapSetPlayersSubCommand(plugin));
-        addSubCommand(new MapSetActiveSubCommand(plugin));
-        addSubCommand(new MapSpawnpointsSubCommand(plugin));
-        addSubCommand(new MapInfoSubCommand(plugin));
+        addSubCommand(new VoteSetSchematicSubCommand(plugin));
     }
 
     @Override
@@ -59,3 +52,4 @@ public class MapCommand extends Command implements CommandExecutor, TabCompleter
         return getAllowedSubCommands(commandSender, command, s, strings);
     }
 }
+

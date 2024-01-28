@@ -4,7 +4,6 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.game.objects.GameMap;
 import dk.martinersej.pint.utils.command.CommandResult;
-import dk.martinersej.pint.utils.command.Result;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,8 +23,8 @@ public class MapListSubCommand extends SubCommand {
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
 
-        if (args.length != 1) {
-            return Result.getCommandResult(Result.WRONG_USAGE, this);
+        if (args.length < 1) {
+            return CommandResult.wrongUsage(this);
         }
 
         String gameName = String.join(" ", args).toLowerCase();
@@ -33,11 +32,17 @@ public class MapListSubCommand extends SubCommand {
         if (game == null) {
             sender.sendMessage("§cDer findes ikke et spil med det navn");
         } else {
-            for (GameMap gameMap : game.getGameMaps()) {
-                sender.sendMessage("§a" + gameMap.getGameName() + " - (" + gameMap.getId() + ")" + (gameMap.isActive() ? " - (Aktivt)" : ""));
+            String name = game.getGameInformation().getName();
+            if (game.getGameMaps().isEmpty()) {
+                sender.sendMessage("§cDer findes ikke nogle maps for spillet " + name);
+
+            } else {
+                sender.sendMessage("§aMaps for spillet " + name + ":");
+                for (GameMap gameMap : game.getGameMaps()) {
+                    sender.sendMessage("§a- " + gameMap.getId() + " §7(" + (gameMap.isActive() ? "§aAktivt" : "§cInaktivt") + "§7)");
+                }
             }
         }
-
-        return Result.getCommandResult(Result.SUCCESS, this);
+        return CommandResult.success(this);
     }
 }

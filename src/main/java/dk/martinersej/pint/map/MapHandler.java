@@ -22,23 +22,26 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     public MapHandler() {
         super(Pint.getInstance(), "maps.yml");
-//        load();
         if (getConfig().getConfigurationSection("maps") == null) {
             getConfig().createSection("maps");
             save();
         }
-        this.mapUtil = new MapUtil();
-        loadMaps();
-
+        if (getConfig().getConfigurationSection("votemap") == null) {
+            getConfig().createSection("votemap");
+            save();
+        }
+        this.mapUtil = new MapUtil(this);
     }
 
-    private void loadMaps() {
+    public void loadMaps() {
         ConfigurationSection section = getConfig().getConfigurationSection("maps");
-
         for (String mapID : section.getKeys(false)) {
             int id = Integer.parseInt(mapID);
-            maps.put(id, new GameMap(id));
+            GameMap map = new GameMap(id);
+            maps.put(id, map);
+            map.load();
         }
+        mapUtil.updateHighestYLevel();
     }
 
     private int getNewMapID() {
@@ -72,25 +75,24 @@ public class MapHandler extends YamlManagerTypeImpl {
         return maps.get(id) != null;
     }
 
-    private ConfigurationSection getMapSection(int mapID) {
-        return getConfig().getConfigurationSection("maps." + mapID);
-    }
-
-    public int createMap() {
+    public int createMap(String gameName, Location corner1, Location corner2) {
         int mapID = getNewMapID();
         getConfig().createSection("maps." + mapID);
-        ConfigurationSection section = getConfig().getConfigurationSection("maps." + mapID);
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
 
+        section.set("gameName", gameName);
         section.createSection("spawnpoints");
-
         save();
+
         maps.put(mapID, new GameMap(mapID));
+
+        saveMapSchematic(mapID, corner1, corner2);
 
         return mapID;
     }
 
     public void saveMapSchematic(int id, Location corner1, Location corner2) {
-        ConfigurationSection section = getMapSection(id);
+        ConfigurationSection section = mapUtil.getMapSection(id);
 
         String realZeroLocation = LocationUtil.locationToString(corner1);
         String pos1Location = LocationUtil.vectorToString(LocationUtil.getVectorOffset(corner1, corner1));
@@ -104,13 +106,13 @@ public class MapHandler extends YamlManagerTypeImpl {
         SchematicUtil.createSchematic(schematicPath, corner1, corner2);
 
         if (maps.containsKey(id)) {
-            mapUtil.updateHighestYLevel();
             maps.get(id).load();
+            mapUtil.updateHighestYLevel();
         }
     }
 
     public void setActive(int mapID, boolean active) {
-        ConfigurationSection section = getMapSection(mapID);
+        ConfigurationSection section = getMapUtil().getMapSection(mapID);
         section.set("active", active);
         save();
 
@@ -120,7 +122,7 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
     public void setMinPlayers(int mapID, int minPlayers) {
-        ConfigurationSection section = getMapSection(mapID);
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
         section.set("minPlayers", minPlayers);
         save();
 
@@ -130,7 +132,7 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
     public void setMaxPlayers(int mapID, int maxPlayers) {
-        ConfigurationSection section = getMapSection(mapID);
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
         section.set("maxPlayers", maxPlayers);
         save();
 
@@ -140,7 +142,7 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
     public int addSpawnPoint(int mapID, Location location) {
-        ConfigurationSection section = getMapSection(mapID);
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
         int spawnPointID = getNewSpawnPointID(mapID);
 
         Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
@@ -156,7 +158,7 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
     public void deleteSpawnPoint(int mapID, int pointID) {
-        ConfigurationSection section = getMapSection(mapID);
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
         section.set("spawnpoints." + pointID, null);
 
         save();
@@ -167,7 +169,7 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
     public void clearSpawnPoints(int mapID) {
-        ConfigurationSection section = getMapSection(mapID);
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
         section.set("spawnpoints", null);
 
         save();
