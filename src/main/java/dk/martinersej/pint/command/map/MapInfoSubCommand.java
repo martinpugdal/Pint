@@ -42,7 +42,7 @@ public class MapInfoSubCommand extends SubCommand {
                     "§aAktiv: " + (gameMap.isActive() ? "Ja" : "Nej") + "\n" +
                     "§aCorners: " + gameMap.getCorner1() + " - " + gameMap.getCorner2() + "\n" +
                     "§aCenter: " + gameMap.getCenterLocation() + "\n" +
-                    "§aZero location: " + gameMap.getZeroLocation() + "\n" +
+//                    "§aZero location: " + gameMap.getZeroLocation() + "\n" +
                     "§aMin spillere: " + gameMap.getMinPlayers() + "\n" +
                     "§aMax spillere: " + gameMap.getMaxPlayers() + "\n" +
                     "§aSpawnpoints: " + gameMap.getSpawnPoints().size();

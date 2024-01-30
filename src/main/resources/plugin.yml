@@ -4,7 +4,6 @@ main: dk.martinersej.pint.Pint
 database: true
 depend:
   - Citizens
-  - HolographicDisplays
   - Vault
   - WorldEdit
   - FastAsyncWorldEdit
@@ -17,4 +16,6 @@ commands:
   vote:
     aliases: [ ]
   test:
+    aliases: [ ]
+  spawn:
     aliases: [ ]

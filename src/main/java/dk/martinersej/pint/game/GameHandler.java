@@ -4,6 +4,7 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.games.tnttag.TntTagGame;
 import dk.martinersej.pint.game.objects.GamePool;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
@@ -13,7 +14,8 @@ import java.util.List;
 public class GameHandler {
 
     private final GamePool gamePool;
-    private final Game currentGame = null;
+    @Setter
+    private Game currentGame = null;
     private final List<Game> games = new ArrayList<>();
 
     public GameHandler() {
@@ -52,8 +54,7 @@ public class GameHandler {
         gamePool.removeGame(game);
     }
 
-    public boolean startGame(String name) {
-        Game game = gamePool.getGame(name);
+    public boolean startGame(Game game) {
         if (game != null) {
             game.start();
             return true;
@@ -61,8 +62,7 @@ public class GameHandler {
         return false;
     }
 
-    public boolean stopGame(String name) {
-        Game game = gamePool.getGame(name);
+    public boolean stopGame(Game game) {
         if (game != null) {
             game.stop();
             return true;

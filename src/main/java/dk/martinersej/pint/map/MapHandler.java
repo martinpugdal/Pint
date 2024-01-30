@@ -3,6 +3,7 @@ package dk.martinersej.pint.map;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
+import dk.martinersej.pint.map.maps.VoteMap;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
@@ -26,8 +27,8 @@ public class MapHandler extends YamlManagerTypeImpl {
             getConfig().createSection("maps");
             save();
         }
-        if (getConfig().getConfigurationSection("votemap") == null) {
-            getConfig().createSection("votemap");
+        if (getConfig().getConfigurationSection("votemaps") == null) {
+            getConfig().createSection("votemaps");
             save();
         }
         this.mapUtil = new MapUtil(this);

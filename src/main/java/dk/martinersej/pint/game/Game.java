@@ -4,6 +4,7 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.objects.GameInformation;
 import dk.martinersej.pint.map.maps.GameMap;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -18,7 +19,8 @@ public abstract class Game implements Listener {
 
     private final List<Player> players = new ArrayList<>();
     private final List<GameMap> gameMaps = new ArrayList<>();
-    private final GameMap currentGameMap = null;
+    @Setter
+    private GameMap currentGameMap = null;
     private final GameInformation gameInformation;
 
     public Game(GameInformation gameInformation) {

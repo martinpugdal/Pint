@@ -2,13 +2,13 @@ package dk.martinersej.pint.vote;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.MapHandler;
+import dk.martinersej.pint.map.maps.VoteMap;
 import dk.martinersej.pint.utils.ItemBuilder;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,19 +18,25 @@ import org.bukkit.potion.PotionEffectType;
 public class VoteUtil {
 
     public void setToVoteGamemode(Player player) {
-        player.teleport(spawnLocation());
-//        player.setGameMode(GameMode.ADVENTURE);
         player.getInventory().clear();
         player.getInventory().setHelmet(new ItemStack(Material.AIR));
         player.getInventory().setChestplate(new ItemStack(Material.AIR));
         player.getInventory().setLeggings(new ItemStack(Material.AIR));
         player.getInventory().setBoots(new ItemStack(Material.AIR));
+        player.updateInventory();
+
         player.getActivePotionEffects().clear();
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, true, false));
+
         player.setHealth(20);
         player.setFoodLevel(20);
+
+        player.setGameMode(GameMode.ADVENTURE);
+
         player.setAllowFlight(true);
         player.setFlying(true);
+
+        player.teleport(spawnLocation());
 
         //vote item
         player.getInventory().setItem(4, getVoteItem());
@@ -45,15 +51,7 @@ public class VoteUtil {
     }
 
     public Location spawnLocation() {
-//        int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
-//        if (Pint.getInstance().getGameHandler().getCurrentGame() == null || Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap() == null) {
-//            return Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0.5, yLevel + 1, 0.5);
-//        }
-//        Location centerLocation = Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getCenterLocation().clone();
-//        centerLocation.setY(yLevel + 1);
-//        return centerLocation;
-        int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
-        return Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation().clone().add(0.5, yLevel + 1, 0.5);
+        return Pint.getInstance().getVoteHandler().getVoteMap().getSpawnLocation();
     }
 
     public ConfigurationSection getVoteMapSection() {
@@ -62,7 +60,7 @@ public class VoteUtil {
 
     public void saveMapSchematic(Location corner1, Location corner2) {
         MapHandler mapHandler = Pint.getInstance().getMapHandler();
-        ConfigurationSection section = mapHandler.getConfig().getConfigurationSection("votemap");
+        ConfigurationSection section = getVoteMapSection();
 
         String realZeroLocation = LocationUtil.locationToString(corner1);
         String pos1Location = LocationUtil.vectorToString(LocationUtil.getVectorOffset(corner1, corner1));
@@ -74,5 +72,33 @@ public class VoteUtil {
 
         String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + "votemap" + ".schematic";
         SchematicUtil.createSchematic(schematicPath, corner1, corner2);
+    }
+
+    public void setSpawnPoint(Location location) {
+        ConfigurationSection section = getVoteMapSection();
+
+        VoteMap voteMap = Pint.getInstance().getVoteHandler().getVoteMap();
+
+        Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
+        org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, location);
+        section.set("spawnpoint", LocationUtil.vectorToString(offset));
+
+        Pint.getInstance().getMapHandler().save();
+
+        voteMap.load();
+    }
+
+    public void deleteSpawnPoint() {
+        ConfigurationSection section = getVoteMapSection();
+
+        VoteMap voteMap = Pint.getInstance().getVoteHandler().getVoteMap();
+
+        Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
+        org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, voteMap.getCenterLocation());
+        section.set("spawnpoint", LocationUtil.vectorToString(offset));
+
+        Pint.getInstance().getMapHandler().save();
+
+        voteMap.load();
     }
 }

@@ -15,8 +15,6 @@ import org.bukkit.World;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SchematicUtil {
 
@@ -32,14 +30,34 @@ public class SchematicUtil {
         return null;
     }
 
-    public static void pasteSchematic(Schematic schematic, Location location, boolean ignoreAirBlocks) {
+    public static void pasteSchematic(Schematic schematic, Location location, boolean pasteAir) {
         schematic.paste(
                 FastAsyncWorldEditUtil.getWEWorld(location.getWorld()),
                 new Vector(location.getX(), location.getY(), location.getZ()),
                 false,
-                ignoreAirBlocks,
+                pasteAir,
                 null
         );
+    }
+
+    public static void clearSchematic(Region region, World world) {
+        FastAsyncWorldEditUtil.runSession(world, session -> {
+            try {
+                session.setBlocks(region, new BaseBlock(0));
+            } catch (MaxChangedBlocksException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public static void setSchematic(Region region, World world, BaseBlock block) {
+        FastAsyncWorldEditUtil.runSession(world, session -> {
+            try {
+                session.setBlocks(region, block);
+            } catch (MaxChangedBlocksException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static void createSchematic(String filePath, Location corner1, Location corner2) {
@@ -56,15 +74,5 @@ public class SchematicUtil {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-    }
-
-    public static void setToAir(Region region, World world) {
-        FastAsyncWorldEditUtil.runSession(world, session -> {
-            try {
-                session.setBlocks(region, new BaseBlock(0));
-            } catch (MaxChangedBlocksException e) {
-                e.printStackTrace();
-            }
-        });
     }
 }

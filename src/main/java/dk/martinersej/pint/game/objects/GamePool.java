@@ -6,12 +6,14 @@ import org.bukkit.Bukkit;
 import org.fusesource.jansi.Ansi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GamePool {
 
     @Getter
     private final List<Game> games = new ArrayList<>();
+    private final Game[] gameVotePool = new Game[3];
 
     public boolean addGame(Game game) {
         if (!games.contains(game)) {
@@ -41,5 +43,13 @@ public class GamePool {
             }
         }
         return null;
+    }
+
+    public void shuffleVotePool() {
+        List<Game> shuffleList = new ArrayList<>(this.games);
+        Collections.shuffle(shuffleList);
+        for (int i = 0; i < 3; i++) {
+            gameVotePool[i] = shuffleList.get(i);
+        }
     }
 }
