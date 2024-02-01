@@ -15,7 +15,9 @@ commands:
     aliases: [ ]
   vote:
     aliases: [ ]
-  test:
-    aliases: [ ]
   spawn:
+    aliases: [ ]
+  warp:
+    aliases: [ warps ]
+  test:
     aliases: [ ]

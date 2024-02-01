@@ -25,7 +25,7 @@ public class MapSpawnpointsSubCommand extends SubCommand {
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
 
-        if (args.length <= 2) {
+        if (args.length < 2) {
             return CommandResult.wrongUsage(this);
         }
         if (!(sender instanceof Player)) {

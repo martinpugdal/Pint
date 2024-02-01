@@ -22,6 +22,7 @@ public class SpawnCommand implements CommandExecutor {
             }
         }
         player.teleport(Pint.getInstance().getVoteHandler().getVoteUtil().spawnLocation());
+        commandSender.sendMessage("§aDu er blevet teleporteret til spawn");
         return true;
     }
 }

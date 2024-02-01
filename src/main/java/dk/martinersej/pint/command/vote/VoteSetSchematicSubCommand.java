@@ -9,6 +9,7 @@ import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.RegionSelector;
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.Bukkit;
@@ -38,6 +39,15 @@ public class VoteSetSchematicSubCommand extends SubCommand {
 
         Player player = (Player) sender;
 
+        Game currentGame = Pint.getInstance().getGameHandler().getCurrentGame();
+        boolean isGameRunning = false;
+        if (currentGame != null) {
+            if (currentGame.getCurrentGameMap() != null) {
+                if (currentGame.getCurrentGameMap().isPasted()) {
+                    isGameRunning = true;
+                }
+            }
+        }
         try {
             LocalSession localSession = Fawe.get().getWorldEdit().getSession(player.getName());
             RegionSelector selector = localSession.getRegionSelector(BukkitUtil.getLocalWorld(player.getWorld()));
@@ -47,6 +57,10 @@ public class VoteSetSchematicSubCommand extends SubCommand {
             Location corner2 = selection.getMaximumPoint();
 
             Pint.getInstance().getVoteHandler().getVoteUtil().saveMapSchematic(corner1, corner2);
+            if (isGameRunning) {
+                sender.sendMessage("§aSchematic er gemt for dette vote map");
+                return CommandResult.success(this);
+            }
             try {
                 Pint.getInstance().getVoteHandler().getVoteMap().clearSchematic();
             } catch (Exception e) {

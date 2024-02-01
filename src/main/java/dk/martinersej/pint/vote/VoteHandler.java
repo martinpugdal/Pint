@@ -1,13 +1,8 @@
 package dk.martinersej.pint.vote;
 
-import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.map.maps.VoteMap;
-import dk.martinersej.pint.utils.LocationUtil;
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.Map;

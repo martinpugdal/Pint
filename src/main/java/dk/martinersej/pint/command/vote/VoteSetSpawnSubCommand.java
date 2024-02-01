@@ -13,7 +13,7 @@ public class VoteSetSpawnSubCommand extends SubCommand {
         super(
                 plugin,
                 "Sæt spawnpoint for vote map",
-                "",
+                "[yaw (boolean)] [pitch (boolean)]",
                 "pint.vote.setspawn",
                 "setspawn"
         );
@@ -28,7 +28,26 @@ public class VoteSetSpawnSubCommand extends SubCommand {
 
         Player player = (Player) sender;
 
-        Pint.getInstance().getVoteHandler().getVoteUtil().setSpawnPoint(player.getLocation());
+        boolean yaw = false;
+        boolean pitch = false;
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("false") || args[0].equalsIgnoreCase("true")) {
+                yaw = Boolean.parseBoolean(args[0]);
+            } else {
+                sender.sendMessage("§cYaw skal være true eller false");
+                return CommandResult.success(this);
+            }
+            if (args.length > 1) {
+                if (args[1].equalsIgnoreCase("false") || args[1].equalsIgnoreCase("true")) {
+                    pitch = Boolean.parseBoolean(args[1]);
+                } else {
+                    sender.sendMessage("§cPitch skal være true eller false");
+                    return CommandResult.success(this);
+                }
+            }
+        }
+
+        Pint.getInstance().getVoteHandler().getVoteUtil().setSpawnPoint(player.getLocation(), yaw, pitch);
 
         sender.sendMessage("§aSpawnpoint for vote map er blevet sat");
 

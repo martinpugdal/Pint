@@ -3,16 +3,16 @@ package dk.martinersej.pint.map.maps;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.Map;
 import dk.martinersej.pint.utils.LocationUtil;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
-@Getter
 public class VoteMap extends Map {
 
     private Vector spawnPoint;
+    private float yaw;
+    private float pitch;
 
     public VoteMap() {
         super();
@@ -31,15 +31,33 @@ public class VoteMap extends Map {
         setCorner1(LocationUtil.stringToVector(section.getString("corner1")));
         setCorner2(LocationUtil.stringToVector(section.getString("corner2")));
 
+        // check if zeroLocation is set
+        if (section.getString("zeroLocation") == null) {
+            Bukkit.getLogger().warning("ZeroLocation is null for map votemap");
+            return;
+        }
+        // Load zeroLocation
+        setZeroLocation(LocationUtil.stringToLocation(section.getString("zeroLocation")));
+
         // Load spawnpoint
-        String spawnPointString = section.getString("spawnpoint");
+        ConfigurationSection spawnPointSection = section.getConfigurationSection("spawnpoint");
+        String spawnPointString = null;
+        if (spawnPointSection != null && spawnPointSection.getString("coords") != null) {
+            spawnPointString = spawnPointSection.getString("coords");
+        }
+
+        //int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
         if (spawnPointString == null) {
-            Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
-            org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, getCenterLocation());
-            section.set("spawnpoint", LocationUtil.vectorToString(offset));
+            Location centerLocation = getCenterLocation();
+            this.spawnPoint = new Vector(centerLocation.getX() + 0.5, centerLocation.getY() + 1, centerLocation.getZ() + 0.5);
         } else {
             this.spawnPoint = LocationUtil.stringToVector(spawnPointString);
+            //spawnPoint.setY(spawnPoint.getY() + yLevel);
         }
+
+        // Load yaw and pitch
+        this.yaw = (float) section.getDouble("spawnpoint.yaw", 0f);
+        this.pitch = (float) section.getDouble("spawnpoint.pitch", 0f);
     }
 
     protected String getSchematicPath() {
@@ -47,6 +65,15 @@ public class VoteMap extends Map {
     }
 
     public Location getSpawnLocation() {
-        return Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(spawnPoint);
+        int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
+//        if (spawnPoint == null) {
+//            return getCenterLocation().add(0, 1, 0);
+////            return Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0.5, yLevel + 1, 0.5);
+//        }
+        Location spawnLocation = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(spawnPoint);
+        spawnLocation.setYaw(yaw);
+        spawnLocation.setPitch(pitch);
+        spawnLocation.add(0, yLevel, 0);
+        return spawnLocation;
     }
 }

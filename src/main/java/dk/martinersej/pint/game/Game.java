@@ -19,9 +19,9 @@ public abstract class Game implements Listener {
 
     private final List<Player> players = new ArrayList<>();
     private final List<GameMap> gameMaps = new ArrayList<>();
+    private final GameInformation gameInformation;
     @Setter
     private GameMap currentGameMap = null;
-    private final GameInformation gameInformation;
 
     public Game(GameInformation gameInformation) {
         this.gameInformation = gameInformation;
@@ -76,6 +76,10 @@ public abstract class Game implements Listener {
 
     public GameMap getRandomMap(int playersCount) {
         List<GameMap> maps = getAppropriateMaps(playersCount);
+        if (maps.isEmpty()) {
+            Bukkit.getLogger().warning("No maps found for game: " + getGameInformation().getName() + " with " + playersCount + " players");
+            return null;
+        }
         return maps.get((int) (Math.random() * maps.size()));
     }
 

@@ -8,7 +8,10 @@ import dk.martinersej.pint.map.ServerWorld;
 import dk.martinersej.pint.utils.gui.GuiListeners;
 import dk.martinersej.pint.vote.VoteHandler;
 import dk.martinersej.pint.vote.interaction.VoteListener;
+import dk.martinersej.pint.warp.WarpHandler;
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -28,6 +31,10 @@ public final class Pint extends JavaPlugin {
         setupListeners();
         setupCommands();
         setupTasks();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
+        }
     }
 
     @Override
@@ -53,7 +60,7 @@ public final class Pint extends JavaPlugin {
         this.getServer().getPluginCommand("map").setExecutor(new MapCommand(this));
         this.getServer().getPluginCommand("game").setExecutor(new GameCommand(this));
         this.getServer().getPluginCommand("vote").setExecutor(new VoteCommand(this));
-
+        this.getServer().getPluginCommand("warp").setExecutor(new WarpCommand(this, new WarpHandler()));
         // simple commands
         this.getServer().getPluginCommand("spawn").setExecutor(new SpawnCommand());
         this.getServer().getPluginCommand("test").setExecutor(new TestCommand());

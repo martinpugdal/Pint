@@ -24,6 +24,8 @@ public abstract class Map {
     private org.bukkit.util.Vector corner1;
     private org.bukkit.util.Vector corner2;
     private Location zeroLocation;
+    @Getter
+    private boolean pasted = false;
 
     public Map() {
     }
@@ -72,6 +74,7 @@ public abstract class Map {
             location.setY(0);
         }
 
+        pasted = true;
         SchematicUtil.pasteSchematic(schematic, location, false);
     }
 
@@ -105,6 +108,7 @@ public abstract class Map {
             e.printStackTrace();
         }
 
+        pasted = false;
         SchematicUtil.clearSchematic(region, world);
     }
 

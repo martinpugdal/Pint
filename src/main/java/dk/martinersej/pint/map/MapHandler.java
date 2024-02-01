@@ -1,9 +1,8 @@
 package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
-import dk.martinersej.pint.map.maps.VoteMap;
+import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
@@ -16,6 +15,10 @@ import java.util.Map;
 public class MapHandler extends YamlManagerTypeImpl {
 
     @Getter
+    private final static String mapSection = "maps";
+    @Getter
+    private final static String voteMapSection = "votemaps";
+    @Getter
     private final Map<Integer, GameMap> maps = new HashMap<>();
     @Getter
     private final MapUtil mapUtil;
@@ -23,19 +26,19 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     public MapHandler() {
         super(Pint.getInstance(), "maps.yml");
-        if (getConfig().getConfigurationSection("maps") == null) {
-            getConfig().createSection("maps");
+        if (getConfig().getConfigurationSection(mapSection) == null) {
+            getConfig().createSection(mapSection);
             save();
         }
-        if (getConfig().getConfigurationSection("votemaps") == null) {
-            getConfig().createSection("votemaps");
+        if (getConfig().getConfigurationSection(voteMapSection) == null) {
+            getConfig().createSection(voteMapSection);
             save();
         }
         this.mapUtil = new MapUtil(this);
     }
 
     public void loadMaps() {
-        ConfigurationSection section = getConfig().getConfigurationSection("maps");
+        ConfigurationSection section = mapUtil.getMapSection();
         for (String mapID : section.getKeys(false)) {
             int id = Integer.parseInt(mapID);
             GameMap map = new GameMap(id);
@@ -47,7 +50,7 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     private int getNewMapID() {
         if (idMapCounter == 0) {
-            for (String mapID : getConfig().getConfigurationSection("maps").getKeys(false)) {
+            for (String mapID : getConfig().getConfigurationSection(mapSection).getKeys(false)) {
                 int id = Integer.parseInt(mapID);
                 if (id > idMapCounter) {
                     idMapCounter = id;
@@ -58,14 +61,37 @@ public class MapHandler extends YamlManagerTypeImpl {
     }
 
     private int getNewSpawnPointID(int mapID) {
-        int idCounter = getMap(mapID).getSpawnPoints().size();
-        for (String spawnPointID : getConfig().getConfigurationSection("spawnpoints").getKeys(false)) {
+        ConfigurationSection spawnPointSection = mapUtil.getMapSection(mapID).getConfigurationSection("spawnpoints");
+        /*
+         * If the spawnpoints section is null, then the first spawnpointID is 1
+         */
+        if (spawnPointSection == null) {
+            return 1;
+        }
+        /*
+         * Find the first spawnpointID that is not taken by a spawnpoint in the map
+         * If the spawnpoints are 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12
+         * Then the first spawnpointID that is not taken is 4
+         * ----------------------------------
+         * Else if the spawnpoints are 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+         * Then the first spawnpointID that is not taken is 11
+         */
+        int lastID = 0;
+        for (String spawnPointID : spawnPointSection.getKeys(false)) {
             int id = Integer.parseInt(spawnPointID);
-            if (id > idCounter) {
-                idCounter = id;
+            if (id - 1 != lastID) {
+                return id;
+            } else {
+                lastID = id;
             }
         }
-        return ++idCounter;
+        /*
+         * return the lastID + 1
+         * If the spawnpoints are 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+         * Then the lastID is 10
+         * So the next spawnpointID is 11
+         */
+        return lastID + 1;
     }
 
     public GameMap getMap(int id) {
@@ -148,7 +174,9 @@ public class MapHandler extends YamlManagerTypeImpl {
 
         Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
         org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, location);
-        section.set("spawnpoints." + spawnPointID, LocationUtil.vectorToString(offset));
+        section.set("spawnpoints." + spawnPointID + ".coords", LocationUtil.vectorToString(offset));
+        section.set("spawnpoints." + spawnPointID + ".yaw", location.getYaw());
+        section.set("spawnpoints." + spawnPointID + ".pitch", location.getPitch());
 
         save();
 

@@ -21,6 +21,10 @@ public class MapUtil {
         this.mapHandler = mapHandler;
     }
 
+    public ConfigurationSection getMapSection() {
+        return mapHandler.getConfig().getConfigurationSection("maps");
+    }
+
     public ConfigurationSection getMapSection(int mapID) {
         return mapHandler.getConfig().getConfigurationSection("maps." + mapID);
     }

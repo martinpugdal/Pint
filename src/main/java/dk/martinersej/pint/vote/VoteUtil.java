@@ -55,7 +55,7 @@ public class VoteUtil {
     }
 
     public ConfigurationSection getVoteMapSection() {
-        return Pint.getInstance().getMapHandler().getConfig().getConfigurationSection("votemap");
+        return Pint.getInstance().getMapHandler().getConfig().getConfigurationSection(MapHandler.getVoteMapSection());
     }
 
     public void saveMapSchematic(Location corner1, Location corner2) {
@@ -74,14 +74,17 @@ public class VoteUtil {
         SchematicUtil.createSchematic(schematicPath, corner1, corner2);
     }
 
-    public void setSpawnPoint(Location location) {
+    public void setSpawnPoint(Location location, boolean yaw, boolean pitch) {
         ConfigurationSection section = getVoteMapSection();
 
         VoteMap voteMap = Pint.getInstance().getVoteHandler().getVoteMap();
 
         Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
         org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, location);
-        section.set("spawnpoint", LocationUtil.vectorToString(offset));
+
+        section.set("spawnpoint.coords", LocationUtil.vectorToString(offset));
+        if (yaw) section.set("spawnpoint.yaw", location.getYaw()); else section.set("spawnpoint.yaw", null);
+        if (pitch) section.set("spawnpoint.pitch", location.getPitch()); else section.set("spawnpoint.pitch", null);
 
         Pint.getInstance().getMapHandler().save();
 
@@ -93,9 +96,7 @@ public class VoteUtil {
 
         VoteMap voteMap = Pint.getInstance().getVoteHandler().getVoteMap();
 
-        Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
-        org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, voteMap.getCenterLocation());
-        section.set("spawnpoint", LocationUtil.vectorToString(offset));
+        section.set("spawnpoint", null);
 
         Pint.getInstance().getMapHandler().save();
 

@@ -2,6 +2,7 @@ package dk.martinersej.pint.vote.interaction;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.utils.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class VoteListener implements Listener {
 
@@ -53,5 +55,11 @@ public class VoteListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
+//        new BukkitRunnable() {
+//            @Override
+//            public void run() {
+//                Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
+//            }
+//        }.runTaskLater(JavaPlugin.getProvidingPlugin(getClass()),1L);
     }
 }
