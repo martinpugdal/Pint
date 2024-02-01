@@ -1,5 +1,7 @@
 package dk.martinersej.pint.utils.gui;
 
+import dk.martinersej.pint.utils.ItemBuilder;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -88,13 +90,12 @@ public abstract class BaseGui implements InventoryHolder {
                 }
                 updateItem(slot, supplier.get());
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
     }
 
     public void clearItems() {
         items.clear();
     }
-
 
     void populateGui() {
         items.forEach(inventory::setItem);
@@ -186,5 +187,24 @@ public abstract class BaseGui implements InventoryHolder {
 
     public void close(Player player) {
         player.closeInventory();
+    }
+
+    public enum BaseItem {
+
+        CLOSE_MENU(new ItemStack(Material.NETHER_STAR), "§cLuk menuen", "§fTryk for at lukke menuen."),
+        BACK(new ItemStack(Material.ARROW), "§cTilbage", "§fTryk for at gå tilbage."),
+        NEXT(new ItemStack(Material.ARROW), "§cNæste", "§fTryk for at gå videre."),
+        PREVIOUS(new ItemStack(Material.ARROW), "§cForrige", "§fTryk for at gå tilbage."),
+        FILLED(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15), "§c", "§f");
+
+        private final ItemStack itemStack;
+
+        BaseItem(ItemStack itemStack, String name, String... lores) {
+            this.itemStack = new ItemBuilder(itemStack).setName(name).setLore(lores).toItemStack();
+        }
+
+        public ItemStack getItemStack() {
+            return itemStack.clone();
+        }
     }
 }

@@ -2,7 +2,6 @@ package dk.martinersej.pint.vote.interaction;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.utils.ItemBuilder;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -11,6 +10,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -24,16 +24,11 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onVoteItemClick(PlayerInteractEvent event) {
-//        if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
-//            if (Pint.getInstance().getGameHandler().getCurrentGame().getPlayers().contains(event.getPlayer())) {
-//                return;
-//            }
-//        }
         if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             if (event.getItem() != null && event.getItem().getType().equals(Material.COMPASS)) {
                 String vote = ItemBuilder.getNbt(event.getItem(), "vote");
                 if (vote != null) {
-                    new VoteGUI().open(event.getPlayer());
+                    new VoteGUI(event.getPlayer().getUniqueId()).open(event.getPlayer());
                 }
             }
         }
@@ -54,12 +49,17 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
-//        new BukkitRunnable() {
-//            @Override
-//            public void run() {
-//                Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
-//            }
-//        }.runTaskLater(JavaPlugin.getProvidingPlugin(getClass()),1L);
+//        Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
+            }
+        }.runTaskLater(JavaPlugin.getProvidingPlugin(getClass()), 1L);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Pint.getInstance().getVoteHandler().setVote(event.getPlayer().getUniqueId(), null);
     }
 }

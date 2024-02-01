@@ -3,15 +3,16 @@ package dk.martinersej.pint.vote;
 import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.map.maps.VoteMap;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.UUID;
 
 @Getter
 public class VoteHandler {
 
-    private final Map<Player, Game> votes = new WeakHashMap<>();
+    private final Map<UUID, Game> votes = new HashMap<>();
+    private final Map<Game, Integer> gameVotes = new HashMap<>();
     private final VoteUtil voteUtil;
     private final VoteMap voteMap;
 
@@ -20,12 +21,31 @@ public class VoteHandler {
         voteMap = new VoteMap();
     }
 
-    public void setVote(Player player, Game game) {
-        votes.put(player, game);
+    public void setVote(UUID uuid, Game game) {
+        Game putGame = votes.put(uuid, game);
+        if (game == null) {
+            gameVotes.put(putGame, gameVotes.get(putGame) - 1);
+        } else if (putGame == null) {
+            gameVotes.putIfAbsent(game, 0);
+            gameVotes.put(game, gameVotes.get(game) + 1);
+        } else {
+            if (putGame.equals(game)) {
+                return;
+            }
+            gameVotes.putIfAbsent(game, 0);
+
+            gameVotes.put(putGame, gameVotes.get(putGame) - 1);
+            gameVotes.put(game, gameVotes.get(game) + 1);
+        }
+    }
+
+    public int gameVotes(Game game) {
+        return gameVotes.get(game) == null ? 0 : gameVotes.get(game);
     }
 
     public void refreshVotes() {
         votes.clear();
+        gameVotes.clear();
     }
 
     public void loadVoteMap() {

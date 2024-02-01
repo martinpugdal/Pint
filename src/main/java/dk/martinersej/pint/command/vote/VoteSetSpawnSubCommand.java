@@ -26,8 +26,6 @@ public class VoteSetSpawnSubCommand extends SubCommand {
             return CommandResult.noConsole(this);
         }
 
-        Player player = (Player) sender;
-
         boolean yaw = false;
         boolean pitch = false;
         if (args.length > 0) {
@@ -45,6 +43,12 @@ public class VoteSetSpawnSubCommand extends SubCommand {
                     return CommandResult.success(this);
                 }
             }
+        }
+
+        Player player = (Player) sender;
+        if (player.getWorld().equals(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld())) {
+            sender.sendMessage("§cDu kan ikke sætte et spawnpoint i serverens verden");
+            return CommandResult.success(this);
         }
 
         Pint.getInstance().getVoteHandler().getVoteUtil().setSpawnPoint(player.getLocation(), yaw, pitch);

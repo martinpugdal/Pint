@@ -48,6 +48,12 @@ public class VoteSetSchematicSubCommand extends SubCommand {
                 }
             }
         }
+
+        if (player.getWorld().equals(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld())) {
+            sender.sendMessage("§cDu kan ikke sætte et schematic i serverens verden");
+            return CommandResult.success(this);
+        }
+
         try {
             LocalSession localSession = Fawe.get().getWorldEdit().getSession(player.getName());
             RegionSelector selector = localSession.getRegionSelector(BukkitUtil.getLocalWorld(player.getWorld()));

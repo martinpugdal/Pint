@@ -21,6 +21,7 @@ public class GameMap extends Map {
     private boolean active;
 
     private List<Vector> spawnPoints;
+    private List<YawPitch> yawPitches;
 
     private int minPlayers;
     private int maxPlayers;
@@ -65,8 +66,16 @@ public class GameMap extends Map {
 
         // Load spawnpoints
         this.spawnPoints = new ArrayList<>();
-        for (String key : section.getConfigurationSection("spawnpoints").getKeys(false)) {
-            spawnPoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key)));
+        this.yawPitches = new ArrayList<>();
+        ConfigurationSection spawnPointsSection = section.getConfigurationSection("spawnpoints");
+        if (spawnPointsSection != null) {
+            for (String key : spawnPointsSection.getKeys(false)) {
+                spawnPoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key + ".coords")));
+                yawPitches.add(new YawPitch(
+                        (float) section.getDouble("spawnpoints." + key + ".yaw", 0f),
+                        (float) section.getDouble("spawnpoints." + key + ".pitch", 0f)
+                ));
+            }
         }
     }
 
@@ -78,5 +87,12 @@ public class GameMap extends Map {
         Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
         Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
         return Math.max(corner2Location.getBlockX(), corner1Location.getBlockX());
+    }
+
+    public Location getSpawnPoint(int index) {
+        Location spawnPointLocation = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffsetWithVoteMap(spawnPoints.get(index), this);
+        spawnPointLocation.setYaw(yawPitches.get(index).getYaw());
+        spawnPointLocation.setPitch(yawPitches.get(index).getPitch());
+        return spawnPointLocation;
     }
 }

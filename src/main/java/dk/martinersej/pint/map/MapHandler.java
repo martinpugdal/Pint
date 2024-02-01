@@ -168,15 +168,19 @@ public class MapHandler extends YamlManagerTypeImpl {
         }
     }
 
-    public int addSpawnPoint(int mapID, Location location) {
+    public int addSpawnPoint(int mapID, Location location, boolean yaw, boolean pitch) {
         ConfigurationSection section = mapUtil.getMapSection(mapID);
         int spawnPointID = getNewSpawnPointID(mapID);
 
         Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
         org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, location);
         section.set("spawnpoints." + spawnPointID + ".coords", LocationUtil.vectorToString(offset));
-        section.set("spawnpoints." + spawnPointID + ".yaw", location.getYaw());
-        section.set("spawnpoints." + spawnPointID + ".pitch", location.getPitch());
+
+        if (yaw) section.set("spawnpoints." + spawnPointID + ".yaw", location.getYaw());
+        else section.set("spawnpoints." + spawnPointID + ".yaw", 0);
+
+        if (pitch) section.set("spawnpoints." + spawnPointID + ".pitch", location.getPitch());
+        else section.set("spawnpoints." + spawnPointID + ".pitch", 0);
 
         save();
 

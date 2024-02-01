@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class GamePool {
 
-    @Getter
     private final List<Game> games = new ArrayList<>();
-    private final Game[] gameVotePool = new Game[3];
+    private final Game[] voteGames = new Game[3];
 
     public boolean addGame(Game game) {
         if (!games.contains(game)) {
@@ -49,7 +49,10 @@ public class GamePool {
         List<Game> shuffleList = new ArrayList<>(this.games);
         Collections.shuffle(shuffleList);
         for (int i = 0; i < 3; i++) {
-            gameVotePool[i] = shuffleList.get(i);
+            if (shuffleList.size() <= i) {
+                break;
+            }
+            voteGames[i] = shuffleList.get(i);
         }
     }
 }

@@ -152,12 +152,15 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setGlowing(boolean glowing) {
+        ItemMeta meta = is.getItemMeta();
         if (glowing) {
-            ItemMeta meta = is.getItemMeta();
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
-            is.setItemMeta(meta);
+        } else {
+            meta.removeEnchant(Enchantment.DURABILITY);
+            meta.removeItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         }
+        is.setItemMeta(meta);
         return this;
     }
 
@@ -256,6 +259,21 @@ public class ItemBuilder {
         List<String> lore = new ArrayList<>();
         if (im.hasLore()) lore = new ArrayList<>(im.getLore());
         lore.add(line);
+        im.setLore(lore);
+        is.setItemMeta(im);
+        return this;
+    }
+
+    /**
+     * Add a lore lines.
+     *
+     * @param lines The lore lines to add.
+     */
+    public ItemBuilder addLoreLine(String... lines) {
+        ItemMeta im = is.getItemMeta();
+        List<String> lore = new ArrayList<>();
+        if (im.hasLore()) lore = new ArrayList<>(im.getLore());
+        lore.addAll(Arrays.asList(lines));
         im.setLore(lore);
         is.setItemMeta(im);
         return this;

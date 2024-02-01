@@ -42,7 +42,33 @@ public class MapSpawnpointsSubCommand extends SubCommand {
 
         switch (action) {
             case "add":
-                int spID = Pint.getInstance().getMapHandler().addSpawnPoint(mapID, ((Player) sender).getLocation());
+                Player player = (Player) sender;
+                if (player.getWorld().equals(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld())) {
+                    sender.sendMessage("§cDu kan ikke tilføje et spawnpoint i serverens verden");
+                    return CommandResult.success(this);
+                }
+
+                boolean yaw = false;
+                boolean pitch = false;
+                if (args.length > 2) {
+                    String yawString = args[2];
+                    if (yawString.equalsIgnoreCase("false") || yawString.equalsIgnoreCase("true")) {
+                        yaw = Boolean.parseBoolean(yawString);
+                    } else {
+                        sender.sendMessage("§cYaw skal være true eller false");
+                        return CommandResult.success(this);
+                    }
+                    if (args.length > 3) {
+                        String pitchString = args[3];
+                        if (pitchString.equalsIgnoreCase("false") || pitchString.equalsIgnoreCase("true")) {
+                            pitch = Boolean.parseBoolean(pitchString);
+                        } else {
+                            sender.sendMessage("§cPitch skal være true eller false");
+                            return CommandResult.success(this);
+                        }
+                    }
+                }
+                int spID = Pint.getInstance().getMapHandler().addSpawnPoint(mapID, player.getLocation(), yaw, pitch);
                 sender.sendMessage("§aSpawnpoint med id " + spID + " er nu tilføjet til map med id " + mapID);
                 break;
             case "delete":

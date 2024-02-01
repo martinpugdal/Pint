@@ -4,7 +4,6 @@ import dk.martinersej.pint.command.*;
 import dk.martinersej.pint.game.GameHandler;
 import dk.martinersej.pint.listener.ListenerHandler;
 import dk.martinersej.pint.map.MapHandler;
-import dk.martinersej.pint.map.ServerWorld;
 import dk.martinersej.pint.utils.gui.GuiListeners;
 import dk.martinersej.pint.vote.VoteHandler;
 import dk.martinersej.pint.vote.interaction.VoteListener;
@@ -32,9 +31,12 @@ public final class Pint extends JavaPlugin {
         setupCommands();
         setupTasks();
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
-        }
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
+            }
+        }, 1);
+
     }
 
     @Override

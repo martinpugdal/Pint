@@ -4,6 +4,8 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.game.games.dåseskjul.DaaseskjulGame;
+import dk.martinersej.pint.game.games.shufflecolor.ShuffleColorGame;
 import dk.martinersej.pint.game.games.tnttag.TntTagGame;
 import dk.martinersej.pint.game.objects.GamePool;
 import dk.martinersej.pint.map.maps.VoteMap;
@@ -58,6 +60,16 @@ public class GameHandler {
         Game tntTagGame = new TntTagGame();
         addGame(tntTagGame);
         addGameToPool(tntTagGame);
+
+        Game shuffleGame = new ShuffleColorGame();
+        addGame(shuffleGame);
+        addGameToPool(shuffleGame);
+
+        Game daaseskjulGame = new DaaseskjulGame();
+        addGame(daaseskjulGame);
+        addGameToPool(daaseskjulGame);
+
+        gamePool.shuffleVotePool();
     }
 
     private void addGame(Game game) {

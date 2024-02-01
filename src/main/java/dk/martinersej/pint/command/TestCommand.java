@@ -4,8 +4,11 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.map.maps.GameMap;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class TestCommand implements CommandExecutor {
 
@@ -33,9 +36,27 @@ public class TestCommand implements CommandExecutor {
                 } else {
                     commandSender.sendMessage("Current game map is null");
                 }
+            } else if (strings[0].equalsIgnoreCase("tp")) {
+                commandSender.sendMessage("Teleporting to spawn points");
+                new BukkitRunnable() {
+                    int i = 0;
+                    @Override
+                    public void run() {
+                        if (i < game.getCurrentGameMap().getSpawnPoints().size()) {
+                            Player player = (Player) commandSender;
+
+                            player.teleport(game.getCurrentGameMap().getSpawnPoint(i));
+                            i++;
+                        } else {
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(Pint.getInstance(), 0, 100);
+            } else {
+                commandSender.sendMessage("Korrekt brug: /test <paste/clear/tp>");
             }
         } else {
-            commandSender.sendMessage("Korrekt brug: /test <paste/clear>");
+            commandSender.sendMessage("Korrekt brug: /test <paste/clear/tp>");
         }
 
         return true;

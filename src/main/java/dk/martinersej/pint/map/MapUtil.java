@@ -2,6 +2,7 @@ package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.maps.GameMap;
+import dk.martinersej.pint.utils.LocationUtil;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -43,6 +44,16 @@ public class MapUtil {
 
     public Location getLocationFromOffset(Vector offset) {
         Location location = serverWorld.getZeroLocation();
+        return location.add(offset);
+    }
+
+    public Location getLocationFromOffsetWithVoteMap(Vector offset, GameMap gameMap) {
+        Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
+
+        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(gameMap.getCenterLocation(), new Location(location.getWorld(), gameMap.getCorner1().getX(), gameMap.getCorner1().getY(), gameMap.getCorner1().getZ()));
+
+        location.add(vectorOffset);
+        location.setY(0);
         return location.add(offset);
     }
 

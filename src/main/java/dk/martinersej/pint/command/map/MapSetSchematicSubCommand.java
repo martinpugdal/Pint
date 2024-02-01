@@ -43,13 +43,17 @@ public class MapSetSchematicSubCommand extends SubCommand {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
             return CommandResult.success(this);
         }
-
-        if (Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getId() == id) {
+        if (Pint.getInstance().getGameHandler().getCurrentGame() != null && Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getId() == id) {
             sender.sendMessage("§cDu kan ikke redigere det map som er i brug");
             return CommandResult.success(this);
         }
 
         Player player = (Player) sender;
+        if (player.getWorld().equals(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld())) {
+            sender.sendMessage("§cDu kan ikke sætte et schematic i serverens verden");
+            return CommandResult.success(this);
+        }
+
         try {
             LocalSession localSession = Fawe.get().getWorldEdit().getSession(player.getName());
             RegionSelector selector = localSession.getRegionSelector(BukkitUtil.getLocalWorld(player.getWorld()));

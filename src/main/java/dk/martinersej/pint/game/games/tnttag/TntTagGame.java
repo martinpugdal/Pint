@@ -7,7 +7,7 @@ import org.bukkit.Material;
 public class TntTagGame extends Game {
 
     public TntTagGame() {
-        super(new GameInformation("TNT Tag", "Tag someone with TNT to win!", Material.TNT));
+        super(new GameInformation("TNT Tag", "§c", "Tag someone with TNT to win!", Material.TNT));
     }
 
     @Override
