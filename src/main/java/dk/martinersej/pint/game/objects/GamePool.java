@@ -1,5 +1,6 @@
 package dk.martinersej.pint.game.objects;
 
+import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.Game;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -46,6 +47,7 @@ public class GamePool {
     }
 
     public void shuffleVotePool() {
+        Pint.getInstance().getVoteHandler().refreshVotes();
         List<Game> shuffleList = new ArrayList<>(this.games);
         Collections.shuffle(shuffleList);
         for (int i = 0; i < 3; i++) {

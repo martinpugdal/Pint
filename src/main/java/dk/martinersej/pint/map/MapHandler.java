@@ -162,7 +162,6 @@ public class MapHandler extends YamlManagerTypeImpl {
             for (Game voteGame : Pint.getInstance().getGameHandler().getGamePool().getVoteGames()) {
                 if (voteGame != null && voteGame.equals(game)) {
                     Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
-                    Pint.getInstance().getVoteHandler().refreshVotes();
                     break;
                 }
             }
