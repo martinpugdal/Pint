@@ -51,8 +51,9 @@ public class GameHandler {
                 }
         );
         VoteMap voteMap = Pint.getInstance().getVoteHandler().getVoteMap();
-        voteMap.setCorner1(new org.bukkit.util.Vector(0, 0, 0));
-        voteMap.setCorner2(new org.bukkit.util.Vector(0, 0, 0));
+        org.bukkit.util.Vector corner = new org.bukkit.util.Vector(0, 0, 0);
+        voteMap.setCorner1(corner);
+        voteMap.setCorner2(corner);
         voteMap.setZeroLocation(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation());
     }
 
