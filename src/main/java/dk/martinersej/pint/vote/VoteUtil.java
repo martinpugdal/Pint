@@ -39,6 +39,7 @@ public class VoteUtil {
         player.teleport(spawnLocation());
 
         //vote item
+        player.setCompassTarget(spawnLocation());
         player.getInventory().setItem(4, getVoteItem());
     }
 
@@ -72,6 +73,15 @@ public class VoteUtil {
 
         String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + "votemap" + ".schematic";
         SchematicUtil.createSchematic(schematicPath, corner1, corner2);
+    }
+
+    public void removeMapSchematic() {
+        ConfigurationSection section = getVoteMapSection();
+        section.set("zeroLocation", null);
+        section.set("corner1", null);
+        section.set("corner2", null);
+        Pint.getInstance().getMapHandler().save();
+        deleteSpawnPoint();
     }
 
     public void setSpawnPoint(Location location, boolean yaw, boolean pitch) {

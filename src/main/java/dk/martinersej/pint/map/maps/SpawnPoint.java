@@ -1,16 +1,17 @@
 package dk.martinersej.pint.map.maps;
 
 import lombok.Getter;
-import lombok.Setter;
+import org.bukkit.util.Vector;
 
 @Getter
-@Setter
-public class YawPitch {
+public class SpawnPoint {
 
+    private final Vector vector;
     private final float yaw;
     private final float pitch;
 
-    public YawPitch(float yaw, float pitch) {
+    public SpawnPoint(Vector vector, float yaw, float pitch) {
+        this.vector = vector;
         this.yaw = yaw;
         this.pitch = pitch;
     }

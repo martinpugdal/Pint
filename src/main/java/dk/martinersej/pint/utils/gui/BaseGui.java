@@ -195,7 +195,7 @@ public abstract class BaseGui implements InventoryHolder {
         BACK(new ItemStack(Material.ARROW), "§cTilbage", "§fTryk for at gå tilbage."),
         NEXT(new ItemStack(Material.ARROW), "§cNæste", "§fTryk for at gå videre."),
         PREVIOUS(new ItemStack(Material.ARROW), "§cForrige", "§fTryk for at gå tilbage."),
-        FILLED(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15), "§c", "§f");
+        FILLED(new ItemStack(Material.STAINED_GLASS_PANE), "§f", "§f");
 
         private final ItemStack itemStack;
 

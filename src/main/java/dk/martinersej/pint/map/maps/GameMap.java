@@ -7,7 +7,6 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,7 @@ public class GameMap extends Map {
     private String gameName;
     private boolean active;
 
-    private List<Vector> spawnPoints;
-    private List<YawPitch> yawPitches;
+    private List<SpawnPoint> spawnPoints;
 
     private int minPlayers;
     private int maxPlayers;
@@ -66,14 +64,13 @@ public class GameMap extends Map {
 
         // Load spawnpoints
         this.spawnPoints = new ArrayList<>();
-        this.yawPitches = new ArrayList<>();
         ConfigurationSection spawnPointsSection = section.getConfigurationSection("spawnpoints");
         if (spawnPointsSection != null) {
             for (String key : spawnPointsSection.getKeys(false)) {
-                spawnPoints.add(LocationUtil.stringToVector(section.getString("spawnpoints." + key + ".coords")));
-                yawPitches.add(new YawPitch(
-                        (float) section.getDouble("spawnpoints." + key + ".yaw", 0f),
-                        (float) section.getDouble("spawnpoints." + key + ".pitch", 0f)
+                spawnPoints.add(new SpawnPoint(
+                        LocationUtil.stringToVector(spawnPointsSection.getString(key + ".coords")),
+                        (float) spawnPointsSection.getDouble(key + ".yaw", 0f),
+                        (float) spawnPointsSection.getDouble(key + ".pitch", 0f)
                 ));
             }
         }
@@ -90,9 +87,13 @@ public class GameMap extends Map {
     }
 
     public Location getSpawnPoint(int index) {
-        Location spawnPointLocation = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffsetWithVoteMap(spawnPoints.get(index), this);
-        spawnPointLocation.setYaw(yawPitches.get(index).getYaw());
-        spawnPointLocation.setPitch(yawPitches.get(index).getPitch());
-        return spawnPointLocation;
+        return Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffsetWithVoteMap(spawnPoints.get(index), this);
     }
+
+
+    @Override
+    public String toString() {
+        return gameName + " (" + id + ")";
+    }
+
 }

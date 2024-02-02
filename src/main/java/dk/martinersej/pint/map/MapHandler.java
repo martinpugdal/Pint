@@ -1,6 +1,7 @@
 package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
 import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.utils.LocationUtil;
@@ -145,6 +146,26 @@ public class MapHandler extends YamlManagerTypeImpl {
 
         if (maps.containsKey(mapID)) {
             maps.get(mapID).load();
+            if (!active) {
+                Game game = Pint.getInstance().getGameHandler().getGame(maps.get(mapID).getGameName());
+                checkEnoughMapsAndShuffleVotePool(game);
+            }
+        }
+    }
+
+    private void checkEnoughMapsAndShuffleVotePool(Game game) {
+        if (game.getActiveMaps().isEmpty()) {
+            // no maps are active for the game,
+            // so remove the game from the pool
+            // and shuffle the vote pool if the game is in the vote pool
+            Pint.getInstance().getGameHandler().getGamePool().removeGame(game);
+            for (Game voteGame : Pint.getInstance().getGameHandler().getGamePool().getVoteGames()) {
+                if (voteGame != null && voteGame.equals(game)) {
+                    Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
+                    Pint.getInstance().getVoteHandler().refreshVotes();
+                    break;
+                }
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.maps.GameMap;
+import dk.martinersej.pint.map.maps.SpawnPoint;
 import dk.martinersej.pint.utils.LocationUtil;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -47,14 +48,16 @@ public class MapUtil {
         return location.add(offset);
     }
 
-    public Location getLocationFromOffsetWithVoteMap(Vector offset, GameMap gameMap) {
+    public Location getLocationFromOffsetWithVoteMap(SpawnPoint spawnPoint, GameMap gameMap) {
         Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
 
         org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(gameMap.getCenterLocation(), new Location(location.getWorld(), gameMap.getCorner1().getX(), gameMap.getCorner1().getY(), gameMap.getCorner1().getZ()));
-
         location.add(vectorOffset);
         location.setY(0);
-        return location.add(offset);
+
+        location.setPitch(spawnPoint.getPitch());
+        location.setYaw(spawnPoint.getYaw());
+        return location.add(spawnPoint.getVector());
     }
 
     public void updateHighestYLevel() {

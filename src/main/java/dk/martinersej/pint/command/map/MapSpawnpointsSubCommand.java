@@ -2,13 +2,13 @@ package dk.martinersej.pint.command.map;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.maps.GameMap;
+import dk.martinersej.pint.map.maps.SpawnPoint;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
 public class MapSpawnpointsSubCommand extends SubCommand {
 
@@ -88,11 +88,10 @@ public class MapSpawnpointsSubCommand extends SubCommand {
                 break;
             case "list":
                 GameMap gameMap = Pint.getInstance().getMapHandler().getMap(mapID);
-                Location zeroLocation = gameMap.getZeroLocation().clone();
                 sender.sendMessage("§aSpawnpoint:");
-                for (Vector vector : gameMap.getSpawnPoints()) {
-                    Location location = zeroLocation.clone().add(vector);
-                    sender.sendMessage("§a- " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ());
+                for (SpawnPoint spawnPoint : gameMap.getSpawnPoints()) {
+                    Location location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffsetWithVoteMap(spawnPoint, gameMap);
+                    sender.sendMessage("§a- " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " Yaw: " + spawnPoint.getYaw() + " Pitch: " + spawnPoint.getPitch());
                 }
                 break;
             default:

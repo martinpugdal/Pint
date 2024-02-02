@@ -32,11 +32,6 @@ public class ServerWorld {
         this.world.setGameRuleValue("doDaylightCycle", "false");
         this.world.setGameRuleValue("doWeatherCycle", "false");
         this.world.setDifficulty(Difficulty.EASY);
-        this.world.setTime(6000L);
-        this.world.setStorm(false);
-        this.world.setThundering(false);
-        this.world.setWeatherDuration(0);
-        this.world.setThunderDuration(0);
 
         this.zeroLocation = new Location(world, 0, 0, 0);
     }

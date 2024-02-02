@@ -35,7 +35,7 @@ public final class Pint extends JavaPlugin {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
             }
-        }, 1);
+        }, 1L);
 
     }
 

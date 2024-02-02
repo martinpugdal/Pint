@@ -74,6 +74,16 @@ public abstract class Game implements Listener {
         return maps;
     }
 
+    public List<GameMap> getActiveMaps() {
+        List<GameMap> maps = new ArrayList<>();
+        for (GameMap gameMap : gameMaps) {
+            if (gameMap.isActive()) {
+                maps.add(gameMap);
+            }
+        }
+        return maps;
+    }
+
     public GameMap getRandomMap(int playersCount) {
         List<GameMap> maps = getAppropriateMaps(playersCount);
         if (maps.isEmpty()) {

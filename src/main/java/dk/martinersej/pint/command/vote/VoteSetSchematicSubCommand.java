@@ -3,6 +3,9 @@ package dk.martinersej.pint.command.vote;
 import com.boydti.fawe.Fawe;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
@@ -10,10 +13,12 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.RegionSelector;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -71,6 +76,15 @@ public class VoteSetSchematicSubCommand extends SubCommand {
                 Pint.getInstance().getVoteHandler().getVoteMap().clearSchematic();
             } catch (Exception e) {
                 Bukkit.getLogger().warning("Could not clear schematic for vote map");
+                // it means that we have the default schematic
+                World serverWorld = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld();
+                FastAsyncWorldEditUtil.runSession(serverWorld, session -> {
+                    try {
+                        session.setBlock(new Vector(0, 0, 0), new BaseBlock(0));
+                    } catch (MaxChangedBlocksException ex) {
+                        e.printStackTrace();
+                    }
+                });
             }
             Pint.getInstance().getVoteHandler().loadVoteMap();
             Pint.getInstance().getVoteHandler().getVoteMap().pasteSchematic();

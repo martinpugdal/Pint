@@ -49,13 +49,12 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-//        Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
         new BukkitRunnable() {
             @Override
             public void run() {
                 Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(event.getPlayer());
             }
-        }.runTaskLater(JavaPlugin.getProvidingPlugin(getClass()), 1L);
+        }.runTaskLater(Pint.getInstance(), 1L);
     }
 
     @EventHandler

@@ -10,9 +10,7 @@ import org.bukkit.util.Vector;
 
 public class VoteMap extends Map {
 
-    private Vector spawnPoint;
-    private float yaw;
-    private float pitch;
+    private SpawnPoint spawnPoint;
 
     public VoteMap() {
         super();
@@ -49,15 +47,10 @@ public class VoteMap extends Map {
         //int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
         if (spawnPointString == null) {
             Location centerLocation = getCenterLocation();
-            this.spawnPoint = new Vector(centerLocation.getX() + 0.5, centerLocation.getY() + 1, centerLocation.getZ() + 0.5);
+            this.spawnPoint = new SpawnPoint(new Vector(centerLocation.getX() + 0.5, centerLocation.getY() + 1, centerLocation.getZ() + 0.5), 0f, 0f);
         } else {
-            this.spawnPoint = LocationUtil.stringToVector(spawnPointString);
-            //spawnPoint.setY(spawnPoint.getY() + yLevel);
+            this.spawnPoint = new SpawnPoint(LocationUtil.stringToVector(spawnPointString), (float) section.getDouble("spawnpoint.yaw", 0f), (float) section.getDouble("spawnpoint.pitch", 0f));
         }
-
-        // Load yaw and pitch
-        this.yaw = (float) section.getDouble("spawnpoint.yaw", 0f);
-        this.pitch = (float) section.getDouble("spawnpoint.pitch", 0f);
     }
 
     protected String getSchematicPath() {
@@ -65,15 +58,19 @@ public class VoteMap extends Map {
     }
 
     public Location getSpawnLocation() {
+        if (spawnPoint == null) {
+            return new Location(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld(), 0, 1, 0).add(0.5, 0, 0.5);
+        }
         int yLevel = Pint.getInstance().getMapHandler().getMapUtil().getHighestYLevel();
-//        if (spawnPoint == null) {
-//            return getCenterLocation().add(0, 1, 0);
-////            return Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getZeroLocation().clone().add(0.5, yLevel + 1, 0.5);
-//        }
-        Location spawnLocation = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(spawnPoint);
-        spawnLocation.setYaw(yaw);
-        spawnLocation.setPitch(pitch);
-        spawnLocation.add(0, yLevel, 0);
+
+        Location spawnLocation = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(spawnPoint.getVector()).add(0, yLevel, 0);
+        spawnLocation.setYaw(spawnPoint.getYaw());
+        spawnLocation.setPitch(spawnPoint.getPitch());
         return spawnLocation;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 }

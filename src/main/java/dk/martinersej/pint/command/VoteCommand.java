@@ -1,8 +1,6 @@
 package dk.martinersej.pint.command;
 
-import dk.martinersej.pint.command.vote.VoteSetSchematicSubCommand;
-import dk.martinersej.pint.command.vote.VoteSetSpawnSubCommand;
-import dk.martinersej.pint.command.vote.VoteUnsetSpawnSubCommand;
+import dk.martinersej.pint.command.vote.*;
 import dk.martinersej.pint.utils.command.Command;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
@@ -20,6 +18,8 @@ public class VoteCommand extends Command implements CommandExecutor, TabComplete
         addSubCommand(new VoteSetSchematicSubCommand(plugin));
         addSubCommand(new VoteSetSpawnSubCommand(plugin));
         addSubCommand(new VoteUnsetSpawnSubCommand(plugin));
+        addSubCommand(new VoteUnsetSchematicSubCommand(plugin));
+        addSubCommand(new VoteShufflePoolSubCommand(plugin));
     }
 
     @Override
