@@ -15,7 +15,7 @@ public class MapSpawnpointsSubCommand extends SubCommand {
     public MapSpawnpointsSubCommand(JavaPlugin plugin) {
         super(
                 plugin,
-                "Vis alle maps for et spil",
+                "Spawnpoints for et map",
                 "<MapID> <add|delete|clear|list> [<SpawnpointID>]",
                 "pint.map.spawnpoints",
                 "spawnpoint", "spawnpoints"
@@ -90,7 +90,7 @@ public class MapSpawnpointsSubCommand extends SubCommand {
                 GameMap gameMap = Pint.getInstance().getMapHandler().getMap(mapID);
                 sender.sendMessage("§aSpawnpoint:");
                 for (SpawnPoint spawnPoint : gameMap.getSpawnPoints()) {
-                    Location location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffsetWithVoteMap(spawnPoint, gameMap);
+                    Location location = Pint.getInstance().getMapHandler().getMapUtil().calculateSpawnLocationWithVoteMap(spawnPoint, gameMap);
                     sender.sendMessage("§a- " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " Yaw: " + spawnPoint.getYaw() + " Pitch: " + spawnPoint.getPitch());
                 }
                 break;

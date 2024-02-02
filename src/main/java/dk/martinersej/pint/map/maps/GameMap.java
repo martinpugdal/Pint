@@ -1,5 +1,8 @@
 package dk.martinersej.pint.map.maps;
 
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Region;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.Map;
 import dk.martinersej.pint.utils.LocationUtil;
@@ -20,6 +23,7 @@ public class GameMap extends Map {
     private boolean active;
 
     private List<SpawnPoint> spawnPoints;
+    private List<Region> regions;
 
     private int minPlayers;
     private int maxPlayers;
@@ -74,7 +78,28 @@ public class GameMap extends Map {
                 ));
             }
         }
+
+        // Load regions
+        this.regions = new ArrayList<>();
+        ConfigurationSection regionsSection = section.getConfigurationSection("regions");
+        if (regionsSection != null) {
+            for (String key : regionsSection.getKeys(false)) {
+                // convert bukkit vector to worldedit vector
+                org.bukkit.util.Vector corner1 = LocationUtil.stringToVector(regionsSection.getString(key + ".corner1"));
+                Vector pos1 = new Vector(corner1.getX(), corner1.getY(), corner1.getZ());
+                org.bukkit.util.Vector corner2 = LocationUtil.stringToVector(regionsSection.getString(key + ".corner2"));
+                Vector pos2 = new Vector(corner2.getX(), corner2.getY(), corner2.getZ());
+
+                regions.add(
+                        new CuboidRegion(
+                                pos1,
+                                pos2
+                        )
+                );
+            }
+        }
     }
+
 
     protected String getSchematicPath() {
         return Pint.getInstance().getDataFolder() + "/maps/" + id + ".schematic";
@@ -87,13 +112,21 @@ public class GameMap extends Map {
     }
 
     public Location getSpawnPoint(int index) {
-        return Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffsetWithVoteMap(spawnPoints.get(index), this);
+        if (spawnPoints.size() <= index) {
+            return null;
+        }
+        return Pint.getInstance().getMapHandler().getMapUtil().calculateSpawnLocationWithVoteMap(spawnPoints.get(index), this);
     }
 
+    public Region getRegion(int index) {
+        if (regions.size() <= index) {
+            return null;
+        }
+        return Pint.getInstance().getMapHandler().getMapUtil().calculateRegionWithVoteMap(regions.get(index), this);
+    }
 
     @Override
     public String toString() {
         return gameName + " (" + id + ")";
     }
-
 }

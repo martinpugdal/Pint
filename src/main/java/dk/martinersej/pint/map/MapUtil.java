@@ -1,5 +1,7 @@
 package dk.martinersej.pint.map;
 
+import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.regions.RegionOperationException;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.maps.GameMap;
 import dk.martinersej.pint.map.maps.SpawnPoint;
@@ -48,16 +50,33 @@ public class MapUtil {
         return location.add(offset);
     }
 
-    public Location getLocationFromOffsetWithVoteMap(SpawnPoint spawnPoint, GameMap gameMap) {
+    public Location calculateSpawnLocationWithVoteMap(SpawnPoint spawnPoint, GameMap gameMap) {
         Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
 
-        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(gameMap.getCenterLocation(), new Location(location.getWorld(), gameMap.getCorner1().getX(), gameMap.getCorner1().getY(), gameMap.getCorner1().getZ()));
+        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(gameMap.getCenterLocation(), new Location(serverWorld.getWorld(), gameMap.getCorner1().getX(), gameMap.getCorner1().getY(), gameMap.getCorner1().getZ()));
         location.add(vectorOffset);
         location.setY(0);
 
         location.setPitch(spawnPoint.getPitch());
         location.setYaw(spawnPoint.getYaw());
         return location.add(spawnPoint.getVector());
+    }
+
+    public Region calculateRegionWithVoteMap(Region region, GameMap gameMap) {
+        Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
+        
+        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(gameMap.getCenterLocation(), new Location(serverWorld.getWorld(), gameMap.getCorner1().getX(), gameMap.getCorner1().getY(), gameMap.getCorner1().getZ()));
+        location.add(vectorOffset);
+        location.setY(0);
+        
+        com.sk89q.worldedit.Vector vector = new com.sk89q.worldedit.Vector(vectorOffset.getX(), vectorOffset.getY(), vectorOffset.getZ());
+        try {
+            region.shift(vector);
+        } catch (RegionOperationException e) {
+            e.printStackTrace();
+        }
+        
+        return region;
     }
 
     public void updateHighestYLevel() {

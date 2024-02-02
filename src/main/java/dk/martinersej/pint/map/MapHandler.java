@@ -63,20 +63,9 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     private int getNewSpawnPointID(int mapID) {
         ConfigurationSection spawnPointSection = mapUtil.getMapSection(mapID).getConfigurationSection("spawnpoints");
-        /*
-         * If the spawnpoints section is null, then the first spawnpointID is 1
-         */
         if (spawnPointSection == null) {
             return 1;
         }
-        /*
-         * Find the first spawnpointID that is not taken by a spawnpoint in the map
-         * If the spawnpoints are 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12
-         * Then the first spawnpointID that is not taken is 4
-         * ----------------------------------
-         * Else if the spawnpoints are 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-         * Then the first spawnpointID that is not taken is 11
-         */
         int lastID = 0;
         for (String spawnPointID : spawnPointSection.getKeys(false)) {
             int id = Integer.parseInt(spawnPointID);
@@ -86,12 +75,23 @@ public class MapHandler extends YamlManagerTypeImpl {
                 lastID = id;
             }
         }
-        /*
-         * return the lastID + 1
-         * If the spawnpoints are 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-         * Then the lastID is 10
-         * So the next spawnpointID is 11
-         */
+        return lastID + 1;
+    }
+
+    private int getNewRegionID(int mapID) {
+        ConfigurationSection regionSection = mapUtil.getMapSection(mapID).getConfigurationSection("regions");
+        if (regionSection == null) {
+            return 1;
+        }
+        int lastID = 0;
+        for (String regionID : regionSection.getKeys(false)) {
+            int id = Integer.parseInt(regionID);
+            if (id - 1 != lastID) {
+                return id;
+            } else {
+                lastID = id;
+            }
+        }
         return lastID + 1;
     }
 
@@ -224,6 +224,43 @@ public class MapHandler extends YamlManagerTypeImpl {
     public void clearSpawnPoints(int mapID) {
         ConfigurationSection section = mapUtil.getMapSection(mapID);
         section.set("spawnpoints", null);
+
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
+    }
+
+    public int addRegion(int mapID, Location corner1, Location corner2) {
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
+        int regionID = getNewRegionID(mapID);
+        section.set("regions." + regionID + ".corner1", LocationUtil.vectorToString(LocationUtil.getVectorOffset(corner1, corner1)));
+        section.set("regions." + regionID + ".corner2", LocationUtil.vectorToString(LocationUtil.getVectorOffset(corner1, corner2)));
+
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
+
+        return regionID;
+    }
+
+    public void deleteRegion(int mapID, int regionID) {
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
+        section.set("regions." + regionID, null);
+
+        save();
+
+        if (maps.containsKey(mapID)) {
+            maps.get(mapID).load();
+        }
+    }
+
+    public void clearRegions(int mapID) {
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
+        section.set("regions", null);
 
         save();
 

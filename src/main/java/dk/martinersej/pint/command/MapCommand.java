@@ -22,6 +22,7 @@ public class MapCommand extends Command implements CommandExecutor, TabCompleter
         addSubCommand(new MapSetPlayersSubCommand(plugin));
         addSubCommand(new MapSetActiveSubCommand(plugin));
         addSubCommand(new MapSpawnpointsSubCommand(plugin));
+        addSubCommand(new MapRegionsSubCommand(plugin));
         addSubCommand(new MapInfoSubCommand(plugin));
     }
 

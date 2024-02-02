@@ -36,7 +36,6 @@ public final class Pint extends JavaPlugin {
                 Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
             }
         }, 1L);
-
     }
 
     @Override

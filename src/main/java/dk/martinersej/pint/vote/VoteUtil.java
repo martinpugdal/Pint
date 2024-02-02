@@ -93,8 +93,10 @@ public class VoteUtil {
         org.bukkit.util.Vector offset = LocationUtil.getVectorOffset(realZeroLocation, location);
 
         section.set("spawnpoint.coords", LocationUtil.vectorToString(offset));
-        if (yaw) section.set("spawnpoint.yaw", location.getYaw()); else section.set("spawnpoint.yaw", null);
-        if (pitch) section.set("spawnpoint.pitch", location.getPitch()); else section.set("spawnpoint.pitch", null);
+        if (yaw) section.set("spawnpoint.yaw", location.getYaw());
+        else section.set("spawnpoint.yaw", null);
+        if (pitch) section.set("spawnpoint.pitch", location.getPitch());
+        else section.set("spawnpoint.pitch", null);
 
         Pint.getInstance().getMapHandler().save();
 
