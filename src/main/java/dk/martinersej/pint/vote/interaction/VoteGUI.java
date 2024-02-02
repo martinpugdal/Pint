@@ -68,12 +68,12 @@ public class VoteGUI extends BaseGui {
         item.setName(displayName);
         String ganeName = game.getGameInformation().getName();
         item.setNbt("vote", ganeName);
-        item.setLore("", "§fTryk for at stemme på §l" + ganeName + "§f!", "", "");
+        item.setLore("", "§f" + game.getGameInformation().getDescription(), "", "§fTryk for at stemme på §l" + ganeName + "§f!", "", "");
         String voteString = "§7Votes: " + game.getGameInformation().getColor();
         return () -> {
             int votes = Pint.getInstance().getVoteHandler().gameVotes(game);
             item.setAmount(votes == 0 ? 1 : votes);
-            item.addLoreLine(voteString + votes, 3);
+            item.addLoreLine(voteString + votes, 5);
             item.setGlowing(Pint.getInstance().getVoteHandler().getVote(uuid) == game);
             return item.toItemStack();
         };
