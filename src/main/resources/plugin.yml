@@ -3,11 +3,12 @@ version: '${project.version}'
 main: dk.martinersej.pint.Pint
 database: true
 depend:
-  - Citizens
   - Vault
   - WorldEdit
   - FastAsyncWorldEdit
   - WorldGuard
+softdepend:
+  - Citizens
 commands:
   map:
     aliases: [ ]
