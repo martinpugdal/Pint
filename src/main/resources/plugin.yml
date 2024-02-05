@@ -22,3 +22,5 @@ commands:
     aliases: [ warps ]
   test:
     aliases: [ ]
+libraries:
+  - 'net.kyori:adventure-platform-bukkit:4.0.1'

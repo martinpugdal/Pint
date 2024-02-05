@@ -50,7 +50,10 @@ public class GamePool {
         Pint.getInstance().getVoteHandler().refreshVotes();
         List<Game> shuffleList = new ArrayList<>(this.games);
         Collections.shuffle(shuffleList);
-        for (int i = 0; i < 3; i++) {
+        voteGames[0] = null;
+        voteGames[1] = null;
+        voteGames[2] = null;
+        for (int i = 0; i < voteGames.length; i++) {
             if (shuffleList.size() <= i) {
                 break;
             }

@@ -6,6 +6,9 @@ import dk.martinersej.pint.map.maps.VoteMap;
 import dk.martinersej.pint.utils.ItemBuilder;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
+import dk.martinersej.pint.vote.interaction.VoteComponent;
+import lombok.Getter;
+import net.megavex.scoreboardlibrary.api.sidebar.Sidebar;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +18,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+@Getter
 public class VoteUtil {
+
+    @Getter
+    private final Sidebar voteScoreboard;
+    private final VoteComponent voteComponent;
+
+    public VoteUtil() {
+        voteScoreboard = Pint.getScoreboardLibrary().createSidebar();
+        voteComponent = new VoteComponent(voteScoreboard);
+    }
 
     public void setToVoteGamemode(Player player) {
         player.getInventory().clear();
@@ -41,6 +54,8 @@ public class VoteUtil {
         //vote item
         player.setCompassTarget(spawnLocation());
         player.getInventory().setItem(4, getVoteItem());
+
+        voteScoreboard.addPlayer(player);
     }
 
     private ItemStack getVoteItem() {

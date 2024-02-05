@@ -30,16 +30,17 @@ public class VoteGUI extends BaseGui {
             }
         }
 
-        int slot = 13;
+        int slot = 11;
         int raiseSlot = 2;
 
-        if (games == 3) {
-            slot = 11;
+        if (games == 1) {
+            slot = 13;
         } else if (games == 2) {
-            raiseSlot = 4;
+            slot = 12;
         }
 
         if (games == 0) {
+            slot = 13;
             setItem(slot, new ItemBuilder(Material.BARRIER).setName("§cDer er ingen spil at stemme på!").toItemStack());
         } else {
             if (voteGames[0] != null) {
@@ -82,7 +83,7 @@ public class VoteGUI extends BaseGui {
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
         event.setCancelled(true);
-        if (event.getCurrentItem().getType().equals(Material.AIR)) {
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
             return;
         }
         if (event.getCurrentItem().equals(BaseItem.CLOSE_MENU.getItemStack())) {

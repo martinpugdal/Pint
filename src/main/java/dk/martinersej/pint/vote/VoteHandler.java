@@ -3,6 +3,8 @@ package dk.martinersej.pint.vote;
 import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.map.maps.VoteMap;
 import lombok.Getter;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +17,31 @@ public class VoteHandler {
     private final Map<Game, Integer> gameVotes = new HashMap<>();
     private final VoteUtil voteUtil;
     private final VoteMap voteMap;
+    private BukkitRunnable voteTimer = null;
 
     public VoteHandler() {
         voteUtil = new VoteUtil();
         voteMap = new VoteMap();
+    }
+
+    public void startVoteTimer() {
+        voteTimer = new BukkitRunnable() {
+
+            private int cooldown = 60;
+
+            @Override
+            public void run() {
+                voteUtil.getVoteComponent().tick();
+
+                // timer is up, end vote
+                if (cooldown <= 0) {
+                    cancel();
+                }
+
+                cooldown--;
+            }
+        };
+        voteTimer.runTaskTimer(JavaPlugin.getProvidingPlugin(VoteHandler.class), 0, 20);
     }
 
     public void setVote(UUID uuid, Game game) {

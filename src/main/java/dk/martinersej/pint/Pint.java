@@ -9,6 +9,9 @@ import dk.martinersej.pint.vote.VoteHandler;
 import dk.martinersej.pint.vote.interaction.VoteListener;
 import dk.martinersej.pint.warp.WarpHandler;
 import lombok.Getter;
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
+import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
+import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +21,8 @@ public final class Pint extends JavaPlugin {
 
     @Getter
     private static Pint instance;
+    @Getter
+    private static ScoreboardLibrary scoreboardLibrary;
     private GameHandler gameHandler;
     private MapHandler mapHandler;
     private VoteHandler voteHandler;
@@ -26,6 +31,7 @@ public final class Pint extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        setupScoreboardLibrary();
         setupHandlers();
         setupListeners();
         setupCommands();
@@ -40,12 +46,22 @@ public final class Pint extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        scoreboardLibrary.close();
         stopTasks();
     }
 
     private void stopTasks() {
         instance.getServer().getScheduler().cancelTasks(instance);
+    }
+
+    private static void setupScoreboardLibrary() {
+        try {
+            scoreboardLibrary = ScoreboardLibrary.loadScoreboardLibrary(instance);
+        } catch (NoPacketAdapterAvailableException e) {
+            // If no packet adapter was found, you can fallback to the no-op implementation:
+            scoreboardLibrary = new NoopScoreboardLibrary();
+            Bukkit.getLogger().warning("No scoreboard packet adapter available!");
+        }
     }
 
     private void setupHandlers() {
