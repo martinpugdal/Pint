@@ -46,6 +46,15 @@ public class GamePool {
         return null;
     }
 
+    public Game getGame(Game game) {
+        for (Game g : games) {
+            if (g.equals(game)) {
+                return g;
+            }
+        }
+        return null;
+    }
+
     public void shuffleVotePool() {
         Pint.getInstance().getVoteHandler().refreshVotes();
         List<Game> shuffleList = new ArrayList<>(this.games);

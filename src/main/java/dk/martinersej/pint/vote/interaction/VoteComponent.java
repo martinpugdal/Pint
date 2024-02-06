@@ -1,7 +1,6 @@
 package dk.martinersej.pint.vote.interaction;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.Game;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -16,13 +15,10 @@ import net.megavex.scoreboardlibrary.api.sidebar.component.ComponentSidebarLayou
 import net.megavex.scoreboardlibrary.api.sidebar.component.SidebarComponent;
 import net.megavex.scoreboardlibrary.api.sidebar.component.animation.CollectionSidebarAnimation;
 import net.megavex.scoreboardlibrary.api.sidebar.component.animation.SidebarAnimation;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class VoteComponent {
 
@@ -30,70 +26,43 @@ public class VoteComponent {
     private final Sidebar sidebar;
     private final ComponentSidebarLayout componentSidebar;
     private final SidebarAnimation<Component> titleAnimation;
-    private final Supplier<Component>[] voteGameSidebarSupplier = new Supplier[3];
 
     public VoteComponent(@NotNull Sidebar sidebar) {
         this.sidebar = sidebar;
 
         // Create the title animation
         titleAnimation = createGradientAnimation(
-                Component.text("PINT", Style.style(TextDecoration.UNDERLINED)),
-                NamedTextColor.YELLOW,
-                NamedTextColor.GOLD
+                Component.text("PINT", Style.style(TextDecoration.UNDERLINED, TextDecoration.BOLD)),
+                NamedTextColor.GOLD,
+                NamedTextColor.YELLOW
         );
 
         SidebarComponent title = SidebarComponent.animatedLine(titleAnimation);
-
-        for (int i = 0; i < voteGameSidebarSupplier.length; i++) {
-            voteGameSidebarSupplier[i] = voteGameSidebarSupplier(i);
-        }
 
         SidebarComponent.Builder builder = SidebarComponent.builder().addBlankLine();
 
         builder.addStaticLine(Component.text("Vote games", NamedTextColor.LIGHT_PURPLE));
         builder.addBlankLine();
 
-        for (int i = 0; i < 3; i++) {
-            builder.addDynamicLine(voteGameSidebarSupplier[i]);
-            builder.addBlankLine();
-        }
-
-        SidebarComponent lines = builder.build();
-
-        this.componentSidebar = new ComponentSidebarLayout(title, lines);
-
-        // schedule and call tick() every tick
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (sidebar.closed()) {
-                    cancel();
-                    return;
-                }
-                tick();
+        builder.addDynamicLine(() -> {
+            if (Pint.getInstance().getVoteHandler() != null && Pint.getInstance().getVoteHandler().getVoteTimer() != null && Pint.getInstance().getVoteHandler().getCooldown() != 45) {
+                return Component.text("§aVi starter om: §e" + Pint.getInstance().getVoteHandler().getCooldown());
+            } else if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
+                return Component.text("§aVi spiller nu: §e" + Pint.getInstance().getGameHandler().getCurrentGame().getGameInformation().getDisplayName());
             }
-        }.runTaskTimerAsynchronously(JavaPlugin.getProvidingPlugin(getClass()), 0, 1L);
-    }
+            return Component.text("§6Stem på et spil");
+        });
 
-    private Supplier<Component> voteGameSidebarSupplier(int index) {
-        return () -> {
-            if (Pint.getInstance().getGameHandler() != null) {
-                Game voteGame = Pint.getInstance().getGameHandler().getGamePool().getVoteGames()[index];
-                if (voteGame == null) {
-                    return Component.text("No game", NamedTextColor.GRAY);
-                }
-                int votes = Pint.getInstance().getVoteHandler().gameVotes(voteGame);
-                return Component.text(voteGame.getGameInformation().getDisplayName() + " " + votes, NamedTextColor.GRAY);
-            }
-            return Component.text("No game", NamedTextColor.GRAY);
-        };
+        this.componentSidebar = new ComponentSidebarLayout(title, builder.build());
     }
 
     // Called every tick
     public void tick() {
+        if (sidebar.closed()) {
+            return;
+        }
         // Advance the animation
         titleAnimation.nextFrame();
-
         // Update sidebar title & lines
         componentSidebar.apply(sidebar);
     }

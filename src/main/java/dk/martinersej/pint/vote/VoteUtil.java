@@ -59,7 +59,7 @@ public class VoteUtil {
     }
 
     private ItemStack getVoteItem() {
-        ItemBuilder itemBuilder = new ItemBuilder(Material.COMPASS);
+        ItemBuilder itemBuilder = new ItemBuilder(Material.NETHER_STAR);
         itemBuilder.setName("§aVote");
         itemBuilder.setLore("§7Click to vote for a map");
         itemBuilder.setNbt("vote", "true");

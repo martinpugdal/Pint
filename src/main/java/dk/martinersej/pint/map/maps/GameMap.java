@@ -52,7 +52,7 @@ public class GameMap extends Map {
         setCorner1(LocationUtil.stringToVector(section.getString("corner1")));
         setCorner2(LocationUtil.stringToVector(section.getString("corner2")));
 
-        // check if zero location is set
+        // check if zero locations are set
         if (section.getString("zeroLocation") == null) {
             Bukkit.getLogger().warning("ZeroLocation is null for map with id " + id);
             return;

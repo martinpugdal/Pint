@@ -11,14 +11,13 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class VoteGUI extends BaseGui {
 
     private final Map<Game, Integer> itemSlots = new HashMap<>();
 
-    public VoteGUI(UUID uuid) {
+    public VoteGUI(Player player) {
         super("Vote", 4);
 
         Game[] voteGames = Pint.getInstance().getGameHandler().getGamePool().getVoteGames();
@@ -44,15 +43,15 @@ public class VoteGUI extends BaseGui {
             setItem(slot, new ItemBuilder(Material.BARRIER).setName("§cDer er ingen spil at stemme på!").toItemStack());
         } else {
             if (voteGames[0] != null) {
-                addUpdatingItem(slot, setGameItem(voteGames[0], uuid));
+                addUpdatingItem(slot, setGameItem(voteGames[0], player));
                 itemSlots.put(voteGames[0], slot);
             }
             if (voteGames[1] != null) {
-                addUpdatingItem(slot + raiseSlot, setGameItem(voteGames[1], uuid));
+                addUpdatingItem(slot + raiseSlot, setGameItem(voteGames[1], player));
                 itemSlots.put(voteGames[1], slot + raiseSlot);
             }
             if (voteGames[2] != null) {
-                addUpdatingItem(slot + (raiseSlot * 2), setGameItem(voteGames[2], uuid));
+                addUpdatingItem(slot + (raiseSlot * 2), setGameItem(voteGames[2], player));
                 itemSlots.put(voteGames[2], slot + (raiseSlot * 2));
             }
         }
@@ -63,7 +62,7 @@ public class VoteGUI extends BaseGui {
         build();
     }
 
-    private Supplier<ItemStack> setGameItem(Game game, UUID uuid) {
+    private Supplier<ItemStack> setGameItem(Game game, Player player) {
         ItemBuilder item = new ItemBuilder(game.getGameInformation().getIcon());
         String displayName = game.getGameInformation().getColor() + "§n" + game.getGameInformation().getName();
         item.setName(displayName);
@@ -72,10 +71,10 @@ public class VoteGUI extends BaseGui {
         item.setLore("", "§f" + game.getGameInformation().getDescription(), "", "§fTryk for at stemme på §l" + ganeName + "§f!", "", "");
         String voteString = "§7Votes: " + game.getGameInformation().getColor();
         return () -> {
-            int votes = Pint.getInstance().getVoteHandler().gameVotes(game);
+            int votes = Pint.getInstance().getVoteHandler().getGameVotesCount(game);
             item.setAmount(votes == 0 ? 1 : votes);
             item.addLoreLine(voteString + votes, 5);
-            item.setGlowing(Pint.getInstance().getVoteHandler().getVote(uuid) == game);
+            item.setGlowing(Pint.getInstance().getVoteHandler().getVote(player) == game);
             return item.toItemStack();
         };
     }
@@ -98,18 +97,19 @@ public class VoteGUI extends BaseGui {
         if (game == null) {
             return;
         }
-        UUID uuid = event.getWhoClicked().getUniqueId();
-        Game hasVoted = Pint.getInstance().getVoteHandler().getVote(uuid);
+
+        Player player = (Player) event.getWhoClicked();
+        Game hasVoted = Pint.getInstance().getVoteHandler().getVote(player);
         if (hasVoted != null && hasVoted.equals(game)) {
-            Pint.getInstance().getVoteHandler().setVote(event.getWhoClicked().getUniqueId(), null);
+            Pint.getInstance().getVoteHandler().setVote(player, null);
             event.getWhoClicked().sendMessage("§aDu har fjernet din stemme fra §l" + game.getGameInformation().getDisplayName() + "§a!");
         } else {
-            Pint.getInstance().getVoteHandler().setVote(event.getWhoClicked().getUniqueId(), game);
+            Pint.getInstance().getVoteHandler().setVote(player, game);
             event.getWhoClicked().sendMessage("§aDu har stemt på §l" + game.getGameInformation().getDisplayName() + "§a!");
         }
-        this.getInventory().setItem(event.getSlot(), setGameItem(game, uuid).get());
+        this.getInventory().setItem(event.getSlot(), setGameItem(game, player).get());
         if (hasVoted != null) {
-            this.getInventory().setItem(itemSlots.get(hasVoted), setGameItem(hasVoted, uuid).get());
+            this.getInventory().setItem(itemSlots.get(hasVoted), setGameItem(hasVoted, player).get());
         }
     }
 }

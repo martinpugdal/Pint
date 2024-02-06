@@ -25,10 +25,10 @@ public class VoteListener implements Listener {
     @EventHandler
     public void onVoteItemClick(PlayerInteractEvent event) {
         if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            if (event.getItem() != null && event.getItem().getType().equals(Material.COMPASS)) {
+            if (event.getItem() != null && !event.getItem().getType().equals(Material.AIR)) {
                 String vote = ItemBuilder.getNbt(event.getItem(), "vote");
                 if (vote != null) {
-                    new VoteGUI(event.getPlayer().getUniqueId()).open(event.getPlayer());
+                    new VoteGUI(event.getPlayer()).open(event.getPlayer());
                 }
             }
         }
@@ -59,6 +59,6 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Pint.getInstance().getVoteHandler().setVote(event.getPlayer().getUniqueId(), null);
+        Pint.getInstance().getVoteHandler().setVote(event.getPlayer(), null);
     }
 }

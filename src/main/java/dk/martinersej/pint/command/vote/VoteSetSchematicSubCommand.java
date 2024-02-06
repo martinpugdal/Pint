@@ -66,25 +66,27 @@ public class VoteSetSchematicSubCommand extends SubCommand {
 
             Location corner1 = selection.getMinimumPoint();
             Location corner2 = selection.getMaximumPoint();
-
             Pint.getInstance().getVoteHandler().getVoteUtil().saveMapSchematic(corner1, corner2);
             if (isGameRunning) {
                 sender.sendMessage("§aSchematic er gemt for dette vote map");
                 return CommandResult.success(this);
             }
             try {
-                Pint.getInstance().getVoteHandler().getVoteMap().clearSchematic();
+                if (Pint.getInstance().getVoteHandler().defaultVoteMap()) {
+                    Bukkit.getLogger().info("Clearing schematic for default vote map");
+                    World serverWorld = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld();
+                    FastAsyncWorldEditUtil.runSession(serverWorld, session -> {
+                        try {
+                            session.setBlock(new Vector(0, 0, 0), new BaseBlock(0));
+                        } catch (MaxChangedBlocksException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                } else {
+                    Pint.getInstance().getVoteHandler().getVoteMap().clearSchematic();
+                }
             } catch (Exception e) {
                 Bukkit.getLogger().warning("Could not clear schematic for vote map");
-                // it means that we have the default schematic
-                World serverWorld = Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld();
-                FastAsyncWorldEditUtil.runSession(serverWorld, session -> {
-                    try {
-                        session.setBlock(new Vector(0, 0, 0), new BaseBlock(0));
-                    } catch (MaxChangedBlocksException ex) {
-                        e.printStackTrace();
-                    }
-                });
             }
             Pint.getInstance().getVoteHandler().loadVoteMap();
             Pint.getInstance().getVoteHandler().getVoteMap().pasteSchematic();

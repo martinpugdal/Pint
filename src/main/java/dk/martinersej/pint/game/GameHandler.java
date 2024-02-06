@@ -89,20 +89,20 @@ public class GameHandler {
         gamePool.removeGame(game);
     }
 
-    public boolean startGame(Game game) {
-        if (game != null) {
+    public void startGame(Game game) {
+        if (game != null && gamePool.getGame(game) != null) {
+            currentGame = game;
+            game.prepareGame();
             game.start();
-            return true;
         }
-        return false;
     }
 
-    public boolean stopGame(Game game) {
-        if (game != null) {
+    public void stopGame(Game game) {
+        if (game != null && game.equals(currentGame)) {
             game.stop();
-            return true;
+        } else {
+            Bukkit.getLogger().warning("Game is not running");
         }
-        return false;
     }
 
     public Game getGame(String name) {

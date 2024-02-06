@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,8 +44,10 @@ public abstract class Game implements Listener {
     }
 
     public void stop() {
+        onGameEnd();
         unregisterEvents();
         players.clear();
+        Pint.getInstance().getVoteHandler().startVoteTimer();
     }
 
     public void addPlayer(Player player) {
@@ -57,7 +60,7 @@ public abstract class Game implements Listener {
 
 
     private void registerEvents() {
-        registerEvents();
+        Bukkit.getPluginManager().registerEvents(this, JavaPlugin.getProvidingPlugin(getClass()));
     }
 
     private void unregisterEvents() {
@@ -97,6 +100,7 @@ public abstract class Game implements Listener {
         //TODO: Implement this
 
 
+        start();
         onGameStart();
     }
 
