@@ -17,14 +17,17 @@ import java.util.List;
 
 @Getter
 public abstract class Game implements Listener {
-
+    @Getter
+    private static int gameIDCounter = 0;
     private final List<Player> players = new ArrayList<>();
     private final List<GameMap> gameMaps = new ArrayList<>();
+    private final int id;
     private final GameInformation gameInformation;
     @Setter
     private GameMap currentGameMap = null;
 
     public Game(GameInformation gameInformation) {
+        this.id = ++gameIDCounter;
         this.gameInformation = gameInformation;
         loadGameMaps();
     }
@@ -32,7 +35,7 @@ public abstract class Game implements Listener {
     private void loadGameMaps() {
         Collection<GameMap> gameMaps = Pint.getInstance().getMapHandler().getMaps().values();
         for (GameMap map : gameMaps) {
-            if (map.getGameName().equalsIgnoreCase(getGameInformation().getName())) {
+            if (map.getGameID() == id) {
                 this.gameMaps.add(map);
             }
         }
@@ -40,13 +43,24 @@ public abstract class Game implements Listener {
     }
 
     public void start() {
+        currentGameMap = getRandomMap(players.size());
+        if (currentGameMap == null) {
+            Bukkit.getLogger().warning("No map found for game: " + getGameInformation().getName() + " with " + players.size() + " players");
+            return;
+        }
+        currentGameMap.pasteSchematic();
+        onGameStart();
         registerEvents();
     }
 
     public void stop() {
         onGameEnd();
         unregisterEvents();
+        currentGameMap.clearSchematic();
+        currentGameMap = null;
         players.clear();
+        Pint.getInstance().getGameHandler().setCurrentGame(null);
+        Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
         Pint.getInstance().getVoteHandler().startVoteTimer();
     }
 
@@ -94,14 +108,6 @@ public abstract class Game implements Listener {
             return null;
         }
         return maps.get((int) (Math.random() * maps.size()));
-    }
-
-    public void prepareGame() {
-        //TODO: Implement this
-
-
-        start();
-        onGameStart();
     }
 
     public abstract void onGameStart();

@@ -13,7 +13,7 @@ public class GameToggleCommand extends SubCommand {
         super(
                 plugin,
                 "tilføj/fjern et spil til poolen",
-                "<game>",
+                "<gameID>",
                 "pint.game.toggle",
                 "toggle"
         );
@@ -24,21 +24,28 @@ public class GameToggleCommand extends SubCommand {
         if (args.length == 0) {
             return CommandResult.wrongUsage(this);
         }
-        String gameName = String.join(" ", args);
-        Game game = Pint.getInstance().getGameHandler().getGame(gameName);
+        int gameID;
+        try {
+            gameID = Integer.parseInt(args[0]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage("§cGame ID skal være et tal");
+            return CommandResult.success(this);
+        }
+        Game game = Pint.getInstance().getGameHandler().getGame(gameID);
         if (game == null) {
-            sender.sendMessage("§cEt spil med navnet " + gameName + " findes ikke");
+            sender.sendMessage("§cEt spil med id " + gameID + " findes ikke");
+            return CommandResult.success(this);
         } else {
-            Game gameInPool = Pint.getInstance().getGameHandler().getGamePool().getGame(gameName);
+            Game gameInPool = Pint.getInstance().getGameHandler().getGamePool().getGame(game);
             if (gameInPool != null) {
                 Pint.getInstance().getGameHandler().getGamePool().removeGame(gameInPool);
-                sender.sendMessage("§aSpillet " + gameName + " er nu fjernet fra poolen");
+                sender.sendMessage("§aSpillet " + game.getGameInformation().getName() + " er nu fjernet fra poolen");
             } else {
                 boolean added = Pint.getInstance().getGameHandler().getGamePool().addGame(game);
                 if (!added) {
-                    sender.sendMessage("§cSpillet " + gameName + " har ingen maps og kan derfor ikke tilføjes til poolen");
+                    sender.sendMessage("§cSpillet " + game.getGameInformation().getName() + " har ingen maps og kan derfor ikke tilføjes til poolen");
                 } else {
-                    sender.sendMessage("§aSpillet " + gameName + " er nu tilføjet til poolen");
+                    sender.sendMessage("§aSpillet " + game.getGameInformation().getName() + " er nu tilføjet til poolen");
                 }
             }
         }

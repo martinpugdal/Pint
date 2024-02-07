@@ -13,7 +13,7 @@ public class MapInfoSubCommand extends SubCommand {
         super(
                 plugin,
                 "Vis information om et map",
-                "<map>",
+                "<mapID>",
                 "pint.map.info",
                 "info"
         );
@@ -37,7 +37,8 @@ public class MapInfoSubCommand extends SubCommand {
         if (gameMap == null) {
             sender.sendMessage("§cDer findes ikke et map med det ID");
         } else {
-            String mapInfo = "§aID: " + gameMap.getId() + "\n" +
+            String mapInfo = "§aID: " + gameMap.getMapID() + "\n" +
+                    "§aGame ID: " + gameMap.getGameID() + "\n" +
                     "§aNavn: " + gameMap.getGameName() + "\n" +
                     "§aAktiv: " + (gameMap.isActive() ? "Ja" : "Nej") + "\n" +
                     "§aCorners: " + gameMap.getCorner1() + " - " + gameMap.getCorner2() + "\n" +

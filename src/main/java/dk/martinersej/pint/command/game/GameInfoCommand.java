@@ -31,7 +31,7 @@ public class GameInfoCommand extends SubCommand {
             sender.sendMessage("§7-----------------");
             sender.sendMessage("§a" + game.getGameInformation().getName() + "§7:");
             sender.sendMessage("§7- Maps: §a" + game.getGameMaps().size());
-            sender.sendMessage("§7- Aktivt map: §a" + (game.getCurrentGameMap() != null ? game.getCurrentGameMap().getId() : "Ingen"));
+            sender.sendMessage("§7- Aktivt map: §a" + (game.getCurrentGameMap() != null ? game.getCurrentGameMap().getMapID() : "Ingen"));
             sender.sendMessage("§7- Spil i pool: §a" + gamesInPool.contains(game));
             Game currentGame = Pint.getInstance().getGameHandler().getCurrentGame();
             sender.sendMessage("§7- Spil i gang: §a" + ((currentGame != null && currentGame.equals(game)) ? "Ja" : "Nej"));

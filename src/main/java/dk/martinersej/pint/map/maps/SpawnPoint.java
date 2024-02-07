@@ -1,6 +1,8 @@
 package dk.martinersej.pint.map.maps;
 
+import dk.martinersej.pint.Pint;
 import lombok.Getter;
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 @Getter
@@ -14,5 +16,9 @@ public class SpawnPoint {
         this.vector = vector;
         this.yaw = yaw;
         this.pitch = pitch;
+    }
+
+    public Location getLocation(GameMap gameMap) {
+        return Pint.getInstance().getMapHandler().getMapUtil().calculateSpawnLocationWithVoteMap(this, gameMap);
     }
 }

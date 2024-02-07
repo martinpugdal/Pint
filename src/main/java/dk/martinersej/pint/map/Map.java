@@ -53,7 +53,7 @@ public abstract class Map {
             if (this instanceof GameMap) {
                 for (GameMap value : Pint.getInstance().getMapHandler().getMaps().values()) {
                     if (value.equals(this)) {
-                        id = String.valueOf(value.getId());
+                        id = String.valueOf(value.getMapID());
                     }
                 }
             }

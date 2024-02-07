@@ -58,6 +58,9 @@ public class GameHandler {
     }
 
     public void initGames() {
+        /*
+         * Don't rearrange the order of the games, if you do, you need to update maps.yml for the correct game id.
+         */
         Game tntTagGame = new TntTagGame();
         addGame(tntTagGame);
         addGameToPool(tntTagGame);
@@ -92,7 +95,6 @@ public class GameHandler {
     public void startGame(Game game) {
         if (game != null && gamePool.getGame(game) != null) {
             currentGame = game;
-            game.prepareGame();
             game.start();
         }
     }
@@ -105,9 +107,9 @@ public class GameHandler {
         }
     }
 
-    public Game getGame(String name) {
+    public Game getGame(int id) {
         for (Game game : games) {
-            if (game.getGameInformation().getName().equalsIgnoreCase(name)) {
+            if (game.getId() == id) {
                 return game;
             }
         }

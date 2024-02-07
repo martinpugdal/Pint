@@ -16,7 +16,7 @@ public class MapSpawnpointsSubCommand extends SubCommand {
         super(
                 plugin,
                 "Spawnpoints for et map",
-                "<MapID> <add|delete|clear|list> [<SpawnpointID>]",
+                "<mapID> <add|delete|clear|list> [<SpawnpointID>]",
                 "pint.map.spawnpoints",
                 "spawnpoint", "spawnpoints"
         );

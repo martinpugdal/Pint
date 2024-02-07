@@ -66,8 +66,9 @@ public class VoteGUI extends BaseGui {
         ItemBuilder item = new ItemBuilder(game.getGameInformation().getIcon());
         String displayName = game.getGameInformation().getColor() + "§n" + game.getGameInformation().getName();
         item.setName(displayName);
+        String gameID = String.valueOf(game.getId());
         String ganeName = game.getGameInformation().getName();
-        item.setNbt("vote", ganeName);
+        item.setNbt("vote", gameID);
         item.setLore("", "§f" + game.getGameInformation().getDescription(), "", "§fTryk for at stemme på §l" + ganeName + "§f!", "", "");
         String voteString = "§7Votes: " + game.getGameInformation().getColor();
         return () -> {
@@ -93,7 +94,8 @@ public class VoteGUI extends BaseGui {
         if (nbtGameString == null) {
             return;
         }
-        Game game = Pint.getInstance().getGameHandler().getGame(nbtGameString);
+        int gameID = Integer.parseInt(nbtGameString);
+        Game game = Pint.getInstance().getGameHandler().getGame(gameID);
         if (game == null) {
             return;
         }

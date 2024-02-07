@@ -4,6 +4,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.game.Game;
 import dk.martinersej.pint.map.Map;
 import dk.martinersej.pint.utils.LocationUtil;
 import lombok.Getter;
@@ -17,9 +18,11 @@ import java.util.List;
 @Getter
 public class GameMap extends Map {
 
-    private final int id;
+    private final int mapID;
 
     private String gameName;
+    private int gameID;
+
     private boolean active;
 
     private List<SpawnPoint> spawnPoints;
@@ -30,22 +33,29 @@ public class GameMap extends Map {
 
     public GameMap(int id) {
         super();
-        this.id = id;
+        this.mapID = id;
     }
 
     @Override
     public void load() {
-        ConfigurationSection section = Pint.getInstance().getMapHandler().getMapUtil().getMapSection(id);
+        ConfigurationSection section = Pint.getInstance().getMapHandler().getMapUtil().getMapSection(mapID);
 
-        // Load game name
-        this.gameName = section.getString("gameName");
+        // Load game id
+        this.gameID = section.getInt("gameID");
+        // load game name
+        Game game = Pint.getInstance().getGameHandler().getGame(gameID);
+        if (game == null) {
+            Bukkit.getLogger().warning("Game with id " + gameID + " is not present for map with id " + mapID);
+            return;
+        }
+        this.gameName = game.getGameInformation().getName();
 
         // Load active
         this.active = section.getBoolean("active", false);
 
         // check if corners are set
         if (section.getString("corner1") == null || section.getString("corner2") == null) {
-            Bukkit.getLogger().warning("Corner1 or corner2 is null for map with id " + id);
+            Bukkit.getLogger().warning("Corner1 or corner2 is null for map with id " + mapID);
             return;
         }
         // Load corners
@@ -54,7 +64,7 @@ public class GameMap extends Map {
 
         // check if zero locations are set
         if (section.getString("zeroLocation") == null) {
-            Bukkit.getLogger().warning("ZeroLocation is null for map with id " + id);
+            Bukkit.getLogger().warning("ZeroLocation is null for map with id " + mapID);
             return;
         }
         // Load zero location
@@ -102,7 +112,7 @@ public class GameMap extends Map {
 
 
     protected String getSchematicPath() {
-        return Pint.getInstance().getDataFolder() + "/maps/" + id + ".schematic";
+        return Pint.getInstance().getDataFolder() + "/maps/" + mapID + ".schematic";
     }
 
     public int getHighestYLevel() {
@@ -127,6 +137,6 @@ public class GameMap extends Map {
 
     @Override
     public String toString() {
-        return gameName + " (" + id + ")";
+        return gameName + " (" + mapID + ")";
     }
 }

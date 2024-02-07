@@ -24,7 +24,7 @@ public class MapCreateSubCommand extends SubCommand {
         super(
                 plugin,
                 "Opretter et map med id",
-                "<game>",
+                "<gameID>",
                 "pint.map.create",
                 "create", "opret"
         );
@@ -37,10 +37,16 @@ public class MapCreateSubCommand extends SubCommand {
             return CommandResult.wrongUsage(this);
         }
 
-        String gameName = String.join(" ", args);
-        Game game = Pint.getInstance().getGameHandler().getGame(gameName);
+        int gameID;
+        try {
+            gameID = Integer.parseInt(args[0]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage("§cGame ID skal være et tal");
+            return CommandResult.success(this);
+        }
+        Game game = Pint.getInstance().getGameHandler().getGame(gameID);
         if (game == null) {
-            sender.sendMessage("§cEt spil med navnet " + gameName + " findes ikke");
+            sender.sendMessage("§cEt spil med id " + gameID + " findes ikke");
             return CommandResult.success(this);
         }
 
@@ -56,7 +62,7 @@ public class MapCreateSubCommand extends SubCommand {
             int mapID = Pint.getInstance().getMapHandler().createMap(game.getGameInformation().getName(), corner1, corner2);
             GameMap map = Pint.getInstance().getMapHandler().getMap(mapID);
             game.getGameMaps().add(map);
-            sender.sendMessage("§aDu har oprettet et map med id " + mapID + " til spillet " + gameName);
+            sender.sendMessage("§aDu har oprettet et map med id " + mapID + " til spillet " + game.getGameInformation().getName() + "(" + gameID + ")");
         } catch (IncompleteRegionException e) {
             return CommandResult.wrongUsage(this, "§cDu har ikke valgt et område");
         }

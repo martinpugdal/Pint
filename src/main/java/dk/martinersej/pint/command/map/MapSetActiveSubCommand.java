@@ -2,7 +2,6 @@ package dk.martinersej.pint.command.map;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.utils.command.CommandResult;
-import dk.martinersej.pint.utils.command.Result;
 import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,7 +13,7 @@ public class MapSetActiveSubCommand extends SubCommand {
         super(
                 plugin,
                 "om map skal bruges",
-                "<id> <false/true>",
+                "<mapID> <false/true>",
                 "pint.map.setactive",
                 "setactive"
         );

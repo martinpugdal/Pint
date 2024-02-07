@@ -22,7 +22,7 @@ public class MapSetSchematicSubCommand extends SubCommand {
         super(
                 plugin,
                 "Gem schematic for map",
-                "<id>",
+                "<mapID>",
                 "pint.map.setschematic",
                 "setschematic"
         );
@@ -43,7 +43,7 @@ public class MapSetSchematicSubCommand extends SubCommand {
             sender.sendMessage("§cEt map med id " + id + " findes ikke");
             return CommandResult.success(this);
         }
-        if (Pint.getInstance().getGameHandler().getCurrentGame() != null && Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getId() == id) {
+        if (Pint.getInstance().getGameHandler().getCurrentGame() != null && Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getMapID() == id) {
             sender.sendMessage("§cDu kan ikke redigere det map som er i brug");
             return CommandResult.success(this);
         }

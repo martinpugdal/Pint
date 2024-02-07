@@ -147,7 +147,7 @@ public class MapHandler extends YamlManagerTypeImpl {
         if (maps.containsKey(mapID)) {
             maps.get(mapID).load();
             if (!active) {
-                Game game = Pint.getInstance().getGameHandler().getGame(maps.get(mapID).getGameName());
+                Game game = Pint.getInstance().getGameHandler().getGame(maps.get(mapID).getGameID());
                 checkEnoughMapsAndShuffleVotePool(game);
             }
         }

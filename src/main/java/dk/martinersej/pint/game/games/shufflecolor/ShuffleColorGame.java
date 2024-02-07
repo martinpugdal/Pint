@@ -15,7 +15,7 @@ public class ShuffleColorGame extends Game {
 
     @Override
     public void onGameStart() {
-        super.start();
+
     }
 
     @Override

@@ -14,7 +14,7 @@ public class MapListSubCommand extends SubCommand {
         super(
                 plugin,
                 "Vis alle maps for et spil",
-                "<game>",
+                "<gameID>",
                 "pint.map.list",
                 "list"
         );
@@ -27,10 +27,17 @@ public class MapListSubCommand extends SubCommand {
             return CommandResult.wrongUsage(this);
         }
 
-        String gameName = String.join(" ", args).toLowerCase();
-        Game game = Pint.getInstance().getGameHandler().getGame(gameName);
+        int gameID;
+        try {
+            gameID = Integer.parseInt(args[0]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage("§cGame ID skal være et tal");
+            return CommandResult.success(this);
+        }
+        Game game = Pint.getInstance().getGameHandler().getGame(gameID);
         if (game == null) {
-            sender.sendMessage("§cDer findes ikke et spil med det navn");
+            sender.sendMessage("§cEt spil med id " + gameID + " findes ikke");
+            return CommandResult.success(this);
         } else {
             String name = game.getGameInformation().getName();
             if (game.getGameMaps().isEmpty()) {
@@ -39,7 +46,7 @@ public class MapListSubCommand extends SubCommand {
             } else {
                 sender.sendMessage("§aMaps for spillet " + name + ":");
                 for (GameMap gameMap : game.getGameMaps()) {
-                    sender.sendMessage("§a- " + gameMap.getId() + " §7(" + (gameMap.isActive() ? "§aAktivt" : "§cInaktivt") + "§7)");
+                    sender.sendMessage("§a- " + gameMap.getMapID() + " §7(" + (gameMap.isActive() ? "§aAktivt" : "§cInaktivt") + "§7)");
                 }
             }
         }
