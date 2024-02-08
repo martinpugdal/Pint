@@ -1,6 +1,6 @@
 package dk.martinersej.pint.game.games.dåseskjul;
 
-import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.game.objects.GameInformation;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

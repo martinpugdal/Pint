@@ -1,6 +1,9 @@
 package dk.martinersej.pint;
 
-import dk.martinersej.pint.command.*;
+import dk.martinersej.pint.simplecommand.*;
+import dk.martinersej.pint.game.command.GameCommand;
+import dk.martinersej.pint.map.command.MapCommand;
+import dk.martinersej.pint.vote.command.VoteCommand;
 import dk.martinersej.pint.game.GameHandler;
 import dk.martinersej.pint.listener.ListenerHandler;
 import dk.martinersej.pint.map.MapHandler;
@@ -8,6 +11,7 @@ import dk.martinersej.pint.utils.gui.GuiListeners;
 import dk.martinersej.pint.vote.VoteHandler;
 import dk.martinersej.pint.vote.interaction.VoteListener;
 import dk.martinersej.pint.warp.WarpHandler;
+import dk.martinersej.pint.warp.command.WarpCommand;
 import lombok.Getter;
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
@@ -72,15 +76,17 @@ public final class Pint extends JavaPlugin {
     }
 
     private void setupCommands() {
-        //setup commands
 
+        //setup commands
         this.getServer().getPluginCommand("map").setExecutor(new MapCommand(this));
         this.getServer().getPluginCommand("game").setExecutor(new GameCommand(this));
         this.getServer().getPluginCommand("vote").setExecutor(new VoteCommand(this));
         this.getServer().getPluginCommand("warp").setExecutor(new WarpCommand(this, new WarpHandler()));
+
         // simple commands
         this.getServer().getPluginCommand("spawn").setExecutor(new SpawnCommand());
         this.getServer().getPluginCommand("test").setExecutor(new TestCommand());
+        this.getServer().getPluginCommand("showregions").setExecutor(new ShowRegionsCommand());
     }
 
     private void setupListeners() {

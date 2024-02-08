@@ -1,7 +1,7 @@
 package dk.martinersej.pint.vote.interaction;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.utils.ItemBuilder;
 import dk.martinersej.pint.utils.gui.BaseGui;
 import org.bukkit.Material;

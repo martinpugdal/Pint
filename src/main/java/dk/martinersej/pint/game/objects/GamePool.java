@@ -1,7 +1,6 @@
 package dk.martinersej.pint.game.objects;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.Game;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.fusesource.jansi.Ansi;

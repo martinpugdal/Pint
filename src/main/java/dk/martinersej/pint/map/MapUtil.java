@@ -3,8 +3,8 @@ package dk.martinersej.pint.map;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionOperationException;
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.map.maps.GameMap;
-import dk.martinersej.pint.map.maps.SpawnPoint;
+import dk.martinersej.pint.map.objects.SpawnPoint;
+import dk.martinersej.pint.map.objects.maps.GameMap;
 import dk.martinersej.pint.utils.LocationUtil;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -64,18 +64,19 @@ public class MapUtil {
 
     public Region calculateRegionWithVoteMap(Region region, GameMap gameMap) {
         Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
-        
+
         org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(gameMap.getCenterLocation(), new Location(serverWorld.getWorld(), gameMap.getCorner1().getX(), gameMap.getCorner1().getY(), gameMap.getCorner1().getZ()));
         location.add(vectorOffset);
         location.setY(0);
-        
-        com.sk89q.worldedit.Vector vector = new com.sk89q.worldedit.Vector(vectorOffset.getX(), vectorOffset.getY(), vectorOffset.getZ());
+
+        region = region.clone();
         try {
-            region.shift(vector);
+            Vector locVector = location.toVector();
+            region.shift(new com.sk89q.worldedit.Vector(locVector.getX(), locVector.getY(), locVector.getZ()));
         } catch (RegionOperationException e) {
             e.printStackTrace();
         }
-        
+
         return region;
     }
 

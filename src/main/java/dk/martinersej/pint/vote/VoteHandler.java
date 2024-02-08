@@ -1,8 +1,8 @@
 package dk.martinersej.pint.vote;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.Game;
-import dk.martinersej.pint.map.maps.VoteMap;
+import dk.martinersej.pint.game.objects.Game;
+import dk.martinersej.pint.map.objects.maps.VoteMap;
 import dk.martinersej.pint.utils.PacketUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -34,7 +34,8 @@ public class VoteHandler {
 
     public void startVoteTimer() {
         // setup the vote timer and cooldown
-        cooldown = 45;
+        int fullCooldown = 3;
+        cooldown = fullCooldown;
         if (voteTimer != null) {
             voteTimer.cancel();
         }
@@ -52,16 +53,16 @@ public class VoteHandler {
                 }
 
                 // not enough players to start a game
-                if (getAllVoters().size() < 2) {
+                if (getAllVoters().size() < 1) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         PacketUtil.sendActionBar(player, "§cIkke nok votes til at starte et spil");
                     }
-                    cooldown = 45;
+                    cooldown = fullCooldown;
                     return;
                 }
 
                 if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
-                    cooldown = 45;
+                    cooldown = fullCooldown;
                     return;
                 }
 
@@ -69,14 +70,19 @@ public class VoteHandler {
                 if (cooldown <= 0) {
                     // start the game with most votes
                     Game game = getGameWithMostVotes();
-                    Pint.getInstance().getGameHandler().startGame(game);
-                    Pint.getInstance().getGameHandler().getCurrentGame().getPlayers().addAll(getAllVoters());
+                    Bukkit.broadcastMessage("§a" + game.getGameInformation().getName() + " §7har vundet med §a" + getGameVotesCount(game) + " §7votes!");
+                    Pint.getInstance().getGameHandler().setupGame(game);
+                    Pint.getInstance().getGameHandler().getCurrentGame().addPlayers(getAllVoters());
+                    Pint.getInstance().getGameHandler().getCurrentGame().start();
 
                     // handle the vote part, so it's ready for the next vote
                     Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
                     Pint.getInstance().getVoteHandler().refreshVotes();
+                    voteUtil.getVoteScoreboard().removePlayers(getAllVoters());
                     voteUtil.getVoteScoreboard().close();
-                    cancel();
+//                    game.getScoreboard().addPlayers(getAllVoters());
+                    this.cancel();
+                    return;
                 }
 
                 cooldown--;
@@ -89,6 +95,7 @@ public class VoteHandler {
         Game previousVote = playerVotes.put(player, game);
         if (game == null && previousVote != null) {
             gameVotesCount.put(previousVote, gameVotesCount.get(previousVote) - 1);
+            playerVotes.remove(player);
         } else if (previousVote == null) {
             gameVotesCount.putIfAbsent(game, 0);
             gameVotesCount.put(game, gameVotesCount.get(game) + 1);
@@ -127,7 +134,11 @@ public class VoteHandler {
         }
 
         // get a random game if there are multiple games with the same number of votes
-        return games.get((int) (Math.random() * games.size()));
+        if (games.size() > 1) {
+            return games.get((int) (Math.random() * games.size()));
+        } else {
+            return games.get(0);
+        }
     }
 
     public int getGameVotesCount(Game game) {

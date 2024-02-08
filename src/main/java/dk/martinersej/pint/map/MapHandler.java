@@ -1,12 +1,13 @@
 package dk.martinersej.pint.map;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.manager.managertype.YamlManagerTypeImpl;
-import dk.martinersej.pint.map.maps.GameMap;
+import dk.martinersej.pint.map.objects.maps.GameMap;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -235,8 +236,16 @@ public class MapHandler extends YamlManagerTypeImpl {
     public int addRegion(int mapID, Location corner1, Location corner2) {
         ConfigurationSection section = mapUtil.getMapSection(mapID);
         int regionID = getNewRegionID(mapID);
-        section.set("regions." + regionID + ".corner1", LocationUtil.vectorToString(LocationUtil.getVectorOffset(corner1, corner1)));
-        section.set("regions." + regionID + ".corner2", LocationUtil.vectorToString(LocationUtil.getVectorOffset(corner1, corner2)));
+
+        Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
+        org.bukkit.util.Vector offset1 = LocationUtil.getVectorOffset(realZeroLocation, corner1);
+        org.bukkit.util.Vector offset2 = LocationUtil.getVectorOffset(realZeroLocation, corner2);
+
+        Bukkit.getLogger().info("offset1: " + offset1);
+        Bukkit.getLogger().info("offset2: " + offset2);
+
+        section.set("regions." + regionID + ".corner1", LocationUtil.vectorToString(offset1));
+        section.set("regions." + regionID + ".corner2", LocationUtil.vectorToString(offset2));
 
         save();
 

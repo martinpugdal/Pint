@@ -1,6 +1,6 @@
 package dk.martinersej.pint.game.games.shufflecolor;
 
-import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.game.objects.GameInformation;
 import lombok.Getter;
 import org.bukkit.Material;

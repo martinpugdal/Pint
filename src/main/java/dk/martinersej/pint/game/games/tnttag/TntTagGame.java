@@ -1,12 +1,18 @@
 package dk.martinersej.pint.game.games.tnttag;
 
-import dk.martinersej.pint.game.Game;
+import dk.martinersej.pint.Pint;
+import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.game.objects.GameInformation;
-import dk.martinersej.pint.map.maps.SpawnPoint;
+import dk.martinersej.pint.map.objects.SpawnPoint;
 import dk.martinersej.pint.utils.ItemBuilder;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +29,10 @@ public class TntTagGame extends Game {
 
     @Override
     public void onGameStart() {
-        int tntPlayersAmount = (int) Math.floor((double) getPlayers().size() / 8);
+
+        int tntPlayersAmount = (int) Math.ceil((double) getPlayers().size() / 8);
+        System.out.println("Players amount: " + getPlayers().size());
+        Bukkit.broadcastMessage("TNT players amount: " + tntPlayersAmount);
 
         // find the tnt players by getPlayers()
         List<Player> tntPlayers = new ArrayList<>();
@@ -48,6 +57,47 @@ public class TntTagGame extends Game {
                 tagPlayer(null, player);
             }
         }
+
+        Bukkit.broadcastMessage("§cTNT Tag has started!");
+        int countdown = 60;
+        for (Player player : getPlayers()) {
+            player.sendMessage("§cTNT Tag has started! You have " + countdown + " seconds to run!");
+        }
+
+
+    }
+
+    private void startRound(int cooldown) {
+        new BukkitRunnable() {
+            private int cooldown = 60;
+
+            @Override
+            public void run() {
+                if (cooldown == 0) {
+                    getTntPlayers().forEach(player -> tagPlayer(player, getRandomPlayer()));
+                    cancel();
+                } else {
+                    for (Player player : getPlayers()) {
+                        player.sendMessage("§cTNT Tag has started! You have " + cooldown + " seconds to run!");
+                    }
+                }
+                cooldown--;
+            }
+        }.runTaskTimer(Pint.getInstance(), 0, 20L);
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        Player tntPlayer = (Player) event.getDamager();
+        Player taggedPlayer = (Player) event.getEntity();
+        if (!isPlayerInGame(tntPlayer) && !isPlayerInGame(taggedPlayer)) {
+            Bukkit.getLogger().warning("A player not in the game was damaged by another player not in the game!");
+            return;
+        }
+        event.setCancelled(true);
+        if (isTntPlayer(tntPlayer) && !isTntPlayer(taggedPlayer)) {
+            tagPlayer(tntPlayer, taggedPlayer);
+        }
     }
 
     @Override
@@ -56,7 +106,6 @@ public class TntTagGame extends Game {
             player.getEquipment().setHelmet(null);
         }
     }
-
 
     public List<Player> getTntPlayers() {
         List<Player> tntPlayers = new ArrayList<>();
@@ -75,6 +124,22 @@ public class TntTagGame extends Game {
         if (taggedPlayer != null) {
             taggedPlayer.getEquipment().setHelmet(tntItem);
         }
+    }
+
+    public void blowUpTntPlayer(Player player) {
+        removePlayer(player);
+        int x = player.getLocation().getBlockX();
+        int y = player.getLocation().getBlockY();
+        int z = player.getLocation().getBlockZ();
+        float power = 4;
+        player.setGameMode(GameMode.SPECTATOR);
+        player.getWorld().createExplosion(x, y, z, power, false, false);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
+            }
+        }.runTaskLater(Pint.getInstance(), 20 * 5);
     }
 
     public boolean isTntPlayer(Player player) {

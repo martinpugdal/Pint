@@ -2,7 +2,7 @@ package dk.martinersej.pint.vote;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.MapHandler;
-import dk.martinersej.pint.map.maps.VoteMap;
+import dk.martinersej.pint.map.objects.maps.VoteMap;
 import dk.martinersej.pint.utils.ItemBuilder;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;

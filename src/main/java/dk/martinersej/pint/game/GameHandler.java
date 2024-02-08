@@ -7,12 +7,14 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.games.dåseskjul.DaaseskjulGame;
 import dk.martinersej.pint.game.games.shufflecolor.ShuffleColorGame;
 import dk.martinersej.pint.game.games.tnttag.TntTagGame;
+import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.game.objects.GamePool;
-import dk.martinersej.pint.map.maps.VoteMap;
+import dk.martinersej.pint.map.objects.maps.VoteMap;
 import dk.martinersej.pint.utils.FastAsyncWorldEditUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ public class GameHandler {
     private final List<Game> games = new ArrayList<>();
     @Setter
     private Game currentGame = null;
+    @Setter
+    private boolean gameRunning = false;
 
     public GameHandler() {
         this.gamePool = new GamePool();
@@ -84,17 +88,23 @@ public class GameHandler {
         games.remove(game);
     }
 
-    public void addGameToPool(Game game) {
-        gamePool.addGame(game);
+    public boolean addGameToPool(Game game) {
+        return gamePool.addGame(game);
     }
 
     public void removeGameFromPool(Game game) {
         gamePool.removeGame(game);
     }
 
-    public void startGame(Game game) {
-        if (game != null && gamePool.getGame(game) != null) {
+    public void setupGame(Game game) {
+        if (game != null) {
             currentGame = game;
+            game.setup();
+        }
+    }
+
+    public void startGame(Game game) {
+        if (game != null && game.equals(currentGame)) {
             game.start();
         }
     }
@@ -114,5 +124,12 @@ public class GameHandler {
             }
         }
         return null;
+    }
+
+    public boolean isPlayerInGame(Player player) {
+        if (currentGame == null) {
+            return false;
+        }
+        return currentGame.isPlayerInGame(player);
     }
 }
