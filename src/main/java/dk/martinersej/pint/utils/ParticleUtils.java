@@ -103,7 +103,6 @@ public class ParticleUtils {
         if (!corner2.getWorld().equals(world)) {
             return;
         }
-        Bukkit.getLogger().info("Drawing region cuboid");
         corner1 = corner1.clone().add(0.5, 0.5, 0.5);
         corner2 = corner2.clone().add(0.5, 0.5, 0.5);
 
@@ -114,10 +113,7 @@ public class ParticleUtils {
         int maxY = Math.max(corner1.getBlockY(), corner2.getBlockY());
         int maxZ = Math.max(corner1.getBlockZ(), corner2.getBlockZ());
 
-        Bukkit.getLogger().info("minX: " + minX + " minY: " + minY + " minZ: " + minZ);
-        Bukkit.getLogger().info("maxX: " + maxX + " maxY: " + maxY + " maxZ: " + maxZ);
-
-        int particleCount = (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1) * 20*5; // 10 particles per block
+        int particleCount = (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1) * 20*5; // 20 particles per block * 5 
 
         if (particleCount > 10000) {
             // Limit the number of particles to avoid lag
