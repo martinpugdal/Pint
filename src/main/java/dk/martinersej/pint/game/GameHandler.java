@@ -16,14 +16,14 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 public class GameHandler {
 
     private final GamePool gamePool;
-    private final List<Game> games = new ArrayList<>();
+    private final Set<Game> games = new HashSet<>();
     @Setter
     private Game currentGame = null;
     @Setter

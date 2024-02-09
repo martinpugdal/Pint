@@ -11,25 +11,43 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Getter
-public abstract class Game implements Listener {
+public abstract class Game implements Listener, WinnerListener {
     @Getter
     private static int gameIDCounter = 0;
-    private final List<Player> players = new ArrayList<>();
-    private final List<GameMap> gameMaps = new ArrayList<>();
+    private final Set<Player> players = new HashSet<>();
+    private final Set<GameMap> gameMaps = new HashSet<>();
     private final int id;
     private final GameInformation gameInformation;
     @Setter
     private GameMap currentGameMap = null;
+    private final Set<Consumer<Set<Player>>> winnerListeners = new HashSet<>();
 
     public Game(GameInformation gameInformation) {
         this.id = ++gameIDCounter;
         this.gameInformation = gameInformation;
         loadGameMaps();
+    }
+
+    @Override
+    public void addWinListener(Consumer<Set<Player>> onWin) {
+        winnerListeners.add(onWin);
+    }
+
+    public void callWinListeners(Set<Player> players) {
+        for (Consumer<Set<Player>> listener : winnerListeners) {
+            listener.accept(players);
+        }
+    }
+
+    public void win(Set<Player> players) {
+        winnerListeners.clear(); // clear all listeners to prevent multiple wins from happening
+        for (Player player : players) {
+            Bukkit.broadcastMessage(player.getName() + " has won the game!");
+        }
     }
 
     private void loadGameMaps() {
@@ -86,14 +104,16 @@ public abstract class Game implements Listener {
 
     public void removePlayer(Player player) {
         players.remove(player);
+        // check if winlistener contains a way to end the game early
+        callWinListeners(players);
     }
-
 
     private void registerEvents() {
         Bukkit.getPluginManager().registerEvents(this, JavaPlugin.getProvidingPlugin(getClass()));
     }
 
     private void unregisterEvents() {
+        winnerListeners.clear();
         HandlerList.unregisterAll(this);
     }
 

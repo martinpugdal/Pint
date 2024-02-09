@@ -5,14 +5,12 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.fusesource.jansi.Ansi;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Getter
 public class GamePool {
 
-    private final List<Game> games = new ArrayList<>();
+    private final Set<Game> games = new HashSet<>();
     private final Game[] voteGames = new Game[3];
 
     public boolean addGame(Game game) {

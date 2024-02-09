@@ -15,11 +15,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class TntTagGame extends Game {
 
     private final ItemStack tntItem;
+    private Round currentRound;
 
     public TntTagGame() {
         super(new GameInformation("TNT Tag", "§c", "Tag someone with TNT to win!", Material.TNT));
@@ -27,63 +29,53 @@ public class TntTagGame extends Game {
         this.tntItem = new ItemBuilder(Material.TNT).setName("§cTNT").setLore("§7Right click to tag someone!").toItemStack().clone();
     }
 
+    private void addWinListener() {
+        addWinListener(players -> {
+            if (players.size() == 1) {
+                win(players);
+            }
+        });
+    }
+
     @Override
     public void onGameStart() {
-
-        int tntPlayersAmount = (int) Math.ceil((double) getPlayers().size() / 8);
-        System.out.println("Players amount: " + getPlayers().size());
-        Bukkit.broadcastMessage("TNT players amount: " + tntPlayersAmount);
-
-        // find the tnt players by getPlayers()
-        List<Player> tntPlayers = new ArrayList<>();
-
-        for (int i = 0; i < tntPlayersAmount; i++) {
-            Player player = getRandomPlayer();
-            if (!tntPlayers.contains(player)) {
-                tntPlayers.add(player);
-            } else {
-                i--;
-            }
-        }
+        addWinListener();
 
         List<SpawnPoint> spawnPoints = getCurrentGameMap().getSpawnPoints();
         for (Player player : getPlayers()) {
             // teleport players to random spawn point on the map
             SpawnPoint spawnPoint = spawnPoints.get((int) (Math.random() * spawnPoints.size()));
             player.teleport(spawnPoint.getLocation(getCurrentGameMap()));
-
-            // give players TNT if they are a tnt player
-            if (tntPlayers.contains(player)) {
-                tagPlayer(null, player);
-            }
         }
 
-        Bukkit.broadcastMessage("§cTNT Tag has started!");
-        int countdown = 60;
-        for (Player player : getPlayers()) {
-            player.sendMessage("§cTNT Tag has started! You have " + countdown + " seconds to run!");
-        }
-
-
+        startRound();
     }
 
-    private void startRound(int cooldown) {
-        new BukkitRunnable() {
-            private int cooldown = 60;
+    private void startRound() {
+        if (currentRound != null) {
+            currentRound.getRoundTask().cancel();
+        }
+        int roundNumber = currentRound == null ? 1 : currentRound.getRoundNumber() + 1;
+        int cooldown = currentRound == null ? 60 : currentRound.getRoundDuration() - 5;
+        if (cooldown < 10) {
+            cooldown = 10;
+        }
+        currentRound = new Round(this, roundNumber, cooldown, new HashSet<>(getPlayers()));
+        currentRound.start();
+    }
 
-            @Override
-            public void run() {
-                if (cooldown == 0) {
-                    getTntPlayers().forEach(player -> tagPlayer(player, getRandomPlayer()));
-                    cancel();
-                } else {
-                    for (Player player : getPlayers()) {
-                        player.sendMessage("§cTNT Tag has started! You have " + cooldown + " seconds to run!");
-                    }
-                }
-                cooldown--;
-            }
-        }.runTaskTimer(Pint.getInstance(), 0, 20L);
+    public void endRound() {
+        if (getPlayers().size() > 1) {
+            startRound();
+        } else {
+            endGame();
+        }
+    }
+
+    private void endGame() {
+        Player winner = new ArrayList<>(getPlayers()).get(0);
+        Bukkit.broadcastMessage("§a" + winner.getName() + " §7has won the game!");
+        onGameEnd();
     }
 
     @EventHandler
@@ -144,10 +136,5 @@ public class TntTagGame extends Game {
 
     public boolean isTntPlayer(Player player) {
         return player.getEquipment().getHelmet() != null && player.getEquipment().getHelmet().isSimilar(tntItem);
-    }
-
-    public Player getRandomPlayer() {
-        List<Player> players = new ArrayList<>(getPlayers());
-        return players.get((int) (Math.random() * players.size()));
     }
 }
