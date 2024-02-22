@@ -16,20 +16,20 @@ public class GamePool {
     public boolean addGame(Game game) {
         if (!games.contains(game)) {
             if (game.getActiveMaps().isEmpty()) {
-                Bukkit.getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED).toString() + "Game " + game.getGameInformation().getName() + " has no active maps and will not be added to the pool");
+                Bukkit.getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED).toString() + "SimonGame " + game.getGameInformation().getName() + " has no active maps and will not be added to the pool" + Ansi.ansi().fg(Ansi.Color.WHITE).toString());
                 return false;
             } else {
                 games.add(game);
             }
         } else {
-            throw new IllegalStateException("Game already in pool");
+            throw new IllegalStateException("SimonGame already in pool");
         }
         return true;
     }
 
     public void removeGame(Game game) {
         if (!games.contains(game)) {
-            throw new IllegalStateException("Game not in pool");
+            throw new IllegalStateException("SimonGame not in pool");
         }
         games.remove(game);
     }

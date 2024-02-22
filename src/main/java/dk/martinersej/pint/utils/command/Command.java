@@ -4,9 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Command {
 
@@ -58,7 +56,7 @@ public class Command {
         }
         SubCommand subCommand = getSubCommandFromAlias(args[0]);
         if (subCommand == null) {
-            return CommandResult.noSubCommandFound(null);
+            return CommandResult.subCommandNotExists(null);
         }
         if (!this.hasPermission(sender, subCommand.getPermissions())) {
             return CommandResult.noPermission(subCommand);
@@ -71,22 +69,29 @@ public class Command {
         return this.subCommands;
     }
 
-    public List<String> getAllowedSubCommands(CommandSender commandSender, org.bukkit.command.Command command, String label, String[] strings) {
-        ArrayList<String> allowedSubCommands = new ArrayList<>();
+    public List<String> getAllowedSubCommands(CommandSender commandSender, String[] strings) {
+        Set<String> allowedSubCommandsSet = new HashSet<>(); // Use a set to ensure uniqueness
+
         for (SubCommand subCommand : this.getSubCommands()) {
-            if (hasPermission(commandSender, subCommand.getPermissions()) && strings.length == 1) {
-                if (subCommand.containsAlias(strings[0])) {
-                    allowedSubCommands.add(subCommand.getAliases()[0]);
-                } else {
-                    for (String alias : subCommand.getAliases()) {
-                        if (alias.startsWith(strings[0])) {
-                            allowedSubCommands.add(alias);
-                            break;
+            if (hasPermission(commandSender, subCommand.getPermissions())) {
+                if (strings.length == 0) {
+                    allowedSubCommandsSet.add(subCommand.getAliases()[0]); // Add primary alias directly
+                } else if (strings.length == 1) {
+                    if (subCommand.containsAlias(strings[0])) {
+                        allowedSubCommandsSet.add(strings[0]); // Add matching alias
+                    }
+                    else {
+                        for (String alias : subCommand.getAliases()) {
+                            if (alias.startsWith(strings[0])) {
+                                allowedSubCommandsSet.add(alias); // Add matching alias
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
-        return allowedSubCommands;
+        return new ArrayList<>(allowedSubCommandsSet); // Convert set to list before returning
     }
+
 }

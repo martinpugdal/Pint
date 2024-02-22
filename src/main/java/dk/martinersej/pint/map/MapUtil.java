@@ -85,7 +85,13 @@ public class MapUtil {
         for (GameMap gameMap : gameMaps) {
             int yLevel = gameMap.getHighestYLevel();
             if (yLevel > highestYLevel) {
+                if (Pint.getInstance().getVoteHandler().getVoteMap().isPresent()) {
+                    Pint.getInstance().getVoteHandler().getVoteMap().clearSchematic();
+                }
                 highestYLevel = yLevel;
+                if (Pint.getInstance().getVoteHandler().getVoteMap().isPresent()) {
+                    Pint.getInstance().getVoteHandler().getVoteMap().pasteSchematic();
+                }
             }
         }
     }

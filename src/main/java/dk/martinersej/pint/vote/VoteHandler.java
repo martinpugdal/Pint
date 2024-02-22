@@ -6,15 +6,13 @@ import dk.martinersej.pint.map.objects.maps.VoteMap;
 import dk.martinersej.pint.utils.PacketUtil;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class VoteHandler {
@@ -24,21 +22,42 @@ public class VoteHandler {
     private final VoteUtil voteUtil;
     private final VoteMap voteMap;
     private BukkitRunnable voteTimer = null;
+    private final int fullCooldown = 5;
     private int cooldown;
 
     public VoteHandler() {
         voteUtil = new VoteUtil();
         voteMap = new VoteMap();
         startVoteTimer();
+        checkPlayerFlyingBelowVoteMap();
+    }
+
+    private void checkPlayerFlyingBelowVoteMap() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                List<Player> players = new ArrayList<>(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld().getPlayers());
+                if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
+                    players.removeAll(Pint.getInstance().getGameHandler().getCurrentGame().getPlayers());
+                }
+                for (Player player : players) {
+                    if (player.getLocation().getY() < voteMap.getSpawnLocation().getY() && !player.getGameMode().equals(GameMode.SPECTATOR)) {
+                        player.setGameMode(GameMode.SPECTATOR);
+                    } else if (player.getLocation().getY() > voteMap.getSpawnLocation().getY() && player.getGameMode().equals(GameMode.SPECTATOR)) {
+                        voteUtil.setToPlainVoteGamemode(player);
+                    }
+                }
+            }
+        }.runTaskTimer(JavaPlugin.getProvidingPlugin(VoteHandler.class), 0, 1L);
     }
 
     public void startVoteTimer() {
         // setup the vote timer and cooldown
-        int fullCooldown = 3;
         cooldown = fullCooldown;
         if (voteTimer != null) {
             voteTimer.cancel();
         }
+
         voteTimer = new BukkitRunnable() {
 
             long tick = 0L;
@@ -53,7 +72,7 @@ public class VoteHandler {
                 }
 
                 // not enough players to start a game
-                if (getAllVoters().size() < 1) {
+                if (getAllVoters().size() < 1 && !Pint.getInstance().getGameHandler().isGameRunning()) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         PacketUtil.sendActionBar(player, "§cIkke nok votes til at starte et spil");
                     }
@@ -61,26 +80,43 @@ public class VoteHandler {
                     return;
                 }
 
-                if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
+                if (Pint.getInstance().getGameHandler().getCurrentGame() != null && Pint.getInstance().getGameHandler().isGameRunning()) {
                     cooldown = fullCooldown;
                     return;
                 }
 
-                // timer is up, end vote
-                if (cooldown <= 0) {
-                    // start the game with most votes
+                if (cooldown == fullCooldown / 4 && Pint.getInstance().getGameHandler().getCurrentGame() == null) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        PacketUtil.sendActionBar(player, "§7Vælg et spil for at være med");
+                    }
+                }
+
+                if (cooldown <= 0 && Pint.getInstance().getGameHandler().getCurrentGame() == null) {
+                    // get the game with the most votes and start it
                     Game game = getGameWithMostVotes();
-                    Bukkit.broadcastMessage("§a" + game.getGameInformation().getName() + " §7har vundet med §a" + getGameVotesCount(game) + " §7votes!");
+                    int votes = getGameVotesCount(game);
+                    if (votes == 0) {
+                        Bukkit.broadcastMessage("§aIngen valgte et spil, et tilfældigt spil er valgt!");
+                        Bukkit.broadcastMessage("§a" + game.getGameInformation().getName() + " §7er valgt til at blive spillet!");
+                    } else {
+                        Bukkit.broadcastMessage("§a" + game.getGameInformation().getName() + " §7har vundet med §a" + getGameVotesCount(game) + " §7votes!");
+                    }
                     Pint.getInstance().getGameHandler().setupGame(game);
+                    cooldown += 5;
+                }
+
+                // timer is up, start the game
+                if (cooldown <= 0 && Pint.getInstance().getGameHandler().getCurrentGame() != null) {
                     Pint.getInstance().getGameHandler().getCurrentGame().addPlayers(getAllVoters());
                     Pint.getInstance().getGameHandler().getCurrentGame().start();
 
                     // handle the vote part, so it's ready for the next vote
+                    voteUtil.getVoteScoreboard().removePlayers(getAllVoters());
+                    Pint.getInstance().getGameHandler().getCurrentGame().getScoreboard().addPlayers(getAllVoters());
                     Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
                     Pint.getInstance().getVoteHandler().refreshVotes();
-                    voteUtil.getVoteScoreboard().removePlayers(getAllVoters());
-                    voteUtil.getVoteScoreboard().close();
-//                    game.getScoreboard().addPlayers(getAllVoters());
+
+                    voteUtil.getVoteComponent().tick(); // update the sidebar so its showing what game is being played
                     this.cancel();
                     return;
                 }
@@ -108,13 +144,30 @@ public class VoteHandler {
             gameVotesCount.put(previousVote, gameVotesCount.get(previousVote) - 1);
             gameVotesCount.put(game, gameVotesCount.get(game) + 1);
         }
+        if (gameVotesCount.get(game) == 0) {
+            gameVotesCount.remove(game);
+        }
+    }
+
+    public void joinVoteWithNoVote(Player player) {
+        Game previousVote = playerVotes.put(player, null);
+        if (previousVote != null) {
+            gameVotesCount.put(previousVote, gameVotesCount.get(previousVote) - 1);
+        }
+    }
+
+    public void removeVote(Player player) {
+        Game previousVote = playerVotes.remove(player);
+        if (previousVote != null) {
+            gameVotesCount.put(previousVote, gameVotesCount.get(previousVote) - 1);
+        }
     }
 
     public Game getVote(Player player) {
         return playerVotes.get(player);
     }
 
-    List<Player> getAllVoters() {
+    public List<Player> getAllVoters() {
         return new ArrayList<>(playerVotes.keySet());
     }
 
@@ -123,6 +176,7 @@ public class VoteHandler {
         int votes = 0;
 
         // get the games with the most votes
+
         for (Game game : gameVotesCount.keySet()) {
             if (gameVotesCount.get(game) > votes) {
                 games.clear();
@@ -136,8 +190,11 @@ public class VoteHandler {
         // get a random game if there are multiple games with the same number of votes
         if (games.size() > 1) {
             return games.get((int) (Math.random() * games.size()));
-        } else {
+        } else if (games.size() == 1) {
             return games.get(0);
+        } else {
+            int random = (int) (Math.random() * Pint.getInstance().getGameHandler().getGamePool().getVoteGames().length);
+            return Pint.getInstance().getGameHandler().getGamePool().getVoteGames()[random];
         }
     }
 

@@ -31,6 +31,7 @@ public class ServerWorld {
         this.world.setGameRuleValue("randomTickSpeed", "0");
         this.world.setGameRuleValue("doDaylightCycle", "false");
         this.world.setGameRuleValue("doWeatherCycle", "false");
+        this.world.setGameRuleValue("showDeathMessages", "false");
         this.world.setDifficulty(Difficulty.EASY);
 
         this.zeroLocation = new Location(world, 0, 0, 0);

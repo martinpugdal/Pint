@@ -82,7 +82,16 @@ public class WarpCommand extends Command implements CommandExecutor, TabComplete
     @Override
     public List<String> onTabComplete(CommandSender commandSender, org.bukkit.command.Command command, String s, String[] strings) {
         List<String> tabComplete = warpHandler.getWarpUtil().getAllWarps();
-        tabComplete.addAll(getAllowedSubCommands(commandSender, command, s, strings));
+        tabComplete.addAll(getAllowedSubCommands(commandSender, strings));
+
+        if (strings.length == 1) {
+            for (String warp : warpHandler.getWarpUtil().getAllWarps()) {
+                if (!warp.startsWith(strings[0])) {
+                    tabComplete.remove(warp);
+                }
+            }
+        }
+
         return tabComplete;
     }
 }

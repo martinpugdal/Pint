@@ -40,7 +40,7 @@ public class VoteGUI extends BaseGui {
 
         if (games == 0) {
             slot = 13;
-            setItem(slot, new ItemBuilder(Material.BARRIER).setName("§cDer er ingen spil at stemme på!").toItemStack());
+            setItem(slot, new ItemBuilder(Material.BARRIER).setName("§cDer er ingen spil at stemme på!").build());
         } else {
             if (voteGames[0] != null) {
                 addUpdatingItem(slot, setGameItem(voteGames[0], player));
@@ -76,7 +76,7 @@ public class VoteGUI extends BaseGui {
             item.setAmount(votes == 0 ? 1 : votes);
             item.addLoreLine(voteString + votes, 5);
             item.setGlowing(Pint.getInstance().getVoteHandler().getVote(player) == game);
-            return item.toItemStack();
+            return item.build();
         };
     }
 
@@ -103,12 +103,13 @@ public class VoteGUI extends BaseGui {
         Player player = (Player) event.getWhoClicked();
         Game hasVoted = Pint.getInstance().getVoteHandler().getVote(player);
         if (hasVoted != null && hasVoted.equals(game)) {
-            Pint.getInstance().getVoteHandler().setVote(player, null);
-            event.getWhoClicked().sendMessage("§aDu har fjernet din stemme fra §l" + game.getGameInformation().getDisplayName() + "§a!");
+            Pint.getInstance().getVoteHandler().removeVote(player);
+            player.sendMessage("§aDu har fjernet din stemme fra §l" + game.getGameInformation().getDisplayName() + "§a!");
         } else {
             Pint.getInstance().getVoteHandler().setVote(player, game);
-            event.getWhoClicked().sendMessage("§aDu har stemt på §l" + game.getGameInformation().getDisplayName() + "§a!");
+            player.sendMessage("§aDu har stemt på §l" + game.getGameInformation().getDisplayName() + "§a!");
         }
+        Pint.getInstance().getVoteHandler().getVoteUtil().updateJoinItem(player);
         this.getInventory().setItem(event.getSlot(), setGameItem(game, player).get());
         if (hasVoted != null) {
             this.getInventory().setItem(itemSlots.get(hasVoted), setGameItem(hasVoted, player).get());

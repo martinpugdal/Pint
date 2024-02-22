@@ -41,6 +41,10 @@ public class CommandResult {
         return new CommandResult(subCommand, Result.NO_CONSOLE);
     }
 
+    public static CommandResult subCommandNotExists(SubCommand subCommand) {
+        return new CommandResult(subCommand, Result.SUB_COMMAND_NOT_EXISTS);
+    }
+
     public String getWrongUsageMessage() {
         return wrongUsageMessage;
     }

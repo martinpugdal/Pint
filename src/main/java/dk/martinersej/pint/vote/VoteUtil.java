@@ -9,6 +9,7 @@ import dk.martinersej.pint.utils.SchematicUtil;
 import dk.martinersej.pint.vote.interaction.VoteComponent;
 import lombok.Getter;
 import net.megavex.scoreboardlibrary.api.sidebar.Sidebar;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Team;
 
 @Getter
 public class VoteUtil {
@@ -24,10 +26,24 @@ public class VoteUtil {
     @Getter
     private final Sidebar voteScoreboard;
     private final VoteComponent voteComponent;
+    private final Team voteTeam;
 
     public VoteUtil() {
         voteScoreboard = Pint.getScoreboardLibrary().createSidebar();
         voteComponent = new VoteComponent(voteScoreboard);
+        Bukkit.getScoreboardManager().getMainScoreboard().getTeam("vote").unregister();
+
+        voteTeam = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam("vote");
+
+        voteTeam.setPrefix("§e");
+
+    }
+
+    public void setToPlainVoteGamemode(Player player) {
+        player.setGameMode(GameMode.ADVENTURE);
+
+        player.setAllowFlight(true);
+        player.setFlying(true);
     }
 
     public void setToVoteGamemode(Player player) {
@@ -44,17 +60,17 @@ public class VoteUtil {
         player.setHealth(20);
         player.setFoodLevel(20);
 
-        player.setGameMode(GameMode.ADVENTURE);
-
-        player.setAllowFlight(true);
-        player.setFlying(true);
+        setToPlainVoteGamemode(player);
 
         player.teleport(spawnLocation());
 
         //vote item
         player.setCompassTarget(spawnLocation());
         player.getInventory().setItem(4, getVoteItem());
+        //join item
+        player.getInventory().setItem(8, getJoinItem());
 
+        voteTeam.addPlayer(player);
         voteScoreboard.addPlayer(player);
     }
 
@@ -63,7 +79,41 @@ public class VoteUtil {
         itemBuilder.setName("§aVote");
         itemBuilder.setLore("§7Click to vote for a map");
         itemBuilder.setNbt("vote", "true");
-        return itemBuilder.toItemStack();
+        return itemBuilder.build();
+    }
+
+    private ItemStack getJoinItem() {
+        ItemBuilder itemBuilder = new ItemBuilder(Material.INK_SACK);
+        itemBuilder.setDurability((short) 10);
+        itemBuilder.setName("§aJoin");
+        itemBuilder.setLore("§7Click to join the game");
+        itemBuilder.setNbt("join", "true");
+        return itemBuilder.build();
+    }
+
+    public void updateJoinItem(Player player) {
+        ItemStack itemStack = null;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && item.getType() == Material.INK_SACK) {
+                if (ItemBuilder.getNbt(item, "join") != null) {
+                    itemStack = item;
+                }
+            }
+        }
+        updateJoinItem(itemStack, Pint.getInstance().getVoteHandler().getAllVoters().contains(player));
+    }
+
+    public void updateJoinItem(ItemStack itemStack) {
+        if (itemStack == null) return;
+        updateJoinItem(itemStack, itemStack.getData().getData() == 10);
+    }
+
+    private void updateJoinItem(ItemStack itemStack, boolean joined) {
+        if (itemStack == null) return;
+        ItemBuilder itemBuilder = new ItemBuilder(itemStack);
+        itemBuilder.setName(joined ? "§cLeave" : "§aJoin");
+        itemBuilder.setLore(joined ? "§7Click to leave the game" : "§7Click to join the game");
+        itemBuilder.setDurability(joined ? (short) 8 : (short) 10);
     }
 
     public Location spawnLocation() {

@@ -53,7 +53,7 @@ public class VoteCommand extends Command implements CommandExecutor, TabComplete
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, org.bukkit.command.Command command, String s, String[] strings) {
-        return getAllowedSubCommands(commandSender, command, s, strings);
+        return getAllowedSubCommands(commandSender, strings);
     }
 }
 

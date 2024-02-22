@@ -30,6 +30,16 @@ public class VoteListener implements Listener {
                 if (vote != null) {
                     new VoteGUI(event.getPlayer()).open(event.getPlayer());
                 }
+                String join = ItemBuilder.getNbt(event.getItem(), "join");
+                if (join != null && event.getItem().getDurability() == 10) {
+                    Pint.getInstance().getVoteHandler().joinVoteWithNoVote(event.getPlayer());
+                    Pint.getInstance().getVoteHandler().getVoteUtil().updateJoinItem(event.getItem());
+                    event.getPlayer().sendMessage("§aDu vil nu deltage i spillet!");
+                } else if (join != null) {
+                    Pint.getInstance().getVoteHandler().removeVote(event.getPlayer());
+                    Pint.getInstance().getVoteHandler().getVoteUtil().updateJoinItem(event.getItem());
+                    event.getPlayer().sendMessage("§cDu vil ikke længere deltage i spillet!");
+                }
             }
         }
     }
@@ -41,6 +51,11 @@ public class VoteListener implements Listener {
             if (itemStack.getType().equals(Material.COMPASS)) {
                 String vote = ItemBuilder.getNbt(itemStack, "vote");
                 if (vote != null) {
+                    event.setCancelled(true);
+                }
+            } else if (itemStack.getType().equals(Material.INK_SACK)) {
+                String join = ItemBuilder.getNbt(itemStack, "join");
+                if (join != null) {
                     event.setCancelled(true);
                 }
             }
@@ -59,6 +74,6 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Pint.getInstance().getVoteHandler().setVote(event.getPlayer(), null);
+        Pint.getInstance().getVoteHandler().removeVote(event.getPlayer());
     }
 }

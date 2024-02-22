@@ -104,12 +104,13 @@ public class MapHandler extends YamlManagerTypeImpl {
         return maps.get(id) != null;
     }
 
-    public int createMap(String gameName, Location corner1, Location corner2) {
+    public int createMap(Game game, Location corner1, Location corner2) {
         int mapID = getNewMapID();
         getConfig().createSection("maps." + mapID);
         ConfigurationSection section = mapUtil.getMapSection(mapID);
 
-        section.set("gameName", gameName);
+        section.set("gameID", game.getId());
+        section.set("gameName", game.getGameInformation().getName());
         section.createSection("spawnpoints");
         save();
 
@@ -118,6 +119,19 @@ public class MapHandler extends YamlManagerTypeImpl {
         saveMapSchematic(mapID, corner1, corner2);
 
         return mapID;
+    }
+
+    public void deleteMap(int mapID) {
+        getConfig().set("maps." + mapID, null);
+        save();
+
+        String schematicPath = Pint.getInstance().getDataFolder() + "/maps/" + mapID + ".schematic";
+        SchematicUtil.deleteSchematic(schematicPath);
+
+        GameMap deletedMap = maps.remove(mapID);
+        for (Game game : Pint.getInstance().getGameHandler().getGames()) {
+            game.getGameMaps().remove(deletedMap);
+        }
     }
 
     public void saveMapSchematic(int id, Location corner1, Location corner2) {

@@ -1,158 +1,98 @@
 package dk.martinersej.pint.utils;
 
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Easily create itemstacks, without messing your hands.
- * <i>Note that if you do use this in one of your projects, leave this notice.</i>
- * <i>Please do credit me if you do use this in one of your projects.</i>
- *
- * @author NonameSL
- */
 public class ItemBuilder {
-    private ItemStack is;
 
-    /**
-     * Create a new ItemBuilder from scratch.
-     *
-     * @param m The material to create the ItemBuilder with.
-     */
-    public ItemBuilder(Material m) {
-        this(m, 1);
+    private ItemStack itemStack;
+
+    public ItemBuilder() {
+        this(Material.STONE);
     }
 
-    /**
-     * Create a new ItemBuilder over an existing itemstack.
-     *
-     * @param is The itemstack to create the ItemBuilder over.
-     */
-    public ItemBuilder(ItemStack is) {
-        this.is = is;
+    public ItemBuilder(ItemStack itemStack) {
+        this.itemStack = itemStack;
     }
 
-    /**
-     * Create a new ItemBuilder from scratch.
-     *
-     * @param m      The material of the item.
-     * @param amount The amount of the item.
-     */
-    public ItemBuilder(Material m, int amount) {
-        is = new ItemStack(m, amount);
+    public ItemBuilder(Material material) {
+        this(new ItemStack(material));
     }
 
-    /**
-     * Create a new ItemBuilder from scratch.
-     *
-     * @param m          The material of the item.
-     * @param amount     The amount of the item.
-     * @param durability The durability of the item.
-     */
-    public ItemBuilder(Material m, int amount, byte durability) {
-        is = new ItemStack(m, amount, durability);
+    private String convertToColor(String text) {
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 
+    public ItemBuilder setType(Material material) {
+        itemStack.setType(material);
+        return this;
+    }
 
-    /**
-     * Clone the ItemBuilder into a new one.
-     *
-     * @return The cloned instance.
-     */
+    public ItemBuilder setMaterial(Material material) {
+        itemStack.setType(material);
+        return this;
+    }
+
+    public ItemBuilder setItemMeta(ItemMeta itemMeta) {
+        itemStack.setItemMeta(itemMeta);
+        return this;
+    }
+
+    public ItemBuilder setItemStack(ItemStack itemStack) {
+        itemStack.setItemMeta(itemStack.getItemMeta());
+        return this;
+    }
+
     public ItemBuilder clone() {
-        return new ItemBuilder(is);
+        return new ItemBuilder(itemStack);
     }
 
-    /**
-     * Change the durability of the item.
-     *
-     * @param dur The durability to set it to.
-     */
-    public ItemBuilder setDurability(short dur) {
-        is.setDurability(dur);
+    public ItemBuilder setDurability(short durability) {
+        itemStack.setDurability(durability);
         return this;
     }
 
-    /**
-     * Set the amount of the item.
-     *
-     * @param amount The amount to change it to.
-     */
     public ItemBuilder setAmount(int amount) {
-        is.setAmount(amount);
+        itemStack.setAmount(amount);
         return this;
     }
 
-    /**
-     * Set the displayname of the item.
-     *
-     * @param name The name to change it to.
-     */
+    public ItemBuilder setDisplayName(String name) {
+        name = convertToColor(name);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setDisplayName(name);
+        itemStack.setItemMeta(meta);
+        return this;
+    }
+
     public ItemBuilder setName(String name) {
-        ItemMeta im = is.getItemMeta();
-        im.setDisplayName(name);
-        is.setItemMeta(im);
-        return this;
+        return setDisplayName(name);
     }
 
-    /**
-     * Get the name of the item.
-     */
-    public String getName() {
-        ItemMeta im = is.getItemMeta();
-        return im.getDisplayName();
-    }
-
-    /**
-     * Add an unsafe enchantment.
-     *
-     * @param ench  The enchantment to add.
-     * @param level The level to put the enchant on.
-     */
     public ItemBuilder addUnsafeEnchantment(Enchantment ench, int level) {
-        is.addUnsafeEnchantment(ench, level);
+        itemStack.addUnsafeEnchantment(ench, level);
         return this;
     }
 
-    /**
-     * Remove a certain enchant from the item.
-     *
-     * @param ench The enchantment to remove
-     */
     public ItemBuilder removeEnchantment(Enchantment ench) {
-        is.removeEnchantment(ench);
-        return this;
-    }
-
-    /**
-     * Set the skull owner for the item. Works on skulls only.
-     *
-     * @param owner The name of the skull's owner.
-     */
-    public ItemBuilder setSkullOwner(String owner) {
-        try {
-            SkullMeta im = (SkullMeta) is.getItemMeta();
-            im.setOwner(owner);
-            is.setItemMeta(im);
-        } catch (ClassCastException ignored) {
-        }
+        itemStack.removeEnchantment(ench);
         return this;
     }
 
     public ItemBuilder setGlowing(boolean glowing) {
-        ItemMeta meta = is.getItemMeta();
+        ItemMeta meta = itemStack.getItemMeta();
         if (glowing) {
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
@@ -160,188 +100,132 @@ public class ItemBuilder {
             meta.removeEnchant(Enchantment.DURABILITY);
             meta.removeItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         }
-        is.setItemMeta(meta);
+        itemStack.setItemMeta(meta);
         return this;
     }
 
-    /**
-     * Add an enchant to the item.
-     *
-     * @param ench  The enchant to add
-     * @param level The level
-     */
-    public ItemBuilder addEnchant(Enchantment ench, int level) {
-        ItemMeta im = is.getItemMeta();
+    public ItemBuilder addEnchantment(Enchantment ench, int level) {
+        ItemMeta im = itemStack.getItemMeta();
         im.addEnchant(ench, level, true);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Add multiple enchants at once.
-     *
-     * @param enchantments The enchants to add.
-     */
     public ItemBuilder addEnchantments(Map<Enchantment, Integer> enchantments) {
-        is.addEnchantments(enchantments);
+        itemStack.addEnchantments(enchantments);
         return this;
     }
 
-    /**
-     * Sets infinity durability on the item by setting the durability to Short.MAX_VALUE.
-     */
-    public ItemBuilder setInfinityDurability() {
-        is.setDurability(Short.MAX_VALUE);
+    public ItemBuilder clearEnchantments() {
+        ItemMeta meta = itemStack.getItemMeta();
+        for (org.bukkit.enchantments.Enchantment enchantment : meta.getEnchants().keySet()) {
+            meta.removeEnchant(enchantment);
+        }
+        itemStack.setItemMeta(meta);
         return this;
     }
 
-    /**
-     * Re-sets the lore.
-     *
-     * @param lore The lore to set it to.
-     */
     public ItemBuilder setLore(String... lore) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         im.setLore(Arrays.asList(lore));
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Re-sets the lore.
-     *
-     * @param lore The lore to set it to.
-     */
     public ItemBuilder setLore(List<String> lore) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         im.setLore(lore);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Remove a lore line.
-     *
-     * @param line The lore to remove.
-     */
     public ItemBuilder removeLoreLine(String line) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         List<String> lore = new ArrayList<>(im.getLore());
         if (!lore.contains(line)) return this;
         lore.remove(line);
         im.setLore(lore);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Remove a lore line.
-     *
-     * @param index The index of the lore line to remove.
-     */
     public ItemBuilder removeLoreLine(int index) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         List<String> lore = new ArrayList<>(im.getLore());
         if (index < 0 || index > lore.size()) return this;
         lore.remove(index);
         im.setLore(lore);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Add a lore line.
-     *
-     * @param line The lore line to add.
-     */
     public ItemBuilder addLoreLine(String line) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         List<String> lore = new ArrayList<>();
         if (im.hasLore()) lore = new ArrayList<>(im.getLore());
         lore.add(line);
         im.setLore(lore);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Add a lore lines.
-     *
-     * @param lines The lore lines to add.
-     */
     public ItemBuilder addLoreLine(String... lines) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         List<String> lore = new ArrayList<>();
         if (im.hasLore()) lore = new ArrayList<>(im.getLore());
         lore.addAll(Arrays.asList(lines));
         im.setLore(lore);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Add a lore line.
-     *
-     * @param line The lore line to add.
-     * @param pos  The index of where to put it.
-     */
     public ItemBuilder addLoreLine(String line, int pos) {
-        ItemMeta im = is.getItemMeta();
+        ItemMeta im = itemStack.getItemMeta();
         List<String> lore = new ArrayList<>(im.getLore());
         lore.set(pos, line);
         im.setLore(lore);
-        is.setItemMeta(im);
+        itemStack.setItemMeta(im);
         return this;
     }
 
-    /**
-     * Sets the dye color on an item.
-     * <b>* Notice that this doesn't check for item type, sets the literal data of the dyecolor as durability.</b>
-     *
-     * @param color The color to put.
-     */
-    @SuppressWarnings("deprecation")
-    public ItemBuilder setDyeColor(DyeColor color) {
-        this.is.setDurability(color.getData());
+    public ItemBuilder addItemFlag(org.bukkit.inventory.ItemFlag itemFlag) {
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.addItemFlags(itemFlag);
+        itemStack.setItemMeta(meta);
         return this;
     }
 
-    /**
-     * Sets the dye color of a wool item. Works only on wool.
-     *
-     * @param color The DyeColor to set the wool item to.
-     * @see ItemBuilder@setDyeColor(DyeColor)
-     * @deprecated As of version 1.2 changed to setDyeColor.
-     */
-    @Deprecated
-    public ItemBuilder setWoolColor(DyeColor color) {
-        if (!is.getType().equals(Material.WOOL)) return this;
-        this.is.setDurability(color.getData());
+    public ItemBuilder removeItemFlag(org.bukkit.inventory.ItemFlag itemFlag) {
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.removeItemFlags(itemFlag);
+        itemStack.setItemMeta(meta);
         return this;
     }
 
-    /**
-     * Sets the armor color of a leather armor piece. Works only on leather armor pieces.
-     *
-     * @param color The color to set it to.
-     */
+    public ItemBuilder clearItemFlags() {
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.removeItemFlags(org.bukkit.inventory.ItemFlag.values());
+        itemStack.setItemMeta(meta);
+        return this;
+    }
+
     public ItemBuilder setLeatherArmorColor(Color color) {
         try {
-            LeatherArmorMeta im = (LeatherArmorMeta) is.getItemMeta();
+            LeatherArmorMeta im = (LeatherArmorMeta) itemStack.getItemMeta();
             im.setColor(color);
-            is.setItemMeta(im);
+            itemStack.setItemMeta(im);
         } catch (ClassCastException ignored) {
         }
         return this;
     }
 
     public ItemBuilder setNbt(String key, String value) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(is);
+        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
         NBTTagCompound tag = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
 
         tag.setString(key, value);
 
-        is = CraftItemStack.asBukkitCopy(nmsItem);
+        itemStack = CraftItemStack.asBukkitCopy(nmsItem);
         return this;
     }
 
@@ -354,12 +238,15 @@ public class ItemBuilder {
         return tag.getString(key);
     }
 
-    /**
-     * Retrieves the itemstack from the ItemBuilder.
-     *
-     * @return The itemstack created/modified by the ItemBuilder instance.
-     */
-    public ItemStack toItemStack() {
-        return is;
+    public SkullBuilder skull() {
+        if (!SkullBuilder.isSkull(itemStack)) {
+            this.setType(Material.SKULL_ITEM);
+            this.setDurability((short) 3);
+        }
+        return new SkullBuilder(this.build());
+    }
+
+    public ItemStack build() {
+        return itemStack;
     }
 }

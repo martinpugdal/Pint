@@ -17,6 +17,7 @@ import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
 import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,7 +44,9 @@ public final class Pint extends JavaPlugin {
 
         Bukkit.getScheduler().runTaskLater(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
+                if (!player.getGameMode().equals(GameMode.CREATIVE)) {
+                    Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
+                }
             }
         }, 1L);
     }
@@ -55,7 +58,7 @@ public final class Pint extends JavaPlugin {
     }
 
     private void stopTasks() {
-        instance.getServer().getScheduler().cancelTasks(instance);
+        Bukkit.getServer().getScheduler().cancelTasks(instance);
     }
 
     private static void setupScoreboardLibrary() {
@@ -85,8 +88,9 @@ public final class Pint extends JavaPlugin {
 
         // simple commands
         this.getServer().getPluginCommand("spawn").setExecutor(new SpawnCommand());
-        this.getServer().getPluginCommand("test").setExecutor(new TestCommand());
+        this.getServer().getPluginCommand("whitelist").setExecutor(new WhitelistCommand());
         this.getServer().getPluginCommand("showregions").setExecutor(new ShowRegionsCommand());
+        this.getServer().getPluginCommand("join").setExecutor(new JoinCommand());
     }
 
     private void setupListeners() {

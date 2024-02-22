@@ -59,7 +59,7 @@ public class MapCreateSubCommand extends SubCommand {
             Location corner1 = selection.getMinimumPoint();
             Location corner2 = selection.getMaximumPoint();
 
-            int mapID = Pint.getInstance().getMapHandler().createMap(game.getGameInformation().getName(), corner1, corner2);
+            int mapID = Pint.getInstance().getMapHandler().createMap(game, corner1, corner2);
             GameMap map = Pint.getInstance().getMapHandler().getMap(mapID);
             game.getGameMaps().add(map);
             sender.sendMessage("§aDu har oprettet et map med id " + mapID + " til spillet " + game.getGameInformation().getName() + "(" + gameID + ")");

@@ -20,9 +20,11 @@ commands:
     aliases: [ ]
   warp:
     aliases: [ warps ]
-  test:
-    aliases: [ ]
   showregions:
+    aliases: [ ]
+  whitelist:
+    aliases: [ ]
+  join:
     aliases: [ ]
 libraries:
   - 'net.kyori:adventure-platform-bukkit:4.0.1'

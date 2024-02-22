@@ -1,6 +1,7 @@
 package dk.martinersej.pint.game.command;
 
 import dk.martinersej.pint.game.command.subcommand.GameListCommand;
+import dk.martinersej.pint.game.command.subcommand.GameStopCommand;
 import dk.martinersej.pint.game.command.subcommand.GameToggleCommand;
 import dk.martinersej.pint.utils.command.Command;
 import dk.martinersej.pint.utils.command.CommandResult;
@@ -18,6 +19,7 @@ public class GameCommand extends Command implements CommandExecutor, TabComplete
         super(plugin);
         addSubCommand(new GameListCommand(plugin));
         addSubCommand(new GameToggleCommand(plugin));
+        addSubCommand(new GameStopCommand(plugin));
     }
 
     @Override
@@ -51,7 +53,7 @@ public class GameCommand extends Command implements CommandExecutor, TabComplete
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, org.bukkit.command.Command command, String s, String[] strings) {
-        return getAllowedSubCommands(commandSender, command, s, strings);
+        return getAllowedSubCommands(commandSender, strings);
     }
 }
 

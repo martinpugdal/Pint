@@ -2,7 +2,6 @@ package dk.martinersej.pint.game.games.tnttag;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-public class Round {
+public class TNTRound {
 
     private final TntTagGame game;
     private final int roundNumber;
@@ -20,7 +19,7 @@ public class Round {
     private final Set<Player> players;
     private BukkitRunnable roundTask;
 
-    public Round(TntTagGame game, int roundNumber, int roundDuration, Set<Player> players) {
+    public TNTRound(TntTagGame game, int roundNumber, int roundDuration, Set<Player> players) {
         this.game = game;
         this.roundNumber = roundNumber;
         this.roundDuration = roundDuration;
@@ -31,8 +30,6 @@ public class Round {
 
     public void start() {
         int tntPlayersAmount = (int) Math.ceil((double) getPlayers().size() / 8);
-        System.out.println("Players amount: " + getPlayers().size());
-        Bukkit.broadcastMessage("TNT players amount: " + tntPlayersAmount);
 
         // find the tnt players by getPlayers()
         List<Player> tntPlayers = new ArrayList<>();
@@ -56,6 +53,9 @@ public class Round {
             @Override
             public void run() {
                 if (timeLeft <= 0) {
+                    for (Player player : game.getTntPlayers()) {
+                        game.blowUpTntPlayer(player);
+                    }
                     game.endRound();
                     cancel();
                     return;

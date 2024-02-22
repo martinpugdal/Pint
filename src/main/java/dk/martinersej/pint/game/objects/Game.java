@@ -6,9 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import net.megavex.scoreboardlibrary.api.sidebar.Sidebar;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
@@ -22,9 +25,11 @@ public abstract class Game implements Listener, WinnerListener {
     private final Set<GameMap> gameMaps = new HashSet<>();
     private final int id;
     private final GameInformation gameInformation;
+    private final Set<Consumer<Set<Player>>> winnerListeners = new HashSet<>();
     @Setter
     private GameMap currentGameMap = null;
-    private final Set<Consumer<Set<Player>>> winnerListeners = new HashSet<>();
+    @Setter
+    private Sidebar scoreboard;
 
     public Game(GameInformation gameInformation) {
         this.id = ++gameIDCounter;
@@ -32,22 +37,33 @@ public abstract class Game implements Listener, WinnerListener {
         loadGameMaps();
     }
 
+    public abstract void addWinListeners();
+
     @Override
     public void addWinListener(Consumer<Set<Player>> onWin) {
         winnerListeners.add(onWin);
     }
 
     public void callWinListeners(Set<Player> players) {
-        for (Consumer<Set<Player>> listener : winnerListeners) {
+        //if (winnerListeners.isEmpty()) return;
+        for (Consumer<Set<Player>> listener : new HashSet<>(winnerListeners)) {
+            if (winnerListeners.isEmpty()) return;
             listener.accept(players);
         }
     }
 
     public void win(Set<Player> players) {
-        winnerListeners.clear(); // clear all listeners to prevent multiple wins from happening
-        for (Player player : players) {
-            Bukkit.broadcastMessage(player.getName() + " has won the game!");
+        String playerString = players.stream().map(Player::getName).reduce((s1, s2) -> s1 + ", " + s2).orElse("");
+        if (playerString.isEmpty())
+            Bukkit.broadcastMessage("§cIngen vandt!");
+        else {
+            String vinder = players.size() == 1 ? "§6Vinder" : "§6Vindere";
+            Bukkit.broadcastMessage(vinder + "§8: §e" + playerString + "!");
+            Bukkit.broadcastMessage("§aDe vandt " + gameInformation.getDisplayName() + "§a!");
         }
+        stop();
+        // Gør noget med vinderne her
+        // Statistikker, belønninger osv.
     }
 
     private void loadGameMaps() {
@@ -60,22 +76,45 @@ public abstract class Game implements Listener, WinnerListener {
         Bukkit.getLogger().info("Loaded " + this.gameMaps.size() + " maps for game: " + getGameInformation().getName());
     }
 
-    public void setup() {
-        currentGameMap = getRandomMap(players.size());
+    public GameMap setupGameMap(int playersCount) {
+        currentGameMap = getRandomMap(playersCount);
         if (currentGameMap == null) {
-            Bukkit.getLogger().warning("No map found for game: " + getGameInformation().getName() + " with " + players.size() + " players");
-            return;
+            Bukkit.getLogger().warning("No map found for game: " + getGameInformation().getName() + " with " + playersCount + " players");
+            Pint.getInstance().getGameHandler().setCurrentGame(null);
+            Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
+            Pint.getInstance().getVoteHandler().startVoteTimer();
+            return null;
         }
+        return currentGameMap;
+    }
+
+    private boolean isCurrentGameMapValid() {
+        return currentGameMap != null && currentGameMap.getMinPlayers() <= players.size() && currentGameMap.getMaxPlayers() >= players.size();
+    }
+
+    public void setupDefaultScoreboard() {
         if (this.getScoreboard() == null) {
             this.setScoreboard(Pint.getScoreboardLibrary().createSidebar());
         }
+    }
+
+    public void setup() {
+        if (setupGameMap(Pint.getInstance().getVoteHandler().getAllVoters().size()) == null) return;
         currentGameMap.pasteSchematic();
+        setupDefaultScoreboard();
     }
 
     public void start() {
+        if (!isCurrentGameMapValid()) {
+            GameMap oldMap = currentGameMap;
+            if (setupGameMap(players.size()) == null) return;
+            oldMap.clearSchematic();
+        }
+        currentGameMap.pasteSchematic();
         Pint.getInstance().getGameHandler().setGameRunning(true);
         registerEvents();
         scoreboard.addPlayers(players);
+        addWinListeners();
         onGameStart();
     }
 
@@ -87,10 +126,12 @@ public abstract class Game implements Listener, WinnerListener {
         scoreboard.removePlayers(players);
         scoreboard.close();
         scoreboard = null;
+        setPlayersToVoteGamemode();
+
         players.clear();
+
         Pint.getInstance().getGameHandler().setGameRunning(false);
         Pint.getInstance().getGameHandler().setCurrentGame(null);
-        Pint.getInstance().getGameHandler().getGamePool().shuffleVotePool();
         Pint.getInstance().getVoteHandler().startVoteTimer();
     }
 
@@ -108,7 +149,7 @@ public abstract class Game implements Listener, WinnerListener {
         callWinListeners(players);
     }
 
-    private void registerEvents() {
+    protected void registerEvents() {
         Bukkit.getPluginManager().registerEvents(this, JavaPlugin.getProvidingPlugin(getClass()));
     }
 
@@ -117,7 +158,6 @@ public abstract class Game implements Listener, WinnerListener {
         HandlerList.unregisterAll(this);
     }
 
-    // a function to check if a player is in the game
     public boolean isPlayerInGame(Player player) {
         return players.contains(player);
     }
@@ -151,8 +191,32 @@ public abstract class Game implements Listener, WinnerListener {
         return maps.get((int) (Math.random() * maps.size()));
     }
 
-    @Setter
-    private Sidebar scoreboard;
+    public void setPlayerToGameGamemode(Player player) {
+        player.setGameMode(GameMode.SURVIVAL);
+        player.getInventory().clear();
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setSaturation(20);
+    }
+
+    public void setPlayersToGameGamemode() {
+        for (Player player : players) {
+            setPlayerToGameGamemode(player);
+        }
+    }
+
+    public void setPlayersToVoteGamemode() {
+        for (Player player : players) {
+            Pint.getInstance().getVoteHandler().getVoteUtil().setToVoteGamemode(player);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        if (isPlayerInGame(event.getPlayer())) {
+            removePlayer(event.getPlayer());
+        }
+    }
 
     public abstract void onGameStart();
 

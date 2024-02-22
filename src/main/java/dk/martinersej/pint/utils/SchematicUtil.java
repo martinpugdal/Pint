@@ -32,11 +32,11 @@ public class SchematicUtil {
 
     public static void pasteSchematic(Schematic schematic, Location location, boolean pasteAir) {
         schematic.paste(
-                FastAsyncWorldEditUtil.getWEWorld(location.getWorld()),
-                new Vector(location.getX(), location.getY(), location.getZ()),
-                false,
-                pasteAir,
-                null
+            FastAsyncWorldEditUtil.getWEWorld(location.getWorld()),
+            new Vector(location.getX(), location.getY(), location.getZ()),
+            false,
+            pasteAir,
+            null
         );
     }
 
@@ -73,6 +73,13 @@ public class SchematicUtil {
             schematic.save(file, ClipboardFormat.SCHEMATIC);
         } catch (IOException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    public static void deleteSchematic(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
         }
     }
 }

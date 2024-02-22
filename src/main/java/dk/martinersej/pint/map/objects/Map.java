@@ -41,8 +41,11 @@ public abstract class Map {
     public Location getCenterLocation() {
         Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
         Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
+
         return LocationUtil.getCenterLocation(corner1Location, corner2Location);
     }
+
+    public abstract Location getSpawnLocation();
 
     public void pasteSchematic() {
         File schematicFile = new File(getSchematicPath());

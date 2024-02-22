@@ -45,9 +45,31 @@ public class VoteComponent {
         builder.addBlankLine();
 
         builder.addDynamicLine(() -> {
-            if (Pint.getInstance().getVoteHandler() != null && Pint.getInstance().getVoteHandler().getVoteTimer() != null && Pint.getInstance().getVoteHandler().getCooldown() != 45) {
+            if (Pint.getInstance().getVoteHandler() != null &&
+                Pint.getInstance().getVoteHandler().getVoteTimer() != null &&
+                Pint.getInstance().getGameHandler().getCurrentGame() != null &&
+                !Pint.getInstance().getGameHandler().isGameRunning())
+            {
+                return Component.text("§aSpil: §e" + Pint.getInstance().getGameHandler().getCurrentGame().getGameInformation().getDisplayName());
+            }
+            return Component.text("");
+        });
+        builder.addDynamicLine(() -> {
+            if (
+                Pint.getInstance().getVoteHandler() != null &&
+                Pint.getInstance().getVoteHandler().getVoteTimer() != null &&
+                Pint.getInstance().getVoteHandler().getCooldown() != Pint.getInstance().getVoteHandler().getFullCooldown() &&
+                Pint.getInstance().getGameHandler().getCurrentGame() == null
+            ) {
+                return Component.text("§aVi finder et spil om: §e" + Pint.getInstance().getVoteHandler().getCooldown());
+            } else if (
+                Pint.getInstance().getVoteHandler() != null &&
+                Pint.getInstance().getVoteHandler().getVoteTimer() != null &&
+                Pint.getInstance().getGameHandler().getCurrentGame() != null &&
+                !Pint.getInstance().getGameHandler().isGameRunning()
+            ) {
                 return Component.text("§aVi starter om: §e" + Pint.getInstance().getVoteHandler().getCooldown());
-            } else if (Pint.getInstance().getGameHandler().getCurrentGame() != null) {
+            } else if (Pint.getInstance().getGameHandler().getCurrentGame() != null && Pint.getInstance().getGameHandler().isGameRunning()) {
                 return Component.text("§aVi spiller nu: §e" + Pint.getInstance().getGameHandler().getCurrentGame().getGameInformation().getDisplayName());
             }
             return Component.text("§6Stem på et spil");

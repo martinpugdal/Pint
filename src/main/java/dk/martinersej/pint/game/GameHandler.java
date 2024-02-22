@@ -4,8 +4,9 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.games.dåseskjul.DaaseskjulGame;
+import dk.martinersej.pint.game.games.allekyllingerkomhjem.AlleKyllingerKomHjemGame;
 import dk.martinersej.pint.game.games.shufflecolor.ShuffleColorGame;
+import dk.martinersej.pint.game.games.simonsays.SimonSaysGame;
 import dk.martinersej.pint.game.games.tnttag.TntTagGame;
 import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.game.objects.GamePool;
@@ -65,17 +66,22 @@ public class GameHandler {
         /*
          * Don't rearrange the order of the games, if you do, you need to update maps.yml for the correct game id.
          */
-        Game tntTagGame = new TntTagGame();
+        Game tntTagGame = new TntTagGame(); // id 1
         addGame(tntTagGame);
         addGameToPool(tntTagGame);
 
-        Game shuffleGame = new ShuffleColorGame();
+        Game shuffleGame = new ShuffleColorGame(); // id 2
         addGame(shuffleGame);
         addGameToPool(shuffleGame);
 
-        Game daaseskjulGame = new DaaseskjulGame();
-        addGame(daaseskjulGame);
-        addGameToPool(daaseskjulGame);
+        Game simonSaysGame = new SimonSaysGame(); // id 3
+        addGame(simonSaysGame);
+        addGameToPool(simonSaysGame);
+
+        Game alleKyllingerKomHjemGame = new AlleKyllingerKomHjemGame(); // id 4
+        addGame(alleKyllingerKomHjemGame);
+//        addGameToPool(alleKyllingerKomHjemGame);
+        
 
         gamePool.shuffleVotePool();
     }
@@ -113,7 +119,7 @@ public class GameHandler {
         if (game != null && game.equals(currentGame)) {
             game.stop();
         } else {
-            Bukkit.getLogger().warning("Game is not running");
+            Bukkit.getLogger().warning("SimonGame is not running");
         }
     }
 

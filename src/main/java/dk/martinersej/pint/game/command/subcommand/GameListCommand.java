@@ -7,7 +7,7 @@ import dk.martinersej.pint.utils.command.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
+import java.util.Set;
 
 public class GameListCommand extends SubCommand {
 
@@ -24,10 +24,10 @@ public class GameListCommand extends SubCommand {
 
     @Override
     public CommandResult execute(CommandSender sender, String[] args) {
-        List<Game> games = Pint.getInstance().getGameHandler().getGames();
-        List<Game> gamesInPool = Pint.getInstance().getGameHandler().getGamePool().getGames();
+        Set<Game> games = Pint.getInstance().getGameHandler().getGames();
+        Set<Game> gamesInPool = Pint.getInstance().getGameHandler().getGamePool().getGames();
         for (Game game : games) {
-            sender.sendMessage(" §8§m-§f " + game.getGameInformation().getName() + (gamesInPool.contains(game) ? " §7(§a§naktiv§r§7)" : ""));
+            sender.sendMessage(" §8§m-§f " + game.getGameInformation().getName() + " §7(§cID: " + game.getId() + "§7)" + (gamesInPool.contains(game) ? "  §7(§a§naktiv§r§7)" : ""));
         }
         return CommandResult.success(this);
     }

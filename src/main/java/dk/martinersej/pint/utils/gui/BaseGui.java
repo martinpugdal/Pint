@@ -200,7 +200,7 @@ public abstract class BaseGui implements InventoryHolder {
         private final ItemStack itemStack;
 
         BaseItem(ItemStack itemStack, String name, String... lores) {
-            this.itemStack = new ItemBuilder(itemStack).setName(name).setLore(lores).toItemStack();
+            this.itemStack = new ItemBuilder(itemStack).setName(name).setLore(lores).build();
         }
 
         public ItemStack getItemStack() {

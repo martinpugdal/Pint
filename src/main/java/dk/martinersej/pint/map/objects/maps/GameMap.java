@@ -20,7 +20,7 @@ public class GameMap extends Map {
 
     private final int mapID;
 
-//    private String gameName;
+    private String gameName;
     private int gameID;
 
     private boolean active;
@@ -42,6 +42,8 @@ public class GameMap extends Map {
 
         // Load game id
         this.gameID = section.getInt("gameID");
+        // Load game name
+        this.gameName = section.getString("gameName");
 
         // Load active
         this.active = section.getBoolean("active", false);
@@ -102,6 +104,23 @@ public class GameMap extends Map {
             }
         }
     }
+
+    public Location getSpawnLocation() {
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
+
+        Location voteLocation = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
+
+        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(getCenterLocation(), new Location(voteLocation.getWorld(), getCorner1().getX(), getCorner1().getY(), getCorner1().getZ()));
+        voteLocation.add(vectorOffset);
+        voteLocation.setY(0);
+
+        corner1Location.add(voteLocation);
+        corner2Location.add(voteLocation);
+
+        return LocationUtil.getCenterLocation(corner1Location, corner2Location).add(0.5, 1, 0.5);
+    }
+
 
 
     protected String getSchematicPath() {

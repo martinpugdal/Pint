@@ -13,7 +13,7 @@ public class Chat implements Listener {
 
         message = message.replaceAll("%", "%%");
 
-        String prefix = (player.isOp() ? "§6" : "§7");
+        String prefix = (player.isOp() ? "§6" : "§e");
         event.setFormat(prefix + player.getName() + "§8: " + prefix + message);
 
     }
