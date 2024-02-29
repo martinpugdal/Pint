@@ -2,6 +2,8 @@ name: Pint
 version: '${project.version}'
 main: dk.martinersej.pint.Pint
 database: true
+author: "Martin :)"
+
 depend:
   - Vault
   - WorldEdit
@@ -9,6 +11,7 @@ depend:
   - WorldGuard
 softdepend:
   - Citizens
+
 commands:
   map:
     aliases: [ ]
@@ -26,5 +29,6 @@ commands:
     aliases: [ ]
   join:
     aliases: [ ]
+
 libraries:
   - 'net.kyori:adventure-platform-bukkit:4.0.1'

@@ -21,6 +21,7 @@ public class WarpCommand extends Command implements CommandExecutor, TabComplete
 
     public WarpCommand(JavaPlugin plugin, WarpHandler warpHandler) {
         super(plugin);
+        plugin.getCommand("warp").setPermission("pint.warp.use");
         this.warpHandler = warpHandler;
         addSubCommand(new WarpSetCommand(plugin, warpHandler));
         addSubCommand(new WarpDeleteCommand(plugin, warpHandler));
@@ -41,12 +42,9 @@ public class WarpCommand extends Command implements CommandExecutor, TabComplete
             case NO_PERMISSION:
                 commandSender.sendMessage("§cDu har ikke adgang til dette");
                 break;
+            case SUB_COMMAND_NOT_EXISTS:
             case NO_SUB_COMMAND_FOUND:
-                if (hasPermission(commandSender, "pint.warp.use")) {
-                    warps((Player) commandSender, strings);
-                } else {
-                    commandSender.sendMessage("§cDu har ikke adgang til dette");
-                }
+                warps((Player) commandSender, strings);
                 break;
             case NO_CONSOLE:
                 commandSender.sendMessage("§cDu kan ikke bruge denne kommando fra konsollen");

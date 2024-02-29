@@ -15,12 +15,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 public class ShuffleColorGame extends Game {
@@ -30,6 +33,7 @@ public class ShuffleColorGame extends Game {
     @Setter
     private boolean pvpEnabled = false;
     private final int maxRounds = 7;
+    private int mapLowestY = 0;
 
     public ShuffleColorGame() {
         super(new GameInformation("Color shuffle", "§5", "Stand on the right color to win!", new ItemStack(Material.WOOL, 1, (short) 12)));
@@ -43,7 +47,6 @@ public class ShuffleColorGame extends Game {
             }
         });
         addWinListener(players -> {
-            // if time is up and all rounds are done, end the game and winners the remaining players
             if (currentRound.getRoundNumber() >= maxRounds) {
                 win(players);
             }
@@ -52,7 +55,8 @@ public class ShuffleColorGame extends Game {
 
     @Override
     public void setup() {
-        // get maxRounds maps from the map pool where the size is the same for each map
+        pickedMaps.clear();
+
         List<List<GameMap>> canBePicked = new ArrayList<>();
         Map<String, List<GameMap>> mapSizes = new HashMap<>();
         for (GameMap map : this.getActiveMaps()) {
@@ -76,13 +80,12 @@ public class ShuffleColorGame extends Game {
             return;
         }
         List<GameMap> maps = canBePicked.get((int) (Math.random() * canBePicked.size()));
-        pickedMaps.clear(); // clear the list if it's not empty
-        for (int i = 0; i < maxRounds; i++) {
+
+        for (int i = 0; i <= maxRounds; i++) {
             GameMap map = maps.get((int) (Math.random() * maps.size()));
             maps.remove(map);
             pickedMaps.add(map);
         }
-        setupDefaultScoreboard();
     }
 
     @Override
@@ -94,15 +97,15 @@ public class ShuffleColorGame extends Game {
         setCurrentGameMap(pickedMaps.get(0));
         getCurrentGameMap().pasteSchematic();
 
+        addWinListeners();
         onGameStart();
     }
 
     @Override
     public void onGameStart() {
-//        addWinListeners();
-
         currentRound = null;
         pvpEnabled = false;
+        mapLowestY = getCurrentGameMap().getLowestYLevel();
 
         List<SpawnPoint> spawnPoints = getCurrentGameMap().getSpawnPoints();
         for (Player player : getPlayers()) {
@@ -130,11 +133,12 @@ public class ShuffleColorGame extends Game {
             currentRound.getRoundTask().cancel();
         }
         int roundNumber = currentRound == null ? 1 : currentRound.getRoundNumber() + 1;
-        int cooldown = currentRound == null ? 15 : currentRound.getRoundDuration() - 5;
-        if (cooldown < 5) {
-            cooldown = 5;
+        int cooldown = currentRound == null ? 10 : currentRound.getRoundDuration() - 1;
+        if (cooldown < 2) {
+            cooldown = 2;
         }
         currentRound = new ShuffleRound(this, roundNumber, cooldown);
+        mapLowestY = getCurrentGameMap().getLowestYLevel();
         currentRound.start();
     }
 
@@ -159,16 +163,17 @@ public class ShuffleColorGame extends Game {
         }
         if (!pvpEnabled) {
             event.setCancelled(true);
+        } else {
+            event.setDamage(0.0);
         }
     }
 
     @EventHandler
-    public void onDamageByVoid(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
-            if (isPlayerInGame(player) && event.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
-                onDeathToVoid(player);
-                event.setCancelled(true);
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (isPlayerInGame(event.getPlayer())) {
+            double y = event.getTo().getY();
+            if (y < mapLowestY - 2) {
+                onDeathToVoid(event.getPlayer());
             }
         }
     }
@@ -184,10 +189,6 @@ public class ShuffleColorGame extends Game {
     public void onGameEnd() {
         if (currentRound != null) {
             currentRound.getRoundTask().cancel();
-        }
-        for (Player player : getPlayers()) {
-            player.getInventory().clear();
-            Pint.getInstance().getVoteHandler().getVoteUtil().setToPlainVoteGamemode(player);
         }
     }
 

@@ -18,6 +18,7 @@ public abstract class SimonGame implements Listener {
 
     private final SimonSaysGame simonSaysGame;
     private final List<Player> finishedPlayers = new ArrayList<>();
+    private final List<Player> failedPlayers = new ArrayList<>();
 
     public SimonGame(SimonSaysGame simonSaysGame) {
         this.simonSaysGame = simonSaysGame;
@@ -27,13 +28,21 @@ public abstract class SimonGame implements Listener {
         Pint plugin = Pint.getInstance();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         finishedPlayers.clear();
+        failedPlayers.clear();
         startGame();
+        simonSaysGame.say();
         new BukkitRunnable() {
             @Override
             public void run() {
                 stop();
             }
-        }.runTaskLater(plugin, 20 * 10); // 10 seconds
+        }.runTaskLater(plugin, 20L * getaskDuration()); // 20 * time in seconds
+    }
+
+    public abstract String sayText();
+
+    public int getaskDuration() {
+        return 10;
     }
 
     public void stop() {
@@ -49,6 +58,7 @@ public abstract class SimonGame implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         finishedPlayers.remove(event.getPlayer());
+        failedPlayers.remove(event.getPlayer());
     }
 
     public abstract void startGame();

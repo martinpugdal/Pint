@@ -1,7 +1,10 @@
 package dk.martinersej.pint.game.games.simonsays;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.games.simonsays.game.CraftStick;
+import dk.martinersej.pint.game.games.simonsays.games.participation.*;
+import dk.martinersej.pint.game.games.simonsays.games.placement.LookDirectionGame;
+import dk.martinersej.pint.game.games.simonsays.games.placement.TypeInChatGame;
+import dk.martinersej.pint.game.games.simonsays.games.placement.TypeTheNumberGame;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonGame;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonPlayer;
 import dk.martinersej.pint.game.objects.Game;
@@ -11,11 +14,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -33,7 +39,10 @@ public class SimonSaysGame extends Game {
     private BukkitRunnable startGameTask;
 
     public SimonSaysGame() {
-        super(new GameInformation("Simon Says", "§5", "Gør hvad Simon siger", new ItemBuilder().skull().setSkullOwner("MartinErSej").build()));
+        super(new GameInformation("Simon Says", "§5", "Gør hvad Simon siger",
+            new ItemBuilder().skull().
+                build()
+            ));
     }
 
     @Override
@@ -62,13 +71,10 @@ public class SimonSaysGame extends Game {
     }
 
     private void win() {
-        SimonPlayer first = simonPlayers.first();
-        SimonPlayer second = null;
-        SimonPlayer third = null;
-        if (simonPlayers.size() > 2) {
-            second = simonPlayers.higher(first);
-            third = simonPlayers.higher(second);
-        }
+        SimonPlayer first = simonPlayers.pollFirst();
+        SimonPlayer second = simonPlayers.pollFirst();
+        SimonPlayer third = simonPlayers.pollFirst();
+
 
         Bukkit.broadcastMessage("§6Førsteplads: " + first.getPlayer().getName() + " med " + first.getPoints() + " point");
         if (second != null) {
@@ -81,6 +87,7 @@ public class SimonSaysGame extends Game {
 
     @Override
     public void setup() {
+        simonPlayers.clear();
         setupGames();
         super.setup();
     }
@@ -88,10 +95,19 @@ public class SimonSaysGame extends Game {
     private void setupGames() {
         games.clear();
         playedGames.clear();
-        simonPlayers.clear();
 
-        // add games
-        this.getGames().add(new CraftStick(this));
+        // participation
+        games.add(new CraftOneStickGame(this));
+        games.add(new CrouchGame(this));
+        games.add(new EatItemGame(this));
+        games.add(new HitAPlayerGame(this));
+        games.add(new JumpGame(this));
+
+        // placement
+        games.add(new LookDirectionGame(this));
+//        games.add(new Rotate360Game(this)); // still not fixed
+        games.add(new TypeInChatGame(this));
+        games.add(new TypeTheNumberGame(this));
     }
 
     private SimonGame getRandomGame() {
@@ -100,13 +116,19 @@ public class SimonSaysGame extends Game {
         }
         SimonGame game = games.get((int) (Math.random() * games.size()));
         games.remove(game);
-        playedGames.add(game);
         return game;
     }
 
-    public void finishedPlayer(Player player) {
+    public void say() {
+        for (Player player : getPlayers()) {
+            player.sendMessage("§5§lSimon siger: §r" + currentGame.sayText());
+        }
+    }
+
+    public void finishedTask(Player player) {
         if (currentGame == null) return;
         if (currentGame.getFinishedPlayers().contains(player)) return;
+        if (currentGame.getFailedPlayers().contains(player)) return;
         currentGame.getFinishedPlayers().add(player);
         for (Player p : getPlayers()) {
             p.sendMessage("§a" + player.getName() + " klarede opgaven");
@@ -116,10 +138,21 @@ public class SimonSaysGame extends Game {
     public void failedPlayer(Player player) {
         if (currentGame == null) return;
         if (currentGame.getFinishedPlayers().contains(player)) return;
+        if (currentGame.getFailedPlayers().contains(player)) return;
+        currentGame.getFailedPlayers().add(player);
         for (Player p : getPlayers()) {
             p.sendMessage("§c" + player.getName() + " klarede ikke opgaven");
         }
     }
+
+    public void clearInventory(Player player) {
+        if (player.getOpenInventory().getCursor() != null) {
+            player.getOpenInventory().getCursor().setType(Material.AIR);
+        }
+        player.getOpenInventory().getTopInventory().clear();
+        player.getInventory().clear();
+    }
+
 
     @Override
     public void onGameStart() {
@@ -130,7 +163,7 @@ public class SimonSaysGame extends Game {
         for (Player player : getPlayers()) {
             player.teleport(getSpawnLocation());
             player.sendMessage("§aVi starter om 5 sekunder, vær klar!");
-            simonPlayers.add(new SimonPlayer(player));
+            simonPlayers.add(new SimonPlayer(player.getUniqueId()));
         }
         startGameTask = new BukkitRunnable() {
             @Override
@@ -149,20 +182,46 @@ public class SimonSaysGame extends Game {
             startGameTask.cancel();
         }
         startGameTask = null;
+        if (currentGame != null) {
+            currentGame.stop();
+        }
         currentGame = null;
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        simonPlayers.removeIf(simonPlayer -> simonPlayer.getPlayer().equals(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onDamageToVoid(EntityDamageEvent event) {
+        Player player = (Player) event.getEntity();
+        if (player == null) return;
+        if (!isPlayerInGame(player)) return;
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
             event.setCancelled(true);
             event.getEntity().teleport(getSpawnLocation());
             event.getEntity().setFallDistance(0);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDamageByPlayer(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
+            Player attacker = (Player) event.getDamager();
+            Player victim = (Player) event.getEntity();
+            if (isPlayerInGame(attacker) || isPlayerInGame(victim)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST) // just in case, we have a game that allows breaking blocks
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (isPlayerInGame(event.getPlayer()) && !event.isCancelled()) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST) // just in case, we have a game that allows placing blocks
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (isPlayerInGame(event.getPlayer()) && !event.isCancelled()) {
+            event.setCancelled(true);
         }
     }
 
@@ -178,21 +237,20 @@ public class SimonSaysGame extends Game {
         SimonGame previousGame = playedGames.get(playedGames.size() - 1);
         for (SimonPlayer simonPlayer : simonPlayers) {
             if (previousGame.getFinishedPlayers().contains(simonPlayer.getPlayer())) {
-                int placement = previousGame.getFinishedPlayers().indexOf(simonPlayer.getPlayer());
+                int placement = previousGame.getFinishedPlayers().indexOf(simonPlayer.getPlayer()) + 1;
                 simonPlayer.addPoints(previousGame.getScoringType().getPoints(placement));
             }
         }
         callWinListeners(getPlayers());
-        SimonGame nextGame = getRandomGame();
-        currentGame = nextGame;
+        currentGame = getRandomGame();
         for (Player player : getPlayers()) {
             player.sendMessage("§aVi starter om 5 sekunder, vær klar!");
         }
         startGameTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if (nextGame != null)
-                    nextGame.start();
+                if (currentGame != null)
+                    currentGame.start();
             }
         };
         startGameTask();

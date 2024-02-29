@@ -13,6 +13,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -45,9 +46,8 @@ public abstract class Game implements Listener, WinnerListener {
     }
 
     public void callWinListeners(Set<Player> players) {
-        //if (winnerListeners.isEmpty()) return;
         for (Consumer<Set<Player>> listener : new HashSet<>(winnerListeners)) {
-            if (winnerListeners.isEmpty()) return;
+            if (winnerListeners.isEmpty()) break;
             listener.accept(players);
         }
     }
@@ -92,16 +92,24 @@ public abstract class Game implements Listener, WinnerListener {
         return currentGameMap != null && currentGameMap.getMinPlayers() <= players.size() && currentGameMap.getMaxPlayers() >= players.size();
     }
 
-    public void setupDefaultScoreboard() {
-        if (this.getScoreboard() == null) {
-            this.setScoreboard(Pint.getScoreboardLibrary().createSidebar());
+    public Sidebar getScoreboard() {
+        if (scoreboard == null) {
+            scoreboard = Pint.getScoreboardLibrary().createSidebar();
+        }
+        return scoreboard;
+    }
+
+    public void closeScoreboard() {
+        if (scoreboard != null) {
+            scoreboard.removePlayers(players);
+            scoreboard.close();
+            scoreboard = null;
         }
     }
 
     public void setup() {
         if (setupGameMap(Pint.getInstance().getVoteHandler().getAllVoters().size()) == null) return;
         currentGameMap.pasteSchematic();
-        setupDefaultScoreboard();
     }
 
     public void start() {
@@ -113,7 +121,9 @@ public abstract class Game implements Listener, WinnerListener {
         currentGameMap.pasteSchematic();
         Pint.getInstance().getGameHandler().setGameRunning(true);
         registerEvents();
-        scoreboard.addPlayers(players);
+        if (scoreboard != null) {
+            scoreboard.addPlayers(players);
+        }
         addWinListeners();
         onGameStart();
     }
@@ -121,11 +131,16 @@ public abstract class Game implements Listener, WinnerListener {
     public void stop() {
         onGameEnd();
         unregisterEvents();
-        currentGameMap.clearSchematic();
+        GameMap tempCurrentGameMap = currentGameMap;
         currentGameMap = null;
-        scoreboard.removePlayers(players);
-        scoreboard.close();
-        scoreboard = null;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                tempCurrentGameMap.clearSchematic();
+            }
+        }.runTaskLater(Pint.getInstance(), 20L * 5);
+        closeScoreboard();
+
         setPlayersToVoteGamemode();
 
         players.clear();
@@ -145,7 +160,6 @@ public abstract class Game implements Listener, WinnerListener {
 
     public void removePlayer(Player player) {
         players.remove(player);
-        // check if winlistener contains a way to end the game early
         callWinListeners(players);
     }
 

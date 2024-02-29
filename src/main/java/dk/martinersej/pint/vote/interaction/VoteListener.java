@@ -48,7 +48,7 @@ public class VoteListener implements Listener {
     public void onVoteItemDrop(PlayerDropItemEvent event) {
         if (event.getItemDrop().getType().equals(EntityType.DROPPED_ITEM)) {
             ItemStack itemStack = event.getItemDrop().getItemStack();
-            if (itemStack.getType().equals(Material.COMPASS)) {
+            if (itemStack.getType().equals(Material.NETHER_STAR)) {
                 String vote = ItemBuilder.getNbt(itemStack, "vote");
                 if (vote != null) {
                     event.setCancelled(true);

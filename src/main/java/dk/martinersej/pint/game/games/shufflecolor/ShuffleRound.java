@@ -43,9 +43,9 @@ public class ShuffleRound {
         this.game.getScoreboard().line(1, Component.text("§7Round: " + roundNumber));
 
         if (roundNumber > 1) {
-            this.game.getPickedMaps().get(roundNumber - 2).clearSchematic();
-            this.game.getPickedMaps().get(roundNumber - 1).pasteSchematic();
+            this.game.getCurrentGameMap().clearSchematic();
             this.game.setCurrentGameMap(this.game.getPickedMaps().get(roundNumber - 1));
+            this.game.getCurrentGameMap().pasteSchematic();
         }
         getRandomBlockToStandOn();
     }
@@ -63,7 +63,7 @@ public class ShuffleRound {
         Set<ItemStack> blocks = new HashSet<>();
         for (BlockVector blockVector : this.region) {
             Location location = new Location(world, blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ());
-            blocks.add(new ItemStack(location.getBlock().getType(), 1, location.getBlock().getState().getData().getData()));
+            blocks.add(new ItemStack(location.getBlock().getType(), 1, location.getBlock().getData()));
         }
 
         blocks.remove(new ItemStack(Material.AIR)); // just in case we are making more than 1 layer of blocks. We don't want air

@@ -133,6 +133,12 @@ public class GameMap extends Map {
         return Math.max(corner2Location.getBlockX(), corner1Location.getBlockX());
     }
 
+    public int getLowestYLevel() {
+        Location corner1Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner1());
+        Location corner2Location = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(getCorner2());
+        return Math.min(corner2Location.getBlockX(), corner1Location.getBlockX());
+    }
+
     public Location getSpawnPoint(int index) {
         if (spawnPoints.size() <= index) {
             return null;

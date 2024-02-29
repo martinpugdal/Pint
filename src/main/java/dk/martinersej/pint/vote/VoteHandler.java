@@ -24,6 +24,7 @@ public class VoteHandler {
     private BukkitRunnable voteTimer = null;
     private final int fullCooldown = 5;
     private int cooldown;
+    private final int voteAmountNeeded = 1;
 
     public VoteHandler() {
         voteUtil = new VoteUtil();
@@ -72,7 +73,7 @@ public class VoteHandler {
                 }
 
                 // not enough players to start a game
-                if (getAllVoters().size() < 1 && !Pint.getInstance().getGameHandler().isGameRunning()) {
+                if (getAllVoters().size() < voteAmountNeeded && !Pint.getInstance().getGameHandler().isGameRunning()) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         PacketUtil.sendActionBar(player, "§cIkke nok votes til at starte et spil");
                     }

@@ -6,9 +6,10 @@ public enum ScoringType {
     PARTICIPATION(1);
 
     private final int[] pointsToGive;
-
-    ScoringType(int... pointsToGive) {
-        this.pointsToGive = pointsToGive;
+    ScoringType(int firstPlace, int... otherPlaces) {
+        this.pointsToGive = new int[otherPlaces.length + 1];
+        pointsToGive[0] = firstPlace;
+        System.arraycopy(otherPlaces, 0, pointsToGive, 1, otherPlaces.length);
     }
 
     public int getPoints(int placement) {
