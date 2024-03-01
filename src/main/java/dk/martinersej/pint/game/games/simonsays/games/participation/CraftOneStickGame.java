@@ -7,10 +7,17 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CraftOneStickGame extends SimonGame {
+
+    List<ItemStack> craftingItems = new ArrayList<>();
 
     public CraftOneStickGame(SimonSaysGame simonSaysGame) {
         super(simonSaysGame);
@@ -18,6 +25,7 @@ public class CraftOneStickGame extends SimonGame {
 
     @Override
     public void startGame() {
+        craftingItems.clear();
         ItemStack item = new ItemStack(Material.LOG);
         for (Player player : getSimonSaysGame().getPlayers()) {
             // set the item in a random slot in hotbar
@@ -38,13 +46,13 @@ public class CraftOneStickGame extends SimonGame {
 
     @Override
     public void stopGame() {
+        for (ItemStack craftingItem : craftingItems) {
+            if (craftingItem != null)
+                craftingItem.setType(Material.AIR);
+        }
+        craftingItems.clear();
         for (Player player : getSimonSaysGame().getPlayers()) {
-            // get the cursor item or the item in the crafting slot, just in case they are holding something
-            if (player.getOpenInventory().getCursor() != null) {
-                player.getOpenInventory().getCursor().setType(Material.AIR);
-            }
-            player.getOpenInventory().getTopInventory().clear();
-            player.getInventory().clear();
+            getSimonSaysGame().clearInventory(player);
             player.closeInventory();
         }
     }
@@ -54,6 +62,15 @@ public class CraftOneStickGame extends SimonGame {
         if (!getSimonSaysGame().isPlayerInGame((Player) event.getWhoClicked())) return;
         if (event.getRecipe().getResult().getType().equals(Material.STICK)) {
             getSimonSaysGame().finishedTask((Player) event.getWhoClicked());
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (getSimonSaysGame().isPlayerInGame((Player) event.getWhoClicked())) {
+            if (event.getClickedInventory().getType().equals(InventoryType.CRAFTING)) {
+                craftingItems.add(event.getCurrentItem());
+            }
         }
     }
 

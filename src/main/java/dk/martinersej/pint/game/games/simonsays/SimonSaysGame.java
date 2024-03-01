@@ -2,9 +2,7 @@ package dk.martinersej.pint.game.games.simonsays;
 
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.games.simonsays.games.participation.*;
-import dk.martinersej.pint.game.games.simonsays.games.placement.LookDirectionGame;
-import dk.martinersej.pint.game.games.simonsays.games.placement.TypeInChatGame;
-import dk.martinersej.pint.game.games.simonsays.games.placement.TypeTheNumberGame;
+import dk.martinersej.pint.game.games.simonsays.games.placement.*;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonGame;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonPlayer;
 import dk.martinersej.pint.game.objects.Game;
@@ -42,7 +40,7 @@ public class SimonSaysGame extends Game {
         super(new GameInformation("Simon Says", "§5", "Gør hvad Simon siger",
             new ItemBuilder().skull().
                 build()
-            ));
+        ));
     }
 
     @Override
@@ -99,13 +97,16 @@ public class SimonSaysGame extends Game {
         // participation
         games.add(new CraftOneStickGame(this));
         games.add(new CrouchGame(this));
+        games.add(new DropItemGame(this));
         games.add(new EatItemGame(this));
         games.add(new HitAPlayerGame(this));
         games.add(new JumpGame(this));
 
         // placement
+        games.add(new BreakOreGame(this));
         games.add(new LookDirectionGame(this));
-//        games.add(new Rotate360Game(this)); // still not fixed
+        games.add(new Rotate360Game(this));
+        games.add(new SitInABoatGame(this));
         games.add(new TypeInChatGame(this));
         games.add(new TypeTheNumberGame(this));
     }
@@ -125,6 +126,13 @@ public class SimonSaysGame extends Game {
         }
     }
 
+    private void stopGameIfAllPlayersDone() {
+        int finishedAndFailed = currentGame.getFinishedPlayers().size() + currentGame.getFailedPlayers().size();
+        if (finishedAndFailed == getPlayers().size()) {
+            currentGame.stop();
+        }
+    }
+
     public void finishedTask(Player player) {
         if (currentGame == null) return;
         if (currentGame.getFinishedPlayers().contains(player)) return;
@@ -133,6 +141,8 @@ public class SimonSaysGame extends Game {
         for (Player p : getPlayers()) {
             p.sendMessage("§a" + player.getName() + " klarede opgaven");
         }
+
+        stopGameIfAllPlayersDone();
     }
 
     public void failedPlayer(Player player) {
@@ -143,11 +153,13 @@ public class SimonSaysGame extends Game {
         for (Player p : getPlayers()) {
             p.sendMessage("§c" + player.getName() + " klarede ikke opgaven");
         }
+
+        stopGameIfAllPlayersDone();
     }
 
     public void clearInventory(Player player) {
-        if (player.getOpenInventory().getCursor() != null) {
-            player.getOpenInventory().getCursor().setType(Material.AIR);
+        if (player.getItemOnCursor() != null && player.getItemOnCursor().getType() != Material.AIR) {
+            player.getItemOnCursor().setType(Material.AIR);
         }
         player.getOpenInventory().getTopInventory().clear();
         player.getInventory().clear();
@@ -224,7 +236,6 @@ public class SimonSaysGame extends Game {
             event.setCancelled(true);
         }
     }
-
 
     public Location getSpawnLocation() {
         if (getCurrentGameMap().getSpawnPoints().isEmpty()) {

@@ -1,4 +1,3 @@
-Simon siger drop en (item)
 Simon siger byg en snemand
 Simon siger begå selvmord
 Simon siger stå stille!
@@ -8,7 +7,6 @@ Simon siger mælk en ko og giv en villager den mælk
 Simon siger pluk en blomst og giv den til bedstemor i huset (spawnes ved siden af platformen, hvor der er en villager)
 Simon siger hop udover platformen
 Simon siger tag (item) på dig (tag et gear på)
-Simon siger sid i en båd
 Simon siger smadre ore(iron, gold, diamond, emerald, redstone, lapis lazuli, coal)
 Simon siger sov i en seng
 Simon siger helbred en zombie

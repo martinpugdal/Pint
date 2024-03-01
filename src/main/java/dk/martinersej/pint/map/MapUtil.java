@@ -8,6 +8,7 @@ import dk.martinersej.pint.map.objects.maps.GameMap;
 import dk.martinersej.pint.utils.LocationUtil;
 import lombok.Getter;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
@@ -33,16 +34,32 @@ public class MapUtil {
         return mapHandler.getConfig().getConfigurationSection("maps." + mapID);
     }
 
-    public GameMap getCurrentMap() {
-        return Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap();
+    public World getGameWorld() {
+        return serverWorld.getWorld();
     }
 
-    public Location getCurrentCorner1() {
-        return getLocationFromOffset(getCurrentMap().getCorner1().clone());
+    public Location getCurrentGameMapCorner1() {
+        Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
+        location.setY(0);
+
+        GameMap currentMap = Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap();
+
+        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(currentMap.getCenterLocation(), new Location(serverWorld.getWorld(), currentMap.getCorner1().getX(), currentMap.getCorner1().getY(), currentMap.getCorner1().getZ()));
+        location.add(vectorOffset);
+
+        return location.clone();
     }
 
-    public Location getCurrentCorner2() {
-        return getLocationFromOffset(getCurrentMap().getCorner2().clone());
+    public Location getCurrentGameMapCorner2() {
+        Location location = Pint.getInstance().getVoteHandler().getVoteMap().getCenterLocation();
+        location.setY(0);
+
+        GameMap currentMap = Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap();
+
+        org.bukkit.util.Vector vectorOffset = LocationUtil.getVectorOffset(currentMap.getCenterLocation(), new Location(serverWorld.getWorld(), currentMap.getCorner2().getX(), currentMap.getCorner2().getY(), currentMap.getCorner2().getZ()));
+        location.add(vectorOffset);
+
+        return location.clone();
     }
 
     public Location getLocationFromOffset(Vector offset) {

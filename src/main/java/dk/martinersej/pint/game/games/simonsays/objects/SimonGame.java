@@ -51,7 +51,17 @@ public abstract class SimonGame implements Listener {
         if (simonSaysGame.getCurrentGame() == this) {
             simonSaysGame.setCurrentGame(null);
             simonSaysGame.getPlayedGames().add(this);
-            simonSaysGame.nextGame();
+
+            if (simonSaysGame.getGameAmount() > simonSaysGame.getPlayedGames().size()) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        simonSaysGame.nextGame();
+                    }
+                }.runTaskLater(Pint.getInstance(), (long) (20 * 1.5));
+            } else {
+                simonSaysGame.win(simonSaysGame.getPlayers());
+            }
         }
     }
 

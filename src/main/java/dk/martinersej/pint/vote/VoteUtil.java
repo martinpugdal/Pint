@@ -40,10 +40,11 @@ public class VoteUtil {
     }
 
     public void setToPlainVoteGamemode(Player player) {
-        player.setGameMode(GameMode.ADVENTURE);
-
-        player.setAllowFlight(true);
-        player.setFlying(true);
+        Bukkit.getScheduler().runTask(Pint.getInstance(), () -> {
+            player.setGameMode(GameMode.ADVENTURE);
+            player.setAllowFlight(false);
+            player.setFlying(false);
+        });
     }
 
     public void setToVoteGamemode(Player player) {

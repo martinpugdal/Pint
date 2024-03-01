@@ -18,7 +18,7 @@ public class Rotate360Game extends SimonGame {
 
     @Override
     public int getaskDuration() {
-        return 8; // default is 10 in the super class
+        return 15; // default is 10 in the super class
     }
 
     @Override
@@ -67,7 +67,7 @@ public class Rotate360Game extends SimonGame {
                 playerStartYaw.put(player, currentYaw);
                 playerHalfway.put(player, false);
             } else {
-                if (currentYaw - startYaw >= 178) {
+                if (currentYaw - startYaw >= 177) {
                     boolean halfway = playerHalfway.get(player);
                     if (halfway) {
                         getSimonSaysGame().finishedTask(player);
@@ -83,7 +83,7 @@ public class Rotate360Game extends SimonGame {
                 playerStartYaw.put(player, currentYaw);
                 playerHalfway.put(player, false);
             } else {
-                if (startYaw - currentYaw >= 178) {
+                if (startYaw - currentYaw >= 177) {
                     boolean halfway = playerHalfway.get(player);
                     if (halfway) {
                         getSimonSaysGame().finishedTask(player);

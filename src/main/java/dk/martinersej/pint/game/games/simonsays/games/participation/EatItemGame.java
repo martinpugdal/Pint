@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class EatItemGame extends SimonGame {
         List<ItemStack> randomEdibles = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             int randomIndex = (int) (Math.random() * edibles.size());
-            if (edibles.get(randomIndex) == foodItem) {
+            if (edibles.get(randomIndex) == foodItem || randomEdibles.contains(new ItemStack(edibles.get(randomIndex)))) {
                 i--;
                 continue;
             }
@@ -81,14 +82,14 @@ public class EatItemGame extends SimonGame {
     }
 
     @EventHandler
-    public void onConsumeItem(PlayerDropItemEvent event) {
+    public void onConsumeItem(PlayerItemConsumeEvent event) {
         if (getSimonSaysGame().isPlayerInGame(event.getPlayer())) {
-            if (event.getItemDrop().getItemStack().getType() == foodItem) {
+            if (event.getItem().getType() == foodItem) {
                 getSimonSaysGame().finishedTask(event.getPlayer());
             } else {
                 getSimonSaysGame().failedPlayer(event.getPlayer());
             }
-            event.getItemDrop().remove();
+            event.setCancelled(true);
             getSimonSaysGame().clearInventory(event.getPlayer());
         }
     }
