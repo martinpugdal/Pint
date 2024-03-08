@@ -9,7 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Collection;
 
 public class ShowRegionsCommand implements CommandExecutor {
 
@@ -27,7 +27,7 @@ public class ShowRegionsCommand implements CommandExecutor {
         }
         commandSender.sendMessage("§aRegions for map: " + currentGameMap.getMapID());
 
-        List<Region> regions = Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getRegions();
+        Collection<Region> regions = Pint.getInstance().getGameHandler().getCurrentGame().getCurrentGameMap().getRegions().values();
         for (Region region : regions) {
             region = Pint.getInstance().getMapHandler().getMapUtil().calculateRegionWithVoteMap(region, currentGameMap);
             commandSender.sendMessage("§aRegion: " + region.getMinimumPoint() + " - " + region.getMaximumPoint());

@@ -5,6 +5,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.games.allekyllingerkomhjem.AlleKyllingerKomHjemGame;
+import dk.martinersej.pint.game.games.hideandseek.HideAndSeekGame;
 import dk.martinersej.pint.game.games.shufflecolor.ShuffleColorGame;
 import dk.martinersej.pint.game.games.simonsays.SimonSaysGame;
 import dk.martinersej.pint.game.games.tnttag.TntTagGame;
@@ -68,19 +69,21 @@ public class GameHandler {
          */
         Game tntTagGame = new TntTagGame(); // id 1
         addGame(tntTagGame);
-        addGameToPool(tntTagGame);
+//        addGameToPool(tntTagGame);
 
         Game shuffleGame = new ShuffleColorGame(); // id 2
         addGame(shuffleGame);
-        addGameToPool(shuffleGame);
+//        addGameToPool(shuffleGame);
 
         Game simonSaysGame = new SimonSaysGame(); // id 3
         addGame(simonSaysGame);
-        addGameToPool(simonSaysGame);
+//        addGameToPool(simonSaysGame);
 
         Game alleKyllingerKomHjemGame = new AlleKyllingerKomHjemGame(); // id 4
-        addGame(alleKyllingerKomHjemGame);
+//        addGame(alleKyllingerKomHjemGame);
 //        addGameToPool(alleKyllingerKomHjemGame);
+
+        Game hideAndSeekGame = new HideAndSeekGame(); // id 5
         
 
         gamePool.shuffleVotePool();

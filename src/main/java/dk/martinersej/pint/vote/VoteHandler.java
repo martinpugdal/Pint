@@ -24,7 +24,7 @@ public class VoteHandler {
     private BukkitRunnable voteTimer = null;
     private final int fullCooldown = 5;
     private int cooldown;
-    private final int voteAmountNeeded = 1;
+    private final int voteAmountNeeded = 2;
 
     public VoteHandler() {
         voteUtil = new VoteUtil();
@@ -125,7 +125,7 @@ public class VoteHandler {
                 cooldown--;
             }
         };
-        voteTimer.runTaskTimer(JavaPlugin.getProvidingPlugin(VoteHandler.class), 0, 1L);
+        voteTimer.runTaskTimer(JavaPlugin.getProvidingPlugin(getClass()), 0, 1L);
     }
 
     public void setVote(Player player, Game game) {

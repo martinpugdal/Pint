@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
@@ -26,7 +27,7 @@ public class GameMap extends Map {
     private boolean active;
 
     private List<SpawnPoint> spawnPoints;
-    private List<Region> regions;
+    private java.util.Map<String, Region> regions;
 
     private int minPlayers;
     private int maxPlayers;
@@ -85,7 +86,7 @@ public class GameMap extends Map {
         }
 
         // Load regions
-        this.regions = new ArrayList<>();
+        this.regions = new HashMap<>();
         ConfigurationSection regionsSection = section.getConfigurationSection("regions");
         if (regionsSection != null) {
             for (String key : regionsSection.getKeys(false)) {
@@ -95,7 +96,8 @@ public class GameMap extends Map {
                 org.bukkit.util.Vector corner2 = LocationUtil.stringToVector(regionsSection.getString(key + ".corner2"));
                 Vector pos2 = new Vector(corner2.getX(), corner2.getY(), corner2.getZ());
 
-                regions.add(
+                regions.put(
+                        key,
                         new CuboidRegion(
                                 pos1,
                                 pos2
@@ -150,7 +152,15 @@ public class GameMap extends Map {
         if (regions.size() <= index) {
             return null;
         }
-        return Pint.getInstance().getMapHandler().getMapUtil().calculateRegionWithVoteMap(regions.get(index), this);
+        Region region = regions.values().toArray(new Region[0])[index];
+        return Pint.getInstance().getMapHandler().getMapUtil().calculateRegionWithVoteMap(region, this);
+    }
+
+    public Region getRegion(String regionName) {
+        if (!regions.containsKey(regionName)) {
+            return null;
+        }
+        return Pint.getInstance().getMapHandler().getMapUtil().calculateRegionWithVoteMap(regions.get(regionName), this);
     }
 
     @Override

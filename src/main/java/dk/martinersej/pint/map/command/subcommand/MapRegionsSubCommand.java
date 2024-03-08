@@ -19,13 +19,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
+
 public class MapRegionsSubCommand extends SubCommand {
 
     public MapRegionsSubCommand(JavaPlugin plugin) {
         super(
                 plugin,
                 "Region for et map",
-                "<MapID> <add|delete|clear|list> [<RegionID>]",
+                "<MapID> <add|delete|clear|list> [<ID|Name>]",
                 "pint.map.regions",
                 "region", "regions"
         );
@@ -65,7 +67,15 @@ public class MapRegionsSubCommand extends SubCommand {
                     Location corner1 = selection.getMinimumPoint();
                     Location corner2 = selection.getMaximumPoint();
 
-                    int regionID = Pint.getInstance().getMapHandler().addRegion(mapID, corner1, corner2);
+                    String regionName = args.length > 2 ? args[2] : null;
+                    if (regionName != null && Pint.getInstance().getMapHandler().regionIsPresent(mapID, regionName)) {
+                        sender.sendMessage("§cRegion med navn " + regionName + " findes allerede på map med id " + mapID);
+                        return CommandResult.success(this);
+                    }
+
+                    String regionID = regionName != null ?
+                        Pint.getInstance().getMapHandler().addRegion(mapID, regionName, corner1, corner2) :
+                        Pint.getInstance().getMapHandler().addRegion(mapID, corner1, corner2);
                     sender.sendMessage("§aRegion med id " + regionID + " er nu tilføjet til map med id " + mapID);
 
                 } catch (IncompleteRegionException e) {
@@ -73,12 +83,13 @@ public class MapRegionsSubCommand extends SubCommand {
                 }
                 break;
             case "delete":
-                int regionID;
-                try {
-                    regionID = Integer.parseInt(args[2]);
-                } catch (NumberFormatException e) {
-                    sender.sendMessage("§cDu skal skrive et tal");
-                    return CommandResult.wrongUsage(this, "§cDu skal skrive et tal");
+                if (args.length < 3) {
+                    return CommandResult.wrongUsage(this);
+                }
+                String regionID = args[2];
+                if (!Pint.getInstance().getMapHandler().regionIsPresent(mapID, regionID)) {
+                    sender.sendMessage("§cRegion med id " + regionID + " findes ikke på map med id " + mapID);
+                    return CommandResult.success(this);
                 }
                 Pint.getInstance().getMapHandler().deleteRegion(mapID, regionID);
                 sender.sendMessage("§aRegion med id " + regionID + " er nu slettet fra map med id " + mapID);
@@ -90,15 +101,16 @@ public class MapRegionsSubCommand extends SubCommand {
             case "list":
                 GameMap gameMap = Pint.getInstance().getMapHandler().getMap(mapID);
                 if (!gameMap.getRegions().isEmpty()) sender.sendMessage("§aRegions:");
-                for (Region region : gameMap.getRegions()) {
-
+                for (Map.Entry<String, Region> entry : gameMap.getRegions().entrySet()) {
+                    String id = entry.getKey();
+                    Region region = entry.getValue();
                     com.sk89q.worldedit.Vector min = region.getMinimumPoint();
                     com.sk89q.worldedit.Vector max = region.getMaximumPoint();
                     Location pos1Loc = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(new Vector(min.getX(), min.getY(), min.getZ()));
                     Location pos2Loc = Pint.getInstance().getMapHandler().getMapUtil().getLocationFromOffset(new Vector(max.getX(), max.getY(), max.getZ()));
 
                     sender.sendMessage("----------------");
-                    sender.sendMessage("§7ID: " + gameMap.getRegions().indexOf(region));
+                    sender.sendMessage("§7ID: " + id);
                     sender.sendMessage("§7Corner1: " + pos1Loc);
                     sender.sendMessage("§7Corner2: " + pos2Loc);
                     sender.sendMessage("----------------");

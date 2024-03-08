@@ -68,7 +68,7 @@ public class TNTRound {
         roundTask.runTaskTimer(JavaPlugin.getProvidingPlugin(getClass()), 0, 20);
     }
 
-    public Player getRandomPlayer() {
+    private Player getRandomPlayer() {
         List<Player> players = new ArrayList<>(getPlayers());
         return players.get((int) (Math.random() * players.size()));
     }

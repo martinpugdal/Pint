@@ -7,7 +7,6 @@ import dk.martinersej.pint.map.objects.maps.GameMap;
 import dk.martinersej.pint.utils.LocationUtil;
 import dk.martinersej.pint.utils.SchematicUtil;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -86,7 +85,12 @@ public class MapHandler extends YamlManagerTypeImpl {
         }
         int lastID = 0;
         for (String regionID : regionSection.getKeys(false)) {
-            int id = Integer.parseInt(regionID);
+            int id;
+            try {
+                id = Integer.parseInt(regionID);
+            } catch (NumberFormatException e) {
+                continue;
+            }
             if (id - 1 != lastID) {
                 return id;
             } else {
@@ -247,19 +251,21 @@ public class MapHandler extends YamlManagerTypeImpl {
         }
     }
 
-    public int addRegion(int mapID, Location corner1, Location corner2) {
-        ConfigurationSection section = mapUtil.getMapSection(mapID);
+    public String addRegion(int mapID, Location corner1, Location corner2) {
         int regionID = getNewRegionID(mapID);
+
+        return addRegion(mapID, regionID+"", corner1, corner2);
+    }
+
+    public String addRegion(int mapID, String regionName, Location corner1, Location corner2) {
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
 
         Location realZeroLocation = LocationUtil.stringToLocation(section.getString("zeroLocation"));
         org.bukkit.util.Vector offset1 = LocationUtil.getVectorOffset(realZeroLocation, corner1);
         org.bukkit.util.Vector offset2 = LocationUtil.getVectorOffset(realZeroLocation, corner2);
 
-        Bukkit.getLogger().info("offset1: " + offset1);
-        Bukkit.getLogger().info("offset2: " + offset2);
-
-        section.set("regions." + regionID + ".corner1", LocationUtil.vectorToString(offset1));
-        section.set("regions." + regionID + ".corner2", LocationUtil.vectorToString(offset2));
+        section.set("regions." + regionName + ".corner1", LocationUtil.vectorToString(offset1));
+        section.set("regions." + regionName + ".corner2", LocationUtil.vectorToString(offset2));
 
         save();
 
@@ -267,10 +273,15 @@ public class MapHandler extends YamlManagerTypeImpl {
             maps.get(mapID).load();
         }
 
-        return regionID;
+        return regionName;
     }
 
-    public void deleteRegion(int mapID, int regionID) {
+    public boolean regionIsPresent(int mapID, String regionName) {
+        ConfigurationSection section = mapUtil.getMapSection(mapID);
+        return section.getConfigurationSection("regions").getKeys(false).contains(regionName);
+    }
+
+    public void deleteRegion(int mapID, String regionID) {
         ConfigurationSection section = mapUtil.getMapSection(mapID);
         section.set("regions." + regionID, null);
 

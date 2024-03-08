@@ -29,4 +29,44 @@ public class GameInformation {
     public ItemStack getIcon() {
         return this.icon.clone();
     }
+
+    // Builder pattern, why not :shrug:
+    public static GameInformationBuilder builder() {
+        return new GameInformationBuilder();
+    }
+    public static class GameInformationBuilder {
+        private String name;
+        private String color;
+        private String description;
+        private ItemStack icon;
+
+        public GameInformationBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public GameInformationBuilder color(String color) {
+            this.color = color;
+            return this;
+        }
+
+        public GameInformationBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public GameInformationBuilder icon(ItemStack icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        public GameInformationBuilder icon(Material icon) {
+            this.icon = new ItemStack(icon);
+            return this;
+        }
+
+        public GameInformation build() {
+            return new GameInformation(name, color, description, icon);
+        }
+    }
 }

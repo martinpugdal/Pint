@@ -88,7 +88,7 @@ public final class Pint extends JavaPlugin {
 
         // simple commands
         this.getServer().getPluginCommand("spawn").setExecutor(new SpawnCommand());
-        this.getServer().getPluginCommand("whitelist").setExecutor(new WhitelistCommand());
+        this.getServer().getPluginCommand("test").setExecutor(new TestCommand());
         this.getServer().getPluginCommand("showregions").setExecutor(new ShowRegionsCommand());
         this.getServer().getPluginCommand("join").setExecutor(new JoinCommand());
     }
