@@ -34,9 +34,7 @@ public class VoteUtil {
         Bukkit.getScoreboardManager().getMainScoreboard().getTeam("vote").unregister();
 
         voteTeam = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam("vote");
-
         voteTeam.setPrefix("§e");
-
     }
 
     public void setToPlainVoteGamemode(Player player) {

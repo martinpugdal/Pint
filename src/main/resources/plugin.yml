@@ -2,7 +2,7 @@ name: Pint
 version: '${project.version}'
 main: dk.martinersej.pint.Pint
 database: true
-author: "Martin :)"
+author: "Martin"
 
 depend:
   - Vault
