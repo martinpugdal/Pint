@@ -22,9 +22,9 @@ public class VoteHandler {
     private final VoteUtil voteUtil;
     private final VoteMap voteMap;
     private BukkitRunnable voteTimer = null;
-    private final int fullCooldown = 5;
+    private final int fullCooldown = 15;
     private int cooldown;
-    private final int voteAmountNeeded = 2;
+    private final int voteAmountNeeded = 1;
 
     public VoteHandler() {
         voteUtil = new VoteUtil();
@@ -69,6 +69,14 @@ public class VoteHandler {
 
                 if (tick % 20 != 0) {
                     voteUtil.getVoteComponent().tick();
+                    return;
+                }
+
+                if (Pint.getInstance().getGameHandler().getGamePool().getVoteGamesWithoutNull().isEmpty()) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (!player.isOp()) continue;
+                        PacketUtil.sendActionBar(player, "§cIngen spil er tilføjet til vote pool");
+                    }
                     return;
                 }
 
@@ -177,7 +185,6 @@ public class VoteHandler {
         int votes = 0;
 
         // get the games with the most votes
-
         for (Game game : gameVotesCount.keySet()) {
             if (gameVotesCount.get(game) > votes) {
                 games.clear();
@@ -189,13 +196,12 @@ public class VoteHandler {
         }
 
         // get a random game if there are multiple games with the same number of votes
-        if (games.size() > 1) {
+        if (!games.isEmpty()) {
+            // get a random game from the list
             return games.get((int) (Math.random() * games.size()));
-        } else if (games.size() == 1) {
-            return games.get(0);
         } else {
-            int random = (int) (Math.random() * Pint.getInstance().getGameHandler().getGamePool().getVoteGames().length);
-            return Pint.getInstance().getGameHandler().getGamePool().getVoteGames()[random];
+            int random = (int) (Math.random() * Pint.getInstance().getGameHandler().getGamePool().getVoteGamesWithoutNull().size());
+            return Pint.getInstance().getGameHandler().getGamePool().getVoteGamesWithoutNull().get(random);
         }
     }
 

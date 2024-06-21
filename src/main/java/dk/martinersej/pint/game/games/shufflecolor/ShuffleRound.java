@@ -30,9 +30,9 @@ public class ShuffleRound {
     private final ShuffleColorGame game;
     private final int roundNumber;
     private final int roundDuration;
+    private final Set<BaseBlock> blocksNotToStandOn = new HashSet<>();
     private BukkitRunnable roundTask;
     private ItemStack blockToStandOn;
-    private final Set<BaseBlock> blocksNotToStandOn = new HashSet<>();
     private Region region;
 
     public ShuffleRound(ShuffleColorGame game, int roundNumber, int roundDuration) {
@@ -66,7 +66,7 @@ public class ShuffleRound {
             blocks.add(new ItemStack(location.getBlock().getType(), 1, location.getBlock().getData()));
         }
 
-        blocks.remove(new ItemStack(Material.AIR)); // just in case we are making more than 1 layer of blocks. We don't want air
+        blocks.remove(new ItemStack(Material.AIR)); // Just in case we are making more than 1 layer of blocks. We don't want air
 
         int item = new Random().nextInt(blocks.size());
         Iterator<ItemStack> iterator = blocks.iterator();

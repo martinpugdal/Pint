@@ -66,4 +66,14 @@ public class GamePool {
             voteGames[i] = shuffleList.get(i);
         }
     }
+
+    public List<Game> getVoteGamesWithoutNull() {
+        List<Game> games = new ArrayList<>();
+        for (Game game : voteGames) {
+            if (game != null) {
+                games.add(game);
+            }
+        }
+        return games;
+    }
 }

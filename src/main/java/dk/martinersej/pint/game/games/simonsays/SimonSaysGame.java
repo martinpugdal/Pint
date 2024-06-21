@@ -76,10 +76,10 @@ public class SimonSaysGame extends Game {
 
         Bukkit.broadcastMessage("§6Førsteplads: " + first.getPlayer().getName() + " med " + first.getPoints() + " point");
         if (second != null) {
-            Bukkit.broadcastMessage("§6Andenplads: " + simonPlayers.higher(first).getPlayer().getName() + " med " + second.getPoints() + " point");
+            Bukkit.broadcastMessage("§6Andenplads: " + second.getPlayer().getName() + " med " + second.getPoints() + " point");
         }
         if (third != null) {
-            Bukkit.broadcastMessage("§6Tredjeplads: " + simonPlayers.higher(second).getPlayer().getName() + " med " + third.getPoints() + " point");
+            Bukkit.broadcastMessage("§6Tredjeplads: " + third.getPlayer().getName() + " med " + third.getPoints() + " point");
         }
     }
 

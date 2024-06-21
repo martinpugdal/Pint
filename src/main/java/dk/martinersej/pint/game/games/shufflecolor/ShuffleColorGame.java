@@ -32,7 +32,7 @@ public class ShuffleColorGame extends Game {
     private final List<GameMap> pickedMaps = new ArrayList<>();
     @Setter
     private boolean pvpEnabled = false;
-    private final int maxRounds = 7;
+    private final int maxRounds = 9;
     private int mapLowestY = 0;
 
     public ShuffleColorGame() {
@@ -133,7 +133,7 @@ public class ShuffleColorGame extends Game {
             currentRound.getRoundTask().cancel();
         }
         int roundNumber = currentRound == null ? 1 : currentRound.getRoundNumber() + 1;
-        int cooldown = currentRound == null ? 10 : currentRound.getRoundDuration() - 1;
+        int cooldown = currentRound == null ? 17 : currentRound.getRoundDuration() - 1;
         if (cooldown < 2) {
             cooldown = 2;
         }
