@@ -25,7 +25,7 @@ public class LabyModProtocol {
         byte[] bytes = getBytesToSend(key, messageContent.toString());
 
         PacketDataSerializer pds = new PacketDataSerializer(Unpooled.wrappedBuffer(bytes));
-        PacketPlayOutCustomPayload payloadPacket = new PacketPlayOutCustomPayload("labymod3:main", pds);
+        PacketPlayOutCustomPayload payloadPacket = new PacketPlayOutCustomPayload("labymod", pds);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(payloadPacket);
     }
 

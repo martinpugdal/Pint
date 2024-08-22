@@ -19,9 +19,9 @@ public class ParticleUtils {
 
     public static void sendRedstoneParticle(Player player, Location location, Color color) {
         PacketPlayOutWorldParticles particle = new PacketPlayOutWorldParticles(
-                EnumParticle.REDSTONE, true,
-                (float) location.getX(), (float) location.getY(), (float) location.getZ(),
-                (float) color.getRed() / 255, (float) color.getGreen() / 255, (float) color.getBlue() / 255, (float) 1, 0
+            EnumParticle.REDSTONE, true,
+            (float) location.getX(), (float) location.getY(), (float) location.getZ(),
+            (float) color.getRed() / 255, (float) color.getGreen() / 255, (float) color.getBlue() / 255, (float) 1, 0
         );
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(particle);
     }
@@ -103,23 +103,23 @@ public class ParticleUtils {
         if (!corner2.getWorld().equals(world)) {
             return;
         }
-        corner1 = corner1.clone().add(0.5, 0.5, 0.5);
-        corner2 = corner2.clone().add(0.5, 0.5, 0.5);
-
-        int minX = Math.min(corner1.getBlockX(), corner2.getBlockX());
-        int minY = Math.min(corner1.getBlockY(), corner2.getBlockY());
-        int minZ = Math.min(corner1.getBlockZ(), corner2.getBlockZ());
-        int maxX = Math.max(corner1.getBlockX(), corner2.getBlockX());
-        int maxY = Math.max(corner1.getBlockY(), corner2.getBlockY());
-        int maxZ = Math.max(corner1.getBlockZ(), corner2.getBlockZ());
-
-        int particleCount = (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1) * 20*5; // 20 particles per block * 5 
-
-        if (particleCount > 10000) {
-            // Limit the number of particles to avoid lag
-            Bukkit.getLogger().warning("Too many particles to draw region cuboid");
-            return;
+        // check for if corner is in the middle of a block
+        if (corner1.getX() % 1 != 0) {
+            corner1 = corner1.clone().add(-0.5, 0, 0);
         }
+        if (corner2.getX() % 1 != 0) {
+            corner2 = corner2.clone().add(-0.5, 0, 0);
+        }
+        // corner1 = min, corner2 = max
+        double minX = Math.min(corner1.getX(), corner2.getX());
+        double minY = Math.min(corner1.getY(), corner2.getY());
+        double minZ = Math.min(corner1.getZ(), corner2.getZ());
+        double maxX = Math.max(corner1.getX(), corner2.getX());
+        double maxY = Math.max(corner1.getY(), corner2.getY());
+        double maxZ = Math.max(corner1.getZ(), corner2.getZ());
+
+        int totalBlocks = (int) ((maxX - minX) * (maxY - minY) * (maxZ - minZ));
+        int particleCount = totalBlocks * 20 * 5;
 
         new BukkitRunnable() {
 
@@ -132,7 +132,7 @@ public class ParticleUtils {
                     cancel();
                 }
                 // don't spawn particles inside the region, so we can see the outline
-                for (int x = minX; x <= maxX + 1; x++) {
+                for (int x = (int) minX; x <= maxX; x++) {
                     color = getNextColorInRow(color);
                     sendRedstoneParticle(player, new Location(world, x, minY, minZ), color);
                     color = getNextColorInRow(color);
@@ -142,7 +142,7 @@ public class ParticleUtils {
                     color = getNextColorInRow(color);
                     sendRedstoneParticle(player, new Location(world, x, maxY + 1, maxZ + 1), color);
                 }
-                for (int y = minY; y <= maxY + 1; y++) {
+                for (int y = (int) minY; y <= maxY; y++) {
                     color = getNextColorInRow(color);
                     sendRedstoneParticle(player, new Location(world, minX, y, minZ), color);
                     color = getNextColorInRow(color);
@@ -152,7 +152,7 @@ public class ParticleUtils {
                     color = getNextColorInRow(color);
                     sendRedstoneParticle(player, new Location(world, maxX + 1, y, maxZ + 1), color);
                 }
-                for (int z = minZ; z <= maxZ + 1; z++) {
+                for (int z = (int) minZ; z <= maxZ; z++) {
                     color = getNextColorInRow(color);
                     sendRedstoneParticle(player, new Location(world, minX, minY, z), color);
                     color = getNextColorInRow(color);
@@ -162,7 +162,7 @@ public class ParticleUtils {
                     color = getNextColorInRow(color);
                     sendRedstoneParticle(player, new Location(world, maxX + 1, maxY + 1, z), color);
                 }
-                counter += 12;
+                counter += totalBlocks;
             }
         }.runTaskTimerAsynchronously(Pint.getInstance(), 0L, 1L);
 

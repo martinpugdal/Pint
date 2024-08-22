@@ -1,22 +1,22 @@
 package dk.martinersej.pint.game.games.simonsays.games.placement;
 
-import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.game.games.simonsays.SimonSaysGame;
 import dk.martinersej.pint.game.games.simonsays.objects.ScoringType;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonGame;
 import dk.martinersej.pint.utils.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class BreakOreGame extends SimonGame {
 
     private Material oreToBreak;
+    private Material blockTypeBefore;
+    private Location oreSpawnLocation;
 
     public BreakOreGame(SimonSaysGame simonSaysGame) {
         super(simonSaysGame);
@@ -59,7 +59,8 @@ public class BreakOreGame extends SimonGame {
 
         int randomX = (int) (Math.random() * 8) - 4;
         int randomZ = (int) (Math.random() * 8) - 4;
-        Location oreSpawnLocation = getSimonSaysGame().getCurrentGameMap().getCenterLocation().clone().add(randomX, 0, randomZ);
+        oreSpawnLocation = getSimonSaysGame().getCurrentGameMap().getCenterLocation().clone().add(randomX, 0, randomZ).getBlock().getLocation();
+        blockTypeBefore = oreSpawnLocation.getBlock().getType();
         oreSpawnLocation.getBlock().setType(oreToBreak);
     }
 
@@ -69,26 +70,17 @@ public class BreakOreGame extends SimonGame {
         for (Player player : getSimonSaysGame().getPlayers()) {
             getSimonSaysGame().clearInventory(player);
         }
-    }
-
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().getType() == oreToBreak) {
-            event.setCancelled(true);
-            event.getPlayer().sendBlockChange(event.getBlock().getLocation(), Material.AIR, (byte) 0);
+        if (blockTypeBefore != null) {
+            oreSpawnLocation.getBlock().setType(blockTypeBefore);
         }
     }
 
     @EventHandler
-    public void onBlockInteraction(PlayerInteractEvent event) {
-        if (event.getClickedBlock() != null && event.getClickedBlock().getType() == oreToBreak) {
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!getSimonSaysGame().isPlayerInGame(event.getPlayer())) return;
+        if (event.getBlock().getLocation().equals(oreSpawnLocation)) {
             event.setCancelled(true);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    event.getPlayer().sendBlockChange(event.getClickedBlock().getLocation(), oreToBreak, (byte) 0);
-                }
-            }.runTaskLater(Pint.getInstance(), 1L);
+            getSimonSaysGame().finishedTask(event.getPlayer());
         }
     }
 

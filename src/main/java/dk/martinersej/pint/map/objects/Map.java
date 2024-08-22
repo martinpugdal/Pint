@@ -1,7 +1,10 @@
 package dk.martinersej.pint.map.objects;
 
 import com.boydti.fawe.object.schematic.Schematic;
+import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.RegionOperationException;
 import dk.martinersej.pint.Pint;
@@ -17,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.io.File;
+import java.util.HashMap;
 
 @Setter
 public abstract class Map {
@@ -47,9 +51,13 @@ public abstract class Map {
 
     public abstract Location getSpawnLocation();
 
-    public void pasteSchematic() {
+    public Schematic getSchematic() {
         File schematicFile = new File(getSchematicPath());
-        Schematic schematic = SchematicUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld()));
+        return SchematicUtil.loadSchematic(schematicFile, FastAsyncWorldEditUtil.getWEWorld(Pint.getInstance().getMapHandler().getMapUtil().getServerWorld().getWorld()));
+    }
+
+    public void pasteSchematic() {
+        Schematic schematic = getSchematic();
 
         if (schematic == null) {
             String id = "votemap";
@@ -113,6 +121,59 @@ public abstract class Map {
 
         pasted = false;
         SchematicUtil.clearSchematic(region, world);
+    }
+
+    public java.util.Map<BlockVector, BaseBlock> getBlocks() {
+        java.util.Map<BlockVector, BaseBlock> blocks = new HashMap<>();
+        Schematic schematic = getSchematic();
+        if (schematic == null) {
+            return blocks;
+        }
+
+        Clipboard clipboard = schematic.getClipboard();
+        if (clipboard == null) {
+            return blocks;
+        }
+
+        for (int x = clipboard.getMinimumPoint().getBlockX(); x <= clipboard.getMaximumPoint().getBlockX(); x++) {
+            for (int y = clipboard.getMinimumPoint().getBlockY(); y <= clipboard.getMaximumPoint().getBlockY(); y++) {
+                for (int z = clipboard.getMinimumPoint().getBlockZ(); z <= clipboard.getMaximumPoint().getBlockZ(); z++) {
+                    BlockVector pos = BlockVector.toBlockPoint(x, y, z);
+                    BaseBlock baseBlock = clipboard.getBlock(pos);
+                    blocks.put(pos, baseBlock);
+                }
+            }
+        }
+
+        return blocks;
+    }
+
+    public java.util.Map<BlockVector, BaseBlock> getNeighbourBlocks(BlockVector blockVector) {
+        java.util.Map<BlockVector, BaseBlock> blocks = new HashMap<>();
+        Schematic schematic = getSchematic();
+        if (schematic == null) {
+            return blocks;
+        }
+
+        Clipboard clipboard = schematic.getClipboard();
+        if (clipboard == null) {
+            return blocks;
+        }
+
+        for (int x = blockVector.getBlockX() - 1; x <= blockVector.getBlockX() + 1; x++) {
+            for (int y = blockVector.getBlockY() - 1; y <= blockVector.getBlockY() + 1; y++) {
+                for (int z = blockVector.getBlockZ() - 1; z <= blockVector.getBlockZ() + 1; z++) {
+                    if (x == blockVector.getBlockX() && y == blockVector.getBlockY() && z == blockVector.getBlockZ()) {
+                        continue;
+                    }
+                    BlockVector pos = BlockVector.toBlockPoint(x, y, z);
+                    BaseBlock baseBlock = clipboard.getBlock(pos);
+                    blocks.put(pos, baseBlock);
+                }
+            }
+        }
+
+        return blocks;
     }
 
     public Location getZeroLocation() {

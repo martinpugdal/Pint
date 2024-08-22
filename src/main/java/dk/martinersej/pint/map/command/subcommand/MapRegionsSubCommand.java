@@ -13,6 +13,7 @@ import dk.martinersej.pint.Pint;
 import dk.martinersej.pint.map.objects.maps.GameMap;
 import dk.martinersej.pint.utils.command.CommandResult;
 import dk.martinersej.pint.utils.command.SubCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -58,11 +59,13 @@ public class MapRegionsSubCommand extends SubCommand {
                     sender.sendMessage("§cDu kan ikke tilføje en region i serverens verden");
                     return CommandResult.success(this);
                 }
-
                 try {
                     LocalSession localSession = Fawe.get().getWorldEdit().getSession(player.getName());
+                    Bukkit.broadcastMessage(localSession.toString());
                     RegionSelector selector = localSession.getRegionSelector(BukkitUtil.getLocalWorld(player.getWorld()));
+                    Bukkit.broadcastMessage(selector.toString());
                     Selection selection = new CuboidSelection(player.getWorld(), selector, (CuboidRegion) selector.getRegion());
+                    Bukkit.broadcastMessage(selection.toString());
 
                     Location corner1 = selection.getMinimumPoint();
                     Location corner2 = selection.getMaximumPoint();
@@ -101,6 +104,7 @@ public class MapRegionsSubCommand extends SubCommand {
             case "list":
                 GameMap gameMap = Pint.getInstance().getMapHandler().getMap(mapID);
                 if (!gameMap.getRegions().isEmpty()) sender.sendMessage("§aRegions:");
+                else sender.sendMessage("§cIngen regions på map med id " + mapID);
                 for (Map.Entry<String, Region> entry : gameMap.getRegions().entrySet()) {
                     String id = entry.getKey();
                     Region region = entry.getValue();

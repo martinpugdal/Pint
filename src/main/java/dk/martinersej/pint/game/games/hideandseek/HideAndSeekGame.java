@@ -1,7 +1,10 @@
 package dk.martinersej.pint.game.games.hideandseek;
 
+import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import dk.martinersej.pint.game.objects.Game;
 import dk.martinersej.pint.game.objects.GameInformation;
+import net.minecraft.server.v1_8_R3.Block;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
@@ -10,13 +13,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectTypeWrapper;
 import org.bukkit.util.EulerAngle;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Notes:
@@ -34,6 +35,34 @@ public class HideAndSeekGame extends Game {
     private final List<Player> seekers = new ArrayList<>();
     private final List<Player> hiders = new ArrayList<>();
     private final Map<Player, ArmorStand> hiderProps = new HashMap<>();
+    private final Set<ItemStack> propCandidates = new HashSet<>();
+
+    private final Material[] tools = new Material[]{
+        Material.WOOD_SWORD,
+        Material.WOOD_PICKAXE,
+        Material.WOOD_SPADE,
+        Material.WOOD_AXE,
+
+        Material.STONE_SWORD,
+        Material.STONE_PICKAXE,
+        Material.STONE_SPADE,
+        Material.STONE_AXE,
+
+        Material.IRON_SWORD,
+        Material.IRON_PICKAXE,
+        Material.IRON_SPADE,
+        Material.IRON_AXE,
+
+        Material.GOLD_SWORD,
+        Material.GOLD_PICKAXE,
+        Material.GOLD_SPADE,
+        Material.GOLD_AXE,
+
+        Material.DIAMOND_SWORD,
+        Material.DIAMOND_PICKAXE,
+        Material.DIAMOND_SPADE,
+        Material.DIAMOND_AXE
+    };
 
     public HideAndSeekGame() {
         super(
@@ -58,14 +87,59 @@ public class HideAndSeekGame extends Game {
         seekers.clear();
         hiders.clear();
         hiderProps.clear();
+        propCandidates.clear();
 
         // Loop blocks in the map, and if the condition is accepted, add the block to the list over blocks that can be used as props
-        // 1. Condition: block is solid
-        // 2. Condition: the block has other blocks in the same type around it.
+        // 1. Condition: inside allowedblocks-region
+        // 2. Condition: block is solid
+        // 3. Condition: the block has other blocks in the same type & data around it
         // (e.g., a block of dirt has dirt blocks around it), so it can be used as prop.
-        // Don't add them if its floor or a wall.
-        // 3. Condition: random tools can be added as props, e.g., a sword, a pickaxe, a shovel,
-        // etc. (chance for adding a tool as a prop is 10%) But need at least 3 tools to be added
+        // 4. Condition: Don't add them if its floor or a wall.
+        //
+        // Random tools can be added as props, e.g., a sword, a pickaxe, a shovel, need at least 3 tools to be added
+
+        for (Map.Entry<BlockVector, BaseBlock> entry : getCurrentGameMap().getBlocks().entrySet()) {
+            BaseBlock baseBlock = entry.getValue();
+            if (baseBlock.isAir()) continue;
+            if (!getCurrentGameMap().getRegion("allowedblocks").contains(entry.getKey())) {
+                System.out.println("Block not in allowedblocks region: " + baseBlock);
+                continue;
+            } // 1. Condition
+            ItemStack itemStack = new ItemStack(baseBlock.getType(), 1, (short) baseBlock.getData());
+            if (propCandidates.contains(itemStack)) return;
+            Block block = Block.getById(baseBlock.getId());
+
+            // 2. Condition
+            if (block.w()) {
+                // 3. Condition
+                BlockVector blockVector = entry.getKey();
+                Map<BlockVector, BaseBlock> neighbourBlocks = getCurrentGameMap().getNeighbourBlocks(blockVector);
+                // need 1 above (y+1) and min. 2 at the same y
+                if (neighbourBlocks.size() < 3) return; // min. 3 blocks
+
+                BaseBlock topBlock = neighbourBlocks.get(
+                    new BlockVector(blockVector.getBlockX(), blockVector.getBlockY() + 1, blockVector.getBlockZ())
+                );
+                if (topBlock == null) return;
+                if (topBlock.isAir()) return;
+                if (!topBlock.equalsFuzzy(baseBlock)) return;
+                boolean sideBlock = neighbourBlocks.entrySet().stream().filter(entry1 -> entry1.getValue().equalsFuzzy(baseBlock) && blockVector.getBlockY() == entry1.getKey().getBlockY()).count() >= 2;
+                if (!sideBlock) return;
+
+                propCandidates.add(itemStack);
+            }
+        }
+
+        // add tools as props
+        int toolCount = 0;
+        int toolCountMax = 3 + (int) (Math.random() * 3); // 3-5 tools
+        while (toolCountMax > toolCount) {
+            Material toolBlock = tools[(int) (Math.random() * tools.length)];
+            ItemStack itemStack = new ItemStack(toolBlock);
+            if (propCandidates.contains(itemStack)) continue;
+            propCandidates.add(itemStack);
+            toolCount++;
+        }
     }
 
     @Override

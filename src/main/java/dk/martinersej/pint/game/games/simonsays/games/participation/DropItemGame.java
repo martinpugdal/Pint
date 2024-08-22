@@ -18,6 +18,13 @@ import java.util.List;
 
 public class DropItemGame extends SimonGame {
 
+    Material[] materials = Material.values();
+    // items is not visible in inventory so it is not needed
+    Material[] blacklist = new Material[]{
+        Material.AIR,
+        Material.SIGN_POST,
+        Material.WALL_SIGN,
+    };
     private Material dropItem;
 
     public DropItemGame(SimonSaysGame simonSaysGame) {
@@ -36,12 +43,18 @@ public class DropItemGame extends SimonGame {
 
     private List<ItemStack> getRandomItems(int amount) {
         List<ItemStack> randomItems = new ArrayList<>();
-        Material[] materials = Material.values();
+        materialsLoop:
         for (int i = 0; i < amount; i++) {
             int randomIndex = (int) (Math.random() * materials.length);
             if (randomItems.contains(new ItemStack(materials[randomIndex]))) {
                 i--;
                 continue;
+            }
+            for (Material material : blacklist) {
+                if (materials[randomIndex] == material) {
+                    i--;
+                    continue materialsLoop;
+                }
             }
             randomItems.add(new ItemStack(materials[randomIndex]));
         }

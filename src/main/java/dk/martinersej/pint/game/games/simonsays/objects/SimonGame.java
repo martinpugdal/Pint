@@ -29,6 +29,7 @@ public abstract class SimonGame implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         finishedPlayers.clear();
         failedPlayers.clear();
+
         startGame();
         simonSaysGame.say();
         new BukkitRunnable() {
@@ -51,6 +52,15 @@ public abstract class SimonGame implements Listener {
         if (simonSaysGame.getCurrentGame() == this) {
             simonSaysGame.setCurrentGame(null);
             simonSaysGame.getPlayedGames().add(this);
+
+            // Add points to players
+            SimonGame previousGame = simonSaysGame.getPlayedGames().get(simonSaysGame.getPlayedGames().size() - 1);
+            for (SimonPlayer simonPlayer : simonSaysGame.getSimonPlayers()) {
+                if (previousGame.getFinishedPlayers().contains(simonPlayer.getPlayer())) {
+                    int placement = previousGame.getFinishedPlayers().indexOf(simonPlayer.getPlayer()) + 1;
+                    simonPlayer.addPoints(previousGame.getScoringType().getPoints(placement));
+                }
+            }
 
             if (simonSaysGame.getGameAmount() > simonSaysGame.getPlayedGames().size()) {
                 new BukkitRunnable() {

@@ -22,7 +22,7 @@ public class VoteHandler {
     private final VoteUtil voteUtil;
     private final VoteMap voteMap;
     private BukkitRunnable voteTimer = null;
-    private final int fullCooldown = 15;
+    private final int fullCooldown = 5;
     private int cooldown;
     private final int voteAmountNeeded = 1;
 

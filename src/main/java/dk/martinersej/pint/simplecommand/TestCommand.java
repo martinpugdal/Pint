@@ -25,7 +25,7 @@ public class TestCommand implements CommandExecutor {
 
         Player player = (Player) commandSender;
 
-        // spawn it at the player's location
+        // spawn it at the player's eye location
         ArmorStand prop = Bukkit.getWorld(player.getWorld().getName()).spawn(player.getLocation(), ArmorStand.class);
 
         prop.setGravity(false); // make the entity not fall
@@ -35,7 +35,8 @@ public class TestCommand implements CommandExecutor {
         prop.setVisible(false); // make the entity not visible
         prop.setCustomNameVisible(false); // make the entity's name not visible
 
-        prop.setRightArmPose(new EulerAngle(degreesToRadians(-10), 0, degreesToRadians(-90))); // set the new pose
+        // Adjust the right arm pose to center the tool
+        prop.setRightArmPose(new EulerAngle(degreesToRadians(-10), 0, degreesToRadians(-90)));
 
         // get the NMS entity
         EntityArmorStand nmsProp = ((org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand) prop).getHandle();
@@ -48,7 +49,8 @@ public class TestCommand implements CommandExecutor {
         nmsProp.f(tag);
 
         // set the head to a random block (test block hardcoded)
-        ItemStack propItem = new ItemStack(Material.DIAMOND_PICKAXE, 1);
+        ItemStack propItem = player.getInventory().getItemInHand() == null ? new ItemStack(Material.DIAMOND_SWORD) : player.getInventory().getItemInHand();
+        Bukkit.broadcastMessage(propItem.hasItemMeta() ? propItem.getItemMeta().toString() : "No meta");
         if (propItem.getType().isBlock()) {
             prop.setHelmet(propItem);
             prop.setSmall(true);
@@ -68,25 +70,10 @@ public class TestCommand implements CommandExecutor {
                     return;
                 }
 
-                if (prop.getHelmet() != null && prop.getHelmet().getType().isBlock()) {
-                    // head is a block
-                    prop.teleport(player.getLocation().add(heightOffSet));
-                } else {
-                    // head is null, so it's a tool, and it's in the hand
-                    double xOffset = 0.1985;
-                    double zOffset = 0.35;
-
-                    Vector playerDirection = player.getLocation().getDirection().normalize();
-                    Vector xVector = new Vector(-playerDirection.getZ() * xOffset, 0, playerDirection.getX() * xOffset); // get the x offset
-                    Vector backVector = playerDirection.multiply(zOffset); // get the back offset
-                    Vector offset = xVector.subtract(backVector); // add the offsets together
-                    offset.setY(0);
-
-                    prop.teleport(player.getLocation().add(heightOffSet).add(offset));
-                }
+                // Teleport the ArmorStand to the new position
+                prop.teleport(player.getLocation().add(heightOffSet));
             }
         }.runTaskTimer(Pint.getInstance(), 0, 1L);
-
 
         // kill the entity after 10 seconds
         Bukkit.getScheduler().runTaskLater(Pint.getInstance(), prop::remove, 20 * 10);
@@ -98,4 +85,3 @@ public class TestCommand implements CommandExecutor {
         return (degrees % 360) * (Math.PI / 180);
     }
 }
-

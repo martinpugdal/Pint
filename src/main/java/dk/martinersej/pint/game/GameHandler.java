@@ -69,15 +69,15 @@ public class GameHandler {
          */
         Game tntTagGame = new TntTagGame(); // id 1
         addGame(tntTagGame);
-        addGameToPool(tntTagGame);
+//        addGameToPool(tntTagGame);
 
         Game shuffleGame = new ShuffleColorGame(); // id 2
         addGame(shuffleGame);
-        addGameToPool(shuffleGame);
+//        addGameToPool(shuffleGame);
 
         Game simonSaysGame = new SimonSaysGame(); // id 3
         addGame(simonSaysGame);
-        addGameToPool(simonSaysGame);
+//        addGameToPool(simonSaysGame);
 
         Game alleKyllingerKomHjemGame = new AlleKyllingerKomHjemGame(); // id 4
 //        addGame(alleKyllingerKomHjemGame);
@@ -85,6 +85,7 @@ public class GameHandler {
 
         Game hideAndSeekGame = new HideAndSeekGame(); // id 5
         addGame(hideAndSeekGame);
+        addGameToPool(hideAndSeekGame);
         
 
         gamePool.shuffleVotePool();

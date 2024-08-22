@@ -7,8 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -65,14 +63,14 @@ public class CraftOneStickGame extends SimonGame {
         }
     }
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (getSimonSaysGame().isPlayerInGame((Player) event.getWhoClicked())) {
-            if (event.getClickedInventory().getType().equals(InventoryType.CRAFTING)) {
-                craftingItems.add(event.getCurrentItem());
-            }
-        }
-    }
+//    @EventHandler
+//    public void onInventoryClick(InventoryClickEvent event) {
+//        if (getSimonSaysGame().isPlayerInGame((Player) event.getWhoClicked())) {
+//            if (event.getClickedInventory().getType().equals(InventoryType.CRAFTING)) {
+//                craftingItems.add(event.getCurrentItem());
+//            }
+//        }
+//    }
 
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {

@@ -29,27 +29,20 @@ public class Rotate360Game extends SimonGame {
     @Override
     public void startGame() {
         for (Player player : getSimonSaysGame().getPlayers()) {
-            playerStartYaw.put(player, player.getLocation().getYaw() + 360);
-            playerDirection.put(player, Direction.RIGHT);
-            playerHalfway.put(player, false);
+            float startYaw = normalizeYaw(player.getLocation().getYaw());
+            playerStartYaw.put(player, startYaw);
+            playerProgress.put(player, 0f);
         }
     }
 
     @Override
     public void stopGame() {
         playerStartYaw.clear();
-        playerDirection.clear();
-        playerHalfway.clear();
-    }
-
-    enum Direction {
-        LEFT,
-        RIGHT;
+        playerProgress.clear();
     }
 
     private final Map<Player, Float> playerStartYaw = new HashMap<>();
-    private final Map<Player, Direction> playerDirection = new HashMap<>();
-    private final Map<Player, Boolean> playerHalfway = new HashMap<>();
+    private final Map<Player, Float> playerProgress = new HashMap<>();
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
@@ -59,41 +52,36 @@ public class Rotate360Game extends SimonGame {
         if (!getSimonSaysGame().isPlayerInGame(player)) return;
 
         float startYaw = playerStartYaw.get(player);
-        float currentYaw = event.getPlayer().getLocation().getYaw() + 360;
+        float currentYaw = normalizeYaw(player.getLocation().getYaw());
+        float progress = playerProgress.get(player);
 
-        if (currentYaw > startYaw) {
-            if (playerDirection.get(player) == Direction.LEFT) {
-                playerDirection.put(player, Direction.RIGHT);
-                playerStartYaw.put(player, currentYaw);
-                playerHalfway.put(player, false);
-            } else {
-                if (currentYaw - startYaw >= 177) {
-                    boolean halfway = playerHalfway.get(player);
-                    if (halfway) {
-                        getSimonSaysGame().finishedTask(player);
-                    } else {
-                        playerStartYaw.put(player, currentYaw);
-                        playerHalfway.put(player, true);
-                    }
-                }
-            }
-        } else if (currentYaw < startYaw) {
-            if (playerDirection.get(player) == Direction.RIGHT) {
-                playerDirection.put(player, Direction.LEFT);
-                playerStartYaw.put(player, currentYaw);
-                playerHalfway.put(player, false);
-            } else {
-                if (startYaw - currentYaw >= 177) {
-                    boolean halfway = playerHalfway.get(player);
-                    if (halfway) {
-                        getSimonSaysGame().finishedTask(player);
-                    } else {
-                        playerStartYaw.put(player, currentYaw);
-                        playerHalfway.put(player, true);
-                    }
-                }
-            }
+        float deltaYaw = calculateDeltaYaw(startYaw, currentYaw);
+        progress += deltaYaw;
+        playerProgress.put(player, progress);
+
+        playerStartYaw.put(player, currentYaw);
+
+        if (progress >= 360) {
+            getSimonSaysGame().finishedTask(player);
         }
+    }
+
+    private float normalizeYaw(float yaw) {
+        yaw = yaw % 360;
+        if (yaw < 0) {
+            yaw += 360;
+        }
+        return yaw;
+    }
+
+    private float calculateDeltaYaw(float startYaw, float currentYaw) {
+        float delta = currentYaw - startYaw;
+        if (delta > 180) {
+            delta -= 360;
+        } else if (delta < -180) {
+            delta += 360;
+        }
+        return Math.abs(delta);
     }
 
     @Override

@@ -278,7 +278,7 @@ public class MapHandler extends YamlManagerTypeImpl {
 
     public boolean regionIsPresent(int mapID, String regionName) {
         ConfigurationSection section = mapUtil.getMapSection(mapID);
-        return section.getConfigurationSection("regions").getKeys(false).contains(regionName);
+        return section.get("regions." + regionName) != null;
     }
 
     public void deleteRegion(int mapID, String regionID) {

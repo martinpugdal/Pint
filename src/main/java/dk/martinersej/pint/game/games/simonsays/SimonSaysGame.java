@@ -1,8 +1,7 @@
 package dk.martinersej.pint.game.games.simonsays;
 
 import dk.martinersej.pint.Pint;
-import dk.martinersej.pint.game.games.simonsays.games.participation.*;
-import dk.martinersej.pint.game.games.simonsays.games.placement.*;
+import dk.martinersej.pint.game.games.simonsays.games.placement.Rotate360Game;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonGame;
 import dk.martinersej.pint.game.games.simonsays.objects.SimonPlayer;
 import dk.martinersej.pint.game.objects.Game;
@@ -30,7 +29,7 @@ public class SimonSaysGame extends Game {
     private final List<SimonGame> games = new ArrayList<>();
     private final List<SimonGame> playedGames = new ArrayList<>();
     private final TreeSet<SimonPlayer> simonPlayers = new TreeSet<>(Comparator.comparing(SimonPlayer::getPoints).reversed());
-    private final int gameAmount = 5;
+    private final int gameAmount = 1;
 
     @Setter
     private SimonGame currentGame;
@@ -69,23 +68,19 @@ public class SimonSaysGame extends Game {
     }
 
     private void win() {
-        SimonPlayer first = simonPlayers.pollFirst();
-        SimonPlayer second = simonPlayers.pollFirst();
-        SimonPlayer third = simonPlayers.pollFirst();
+        String[] places = new String[]{"Førsteplads", "Andenplads", "Tredjeplads"};
 
-
-        Bukkit.broadcastMessage("§6Førsteplads: " + first.getPlayer().getName() + " med " + first.getPoints() + " point");
-        if (second != null) {
-            Bukkit.broadcastMessage("§6Andenplads: " + second.getPlayer().getName() + " med " + second.getPoints() + " point");
-        }
-        if (third != null) {
-            Bukkit.broadcastMessage("§6Tredjeplads: " + third.getPlayer().getName() + " med " + third.getPoints() + " point");
+        for (String place : places) {
+            SimonPlayer player = simonPlayers.pollFirst();
+            if (player == null) {
+                continue;
+            }
+            Bukkit.broadcastMessage("§6" + place + ": " + player.getPlayer().getName() + " med " + player.getPoints() + " point");
         }
     }
 
     @Override
     public void setup() {
-        simonPlayers.clear();
         setupGames();
         super.setup();
     }
@@ -93,22 +88,23 @@ public class SimonSaysGame extends Game {
     private void setupGames() {
         games.clear();
         playedGames.clear();
+        simonPlayers.clear();
 
         // participation
-        games.add(new CraftOneStickGame(this));
-        games.add(new CrouchGame(this));
-        games.add(new DropItemGame(this));
-        games.add(new EatItemGame(this));
-        games.add(new HitAPlayerGame(this));
-        games.add(new JumpGame(this));
+//        games.add(new CraftOneStickGame(this));
+//        games.add(new CrouchGame(this));
+//        games.add(new DropItemGame(this));
+//        games.add(new EatItemGame(this));
+//        games.add(new HitAPlayerGame(this));
+//        games.add(new JumpGame(this));
 
         // placement
-        games.add(new BreakOreGame(this));
-        games.add(new LookDirectionGame(this));
+//        games.add(new BreakOreGame(this));
+//        games.add(new LookDirectionGame(this));
         games.add(new Rotate360Game(this));
-        games.add(new SitInABoatGame(this));
-        games.add(new TypeInChatGame(this));
-        games.add(new TypeTheNumberGame(this));
+//        games.add(new SitInABoatGame(this));
+//        games.add(new TypeInChatGame(this));
+//        games.add(new TypeTheNumberGame(this));
     }
 
     private SimonGame getRandomGame() {
@@ -159,10 +155,14 @@ public class SimonSaysGame extends Game {
 
     public void clearInventory(Player player) {
         if (player.getItemOnCursor() != null && player.getItemOnCursor().getType() != Material.AIR) {
-            player.getItemOnCursor().setType(Material.AIR);
+            player.setItemOnCursor(null);
         }
-        player.getOpenInventory().getTopInventory().clear();
-        player.getInventory().clear();
+        if (player.getOpenInventory().getTopInventory() != null) {
+            player.getOpenInventory().getTopInventory().clear();
+        }
+        if (player.getInventory() != null) {
+            player.getInventory().clear();
+        }
     }
 
 
@@ -200,7 +200,7 @@ public class SimonSaysGame extends Game {
         currentGame = null;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDamageToVoid(EntityDamageEvent event) {
         Player player = (Player) event.getEntity();
         if (player == null) return;
@@ -212,7 +212,7 @@ public class SimonSaysGame extends Game {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDamageByPlayer(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             Player attacker = (Player) event.getDamager();
@@ -223,14 +223,14 @@ public class SimonSaysGame extends Game {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST) // just in case, we have a game that allows breaking blocks
+    @EventHandler(priority = EventPriority.HIGH) // just in case, we have a game that allows breaking blocks
     public void onBlockBreak(BlockBreakEvent event) {
         if (isPlayerInGame(event.getPlayer()) && !event.isCancelled()) {
             event.setCancelled(true);
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST) // just in case, we have a game that allows placing blocks
+    @EventHandler(priority = EventPriority.HIGH) // just in case, we have a game that allows placing blocks
     public void onBlockPlace(BlockPlaceEvent event) {
         if (isPlayerInGame(event.getPlayer()) && !event.isCancelled()) {
             event.setCancelled(true);
@@ -245,13 +245,6 @@ public class SimonSaysGame extends Game {
     }
 
     public void nextGame() {
-        SimonGame previousGame = playedGames.get(playedGames.size() - 1);
-        for (SimonPlayer simonPlayer : simonPlayers) {
-            if (previousGame.getFinishedPlayers().contains(simonPlayer.getPlayer())) {
-                int placement = previousGame.getFinishedPlayers().indexOf(simonPlayer.getPlayer()) + 1;
-                simonPlayer.addPoints(previousGame.getScoringType().getPoints(placement));
-            }
-        }
         callWinListeners(getPlayers());
         currentGame = getRandomGame();
         for (Player player : getPlayers()) {
